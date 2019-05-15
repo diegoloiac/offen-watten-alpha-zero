@@ -1,21 +1,19 @@
-from games.checkers.CheckersGame import CheckersGame
-
-from games.checkers.nnet.CheckersResNNet import CheckersResNNet
-
-from games.checkers.agent.AgentAlphaBeta import CheckersAgentAlphaBeta
-from games.checkers.agent.CheckersHumanAgent import CheckersHumanAgent
+# from games.checkers.CheckersGame import CheckersGame
+# from games.checkers.nnet.CheckersResNNet import CheckersResNNet
+# from games.checkers.agent.AgentAlphaBeta import CheckersAgentAlphaBeta
+# from games.checkers.agent.CheckersHumanAgent import CheckersHumanAgent
 
 from games.tictactoe.TicTacToeGame import TicTacToeGame
-
 from games.tictactoe.nnet.TicTacToeNNet import TicTacToeNNet
-
 from games.tictactoe.agent.TicTacToeHumanAgent import TicTacToeHumanAgent
 
 from games.durak.DurakGame import DurakGame
-
 from games.durak.nnet.DurakNNet import DurakNNet
-
 from games.durak.agent.DurakHumanAgent import DurakHumanAgent
+
+from games.watten.WattenGame import WattenGame
+from games.watten.nnet.WattenNNet import WattenNNet
+# from games.watten.agent.DurakHumanAgent import DurakHumanAgent
 
 from core.nnet.NNet import NNet
 
@@ -27,11 +25,13 @@ import GPUtil
 
 
 class EnvironmentSelector():
-    GAME_CHECKERS_DEFAULT = "checkers_environment_default"
+    # GAME_CHECKERS_DEFAULT = "checkers_environment_default"
 
     GAME_TICTACTOE_DEFAULT = "tictactoe_environment_default"
 
     GAME_DURAK_DEFAULT = "durak_environment_default"
+
+    GAME_WATTEN_DEFAULT = "watten_environment_default"
 
     class AgentProfile():
         def __init__(self, game, agent_profile):
@@ -40,25 +40,25 @@ class EnvironmentSelector():
 
     # agent profiles
 
-    CHECKERS_AGENT_ALPHA_BETA = AgentProfile(GAME_CHECKERS_DEFAULT,
-                                             "checkers_agent_alpha_beta")
-    CHECKERS_AGENT_RANDOM = AgentProfile(GAME_CHECKERS_DEFAULT,
-                                         "checkers_agent_random")
-    CHECKERS_AGENT_HUMAN = AgentProfile(GAME_CHECKERS_DEFAULT,
-                                        "checkers_agent_human")
-
-    CHECKERS_AGENT_TRAIN_RCNN_DEFAULT = AgentProfile(GAME_CHECKERS_DEFAULT,
-                                                     "checkers_agent_train_rcnn_default")
-    CHECKERS_AGENT_TEST_AGENT_RCNN_DEFAULT = AgentProfile(GAME_CHECKERS_DEFAULT,
-                                                          "checkers_agent_test_agent_rcnn_default")
-
-    CHECKERS_AGENT_TRAIN_RCNN_TPU = AgentProfile(GAME_CHECKERS_DEFAULT,
-                                                 "checkers_agent_train_rcnn_tpu")
-
-    CHECKERS_AGENT_TRAIN_RCNN_DISTRIBUTED = AgentProfile(GAME_CHECKERS_DEFAULT,
-                                                         "checkers_agent_train_rcnn_distributed")
-    CHECKERS_AGENT_TEST_AGENT_RCNN_DISTRIBUTED = AgentProfile(GAME_CHECKERS_DEFAULT,
-                                                              "checkers_agent_test_agent_rcnn_distributed")
+    # CHECKERS_AGENT_ALPHA_BETA = AgentProfile(GAME_CHECKERS_DEFAULT,
+    #                                          "checkers_agent_alpha_beta")
+    # CHECKERS_AGENT_RANDOM = AgentProfile(GAME_CHECKERS_DEFAULT,
+    #                                      "checkers_agent_random")
+    # CHECKERS_AGENT_HUMAN = AgentProfile(GAME_CHECKERS_DEFAULT,
+    #                                     "checkers_agent_human")
+    #
+    # CHECKERS_AGENT_TRAIN_RCNN_DEFAULT = AgentProfile(GAME_CHECKERS_DEFAULT,
+    #                                                  "checkers_agent_train_rcnn_default")
+    # CHECKERS_AGENT_TEST_AGENT_RCNN_DEFAULT = AgentProfile(GAME_CHECKERS_DEFAULT,
+    #                                                       "checkers_agent_test_agent_rcnn_default")
+    #
+    # CHECKERS_AGENT_TRAIN_RCNN_TPU = AgentProfile(GAME_CHECKERS_DEFAULT,
+    #                                              "checkers_agent_train_rcnn_tpu")
+    #
+    # CHECKERS_AGENT_TRAIN_RCNN_DISTRIBUTED = AgentProfile(GAME_CHECKERS_DEFAULT,
+    #                                                      "checkers_agent_train_rcnn_distributed")
+    # CHECKERS_AGENT_TEST_AGENT_RCNN_DISTRIBUTED = AgentProfile(GAME_CHECKERS_DEFAULT,
+    #                                                           "checkers_agent_test_agent_rcnn_distributed")
 
     TICTACTOE_AGENT_TRAIN = AgentProfile(GAME_TICTACTOE_DEFAULT, "tictactoe_agent_train_default")
     TICTACTOE_AGENT_RANDOM = AgentProfile(GAME_TICTACTOE_DEFAULT, "tictactoe_agent_random")
@@ -68,27 +68,31 @@ class EnvironmentSelector():
     DURAK_AGENT_RANDOM = AgentProfile(GAME_DURAK_DEFAULT, "durak_agent_random")
     DURAK_AGENT_HUMAN = AgentProfile(GAME_DURAK_DEFAULT, "durak_agent_human")
 
+    WATTEN_AGENT_TRAIN = AgentProfile(GAME_WATTEN_DEFAULT, "watten_agent_train_default")
+    WATTEN_AGENT_RANDOM = AgentProfile(GAME_WATTEN_DEFAULT, "watten_agent_random")
+
     def __init__(self):
         super().__init__()
 
         self.game_mapping = {
-            EnvironmentSelector.GAME_CHECKERS_DEFAULT: CheckersGame(8, history_n=7),
+            # EnvironmentSelector.GAME_CHECKERS_DEFAULT: CheckersGame(8, history_n=7),
             EnvironmentSelector.GAME_TICTACTOE_DEFAULT: TicTacToeGame(),
             EnvironmentSelector.GAME_DURAK_DEFAULT: DurakGame(),
+            EnvironmentSelector.GAME_WATTEN_DEFAULT: WattenGame(),
         }
 
         self.agent_builder_mapping = {
-            EnvironmentSelector.CHECKERS_AGENT_ALPHA_BETA: self.build_basic_checkers_agent,
-            EnvironmentSelector.CHECKERS_AGENT_RANDOM: self.build_basic_checkers_agent,
-            EnvironmentSelector.CHECKERS_AGENT_HUMAN: self.build_basic_checkers_agent,
-
-            EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_DEFAULT: self.build_native_checkers_rcnn_agent,
-            EnvironmentSelector.CHECKERS_AGENT_TEST_AGENT_RCNN_DEFAULT: self.build_native_checkers_rcnn_agent,
-
-            EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_TPU: self.build_tpu_checkers_agent,
-
-            EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_DISTRIBUTED: self.build_horovod_checkers_agent,
-            EnvironmentSelector.CHECKERS_AGENT_TEST_AGENT_RCNN_DISTRIBUTED: self.build_horovod_checkers_agent,
+            # EnvironmentSelector.CHECKERS_AGENT_ALPHA_BETA: self.build_basic_checkers_agent,
+            # EnvironmentSelector.CHECKERS_AGENT_RANDOM: self.build_basic_checkers_agent,
+            # EnvironmentSelector.CHECKERS_AGENT_HUMAN: self.build_basic_checkers_agent,
+            #
+            # EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_DEFAULT: self.build_native_checkers_rcnn_agent,
+            # EnvironmentSelector.CHECKERS_AGENT_TEST_AGENT_RCNN_DEFAULT: self.build_native_checkers_rcnn_agent,
+            #
+            # EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_TPU: self.build_tpu_checkers_agent,
+            #
+            # EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_DISTRIBUTED: self.build_horovod_checkers_agent,
+            # EnvironmentSelector.CHECKERS_AGENT_TEST_AGENT_RCNN_DISTRIBUTED: self.build_horovod_checkers_agent,
 
             EnvironmentSelector.TICTACTOE_AGENT_TRAIN: self.build_tictactoe_train_agent,
             EnvironmentSelector.TICTACTOE_AGENT_RANDOM: self.build_tictactoe_agent,
@@ -97,20 +101,23 @@ class EnvironmentSelector():
             EnvironmentSelector.DURAK_AGENT_TRAIN: self.build_durak_train_agent,
             EnvironmentSelector.DURAK_AGENT_RANDOM: self.build_durak_agent,
             EnvironmentSelector.DURAK_AGENT_HUMAN: self.build_durak_agent,
+
+            EnvironmentSelector.WATTEN_AGENT_TRAIN: self.build_watten_train_agent,
+            EnvironmentSelector.WATTEN_AGENT_RANDOM: self.build_watten_agent,
         }
 
         self.agent_profiles = [
-            EnvironmentSelector.CHECKERS_AGENT_ALPHA_BETA,
-            EnvironmentSelector.CHECKERS_AGENT_RANDOM,
-            EnvironmentSelector.CHECKERS_AGENT_HUMAN,
-
-            EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_DEFAULT,
-            EnvironmentSelector.CHECKERS_AGENT_TEST_AGENT_RCNN_DEFAULT,
-
-            EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_TPU,
-
-            EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_DISTRIBUTED,
-            EnvironmentSelector.CHECKERS_AGENT_TEST_AGENT_RCNN_DISTRIBUTED,
+            # EnvironmentSelector.CHECKERS_AGENT_ALPHA_BETA,
+            # EnvironmentSelector.CHECKERS_AGENT_RANDOM,
+            # EnvironmentSelector.CHECKERS_AGENT_HUMAN,
+            #
+            # EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_DEFAULT,
+            # EnvironmentSelector.CHECKERS_AGENT_TEST_AGENT_RCNN_DEFAULT,
+            #
+            # EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_TPU,
+            #
+            # EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_DISTRIBUTED,
+            # EnvironmentSelector.CHECKERS_AGENT_TEST_AGENT_RCNN_DISTRIBUTED,
 
             EnvironmentSelector.TICTACTOE_AGENT_TRAIN,
             EnvironmentSelector.TICTACTOE_AGENT_RANDOM,
@@ -119,6 +126,9 @@ class EnvironmentSelector():
             EnvironmentSelector.DURAK_AGENT_TRAIN,
             EnvironmentSelector.DURAK_AGENT_RANDOM,
             EnvironmentSelector.DURAK_AGENT_HUMAN,
+
+            EnvironmentSelector.WATTEN_AGENT_TRAIN,
+            EnvironmentSelector.WATTEN_AGENT_RANDOM,
         ]
 
     def get_profile(self, agent_profile_str):
@@ -148,78 +158,78 @@ class EnvironmentSelector():
 
         return None
 
-    def build_basic_checkers_agent(self, agent_profile, native_multi_gpu_enabled=False):
-        game = self.game_mapping[agent_profile.game]
-        
-        if agent_profile == EnvironmentSelector.CHECKERS_AGENT_ALPHA_BETA:
-            return CheckersAgentAlphaBeta()
-        elif agent_profile == EnvironmentSelector.CHECKERS_AGENT_RANDOM:
-            return AgentRandom()
-        elif agent_profile == EnvironmentSelector.CHECKERS_AGENT_HUMAN:
-            return CheckersHumanAgent(game)
-        return None
+    # def build_basic_checkers_agent(self, agent_profile, native_multi_gpu_enabled=False):
+    #     game = self.game_mapping[agent_profile.game]
+    #
+    #     if agent_profile == EnvironmentSelector.CHECKERS_AGENT_ALPHA_BETA:
+    #         return CheckersAgentAlphaBeta()
+    #     elif agent_profile == EnvironmentSelector.CHECKERS_AGENT_RANDOM:
+    #         return AgentRandom()
+    #     elif agent_profile == EnvironmentSelector.CHECKERS_AGENT_HUMAN:
+    #         return CheckersHumanAgent(game)
+    #     return None
 
-    def build_native_checkers_rcnn_agent(self, agent_profile, native_multi_gpu_enabled=False):
-        game = self.game_mapping[agent_profile.game]
+    # def build_native_checkers_rcnn_agent(self, agent_profile, native_multi_gpu_enabled=False):
+    #     game = self.game_mapping[agent_profile.game]
+    #
+    #     if not native_multi_gpu_enabled:
+    #         nnet = CheckersResNNet(game.get_observation_size()[0], game.get_observation_size()[1],
+    #                                game.get_observation_size()[2], game.get_action_size())
+    #     else:
+    #         nnet = CheckersResNNet(game.get_observation_size()[0], game.get_observation_size()[1],
+    #                                game.get_observation_size()[2], game.get_action_size(),
+    #                                multi_gpu=True, multi_gpu_n=len(GPUtil.getGPUs()))
+    #
+    #     agent_nnet = AgentNNet(nnet)
+    #
+    #     if agent_profile == EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_DEFAULT:
+    #         return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_INIT, numMCTSSims=1500,
+    #                          max_predict_time=3, num_threads=1)
+    #     elif agent_profile == EnvironmentSelector.CHECKERS_AGENT_TEST_AGENT_RCNN_DEFAULT:
+    #         return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.NO_EXPLORATION, numMCTSSims=1500,
+    #                          max_predict_time=10, num_threads=2, verbose=True)
+    #     else:
+    #         return None
 
-        if not native_multi_gpu_enabled:
-            nnet = CheckersResNNet(game.get_observation_size()[0], game.get_observation_size()[1],
-                                   game.get_observation_size()[2], game.get_action_size())
-        else:
-            nnet = CheckersResNNet(game.get_observation_size()[0], game.get_observation_size()[1],
-                                   game.get_observation_size()[2], game.get_action_size(),
-                                   multi_gpu=True, multi_gpu_n=len(GPUtil.getGPUs()))
+    # def build_tpu_checkers_agent(self, agent_profile, native_multi_gpu_enabled=False):
+    #     from games.checkers.nnet.CheckersResNNetTPU import CheckersResNNetTPU
+    #
+    #     assert not native_multi_gpu_enabled, "ERROR: TPU NNet does not support native multi-gpu mode!"
+    #
+    #     game = self.game_mapping[agent_profile.game]
+    #
+    #     nnet = CheckersResNNetTPU(game.get_observation_size()[0], game.get_observation_size()[1],
+    #                               game.get_observation_size()[2], game.get_action_size())
+    #
+    #     agent_nnet = AgentNNet(nnet)
+    #
+    #     if agent_profile == EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_TPU:
+    #         return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_INIT, numMCTSSims=200,
+    #                          max_predict_time=None, verbose=False, num_threads=1)
+    #     else:
+    #         return None
 
-        agent_nnet = AgentNNet(nnet)
-
-        if agent_profile == EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_DEFAULT:
-            return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_INIT, numMCTSSims=1500,
-                             max_predict_time=3, num_threads=1)
-        elif agent_profile == EnvironmentSelector.CHECKERS_AGENT_TEST_AGENT_RCNN_DEFAULT:
-            return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.NO_EXPLORATION, numMCTSSims=1500,
-                             max_predict_time=10, num_threads=2, verbose=True)
-        else:
-            return None
-
-    def build_tpu_checkers_agent(self, agent_profile, native_multi_gpu_enabled=False):
-        from games.checkers.nnet.CheckersResNNetTPU import CheckersResNNetTPU
-
-        assert not native_multi_gpu_enabled, "ERROR: TPU NNet does not support native multi-gpu mode!"
-
-        game = self.game_mapping[agent_profile.game]
-
-        nnet = CheckersResNNetTPU(game.get_observation_size()[0], game.get_observation_size()[1],
-                                  game.get_observation_size()[2], game.get_action_size())
-
-        agent_nnet = AgentNNet(nnet)
-
-        if agent_profile == EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_TPU:
-            return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_INIT, numMCTSSims=200,
-                             max_predict_time=None, verbose=False, num_threads=1)
-        else:
-            return None
-
-    def build_horovod_checkers_agent(self, agent_profile, native_multi_gpu_enabled=False):
-        from games.checkers.nnet.CheckersResNNetDistributed import CheckersResNNetDistributed
-
-        assert not native_multi_gpu_enabled, "ERROR: Horovod NNet does not support native multi-gpu mode!"
-
-        game = self.game_mapping[agent_profile.game]
-
-        nnet = CheckersResNNetDistributed(game.get_observation_size()[0], game.get_observation_size()[1],
-                                          game.get_observation_size()[2], game.get_action_size(),
-                                          horovod_distributed=True)
-
-        agent_nnet = AgentNNet(nnet)
-
-        if agent_profile == EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_DISTRIBUTED:
-            return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_INIT, numMCTSSims=1500,
-                             max_predict_time=5)
-        elif agent_profile == EnvironmentSelector.CHECKERS_AGENT_TEST_AGENT_RCNN_DISTRIBUTED:
-            return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.NO_EXPLORATION, numMCTSSims=1500,
-                             max_predict_time=10)
-        else:
-            return None
+    # def build_horovod_checkers_agent(self, agent_profile, native_multi_gpu_enabled=False):
+    #     from games.checkers.nnet.CheckersResNNetDistributed import CheckersResNNetDistributed
+    #
+    #     assert not native_multi_gpu_enabled, "ERROR: Horovod NNet does not support native multi-gpu mode!"
+    #
+    #     game = self.game_mapping[agent_profile.game]
+    #
+    #     nnet = CheckersResNNetDistributed(game.get_observation_size()[0], game.get_observation_size()[1],
+    #                                       game.get_observation_size()[2], game.get_action_size(),
+    #                                       horovod_distributed=True)
+    #
+    #     agent_nnet = AgentNNet(nnet)
+    #
+    #     if agent_profile == EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_DISTRIBUTED:
+    #         return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_INIT, numMCTSSims=1500,
+    #                          max_predict_time=5)
+    #     elif agent_profile == EnvironmentSelector.CHECKERS_AGENT_TEST_AGENT_RCNN_DISTRIBUTED:
+    #         return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.NO_EXPLORATION, numMCTSSims=1500,
+    #                          max_predict_time=10)
+    #     else:
+    #         return None
 
     def build_tictactoe_train_agent(self, agent_profile, native_multi_gpu_enabled=False):
 
@@ -258,6 +268,19 @@ class EnvironmentSelector():
                              max_predict_time=10)
         return None
 
+    def build_watten_train_agent(self, agent_profile, native_multi_gpu_enabled=False):
+
+        game = self.game_mapping[agent_profile.game]
+
+        nnet = WattenNNet(*game.get_observation_size(), 1, game.get_action_size())
+
+        agent_nnet = AgentNNet(nnet)
+
+        if agent_profile == EnvironmentSelector.WATTEN_AGENT_TRAIN:
+            return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=100,
+                             max_predict_time=10, num_threads=4)
+        return None
+
     def build_durak_agent(self, agent_profile, native_multi_gpu_enabled=False):
 
         game = self.game_mapping[agent_profile.game]
@@ -266,4 +289,15 @@ class EnvironmentSelector():
             return AgentRandom()
         elif agent_profile == EnvironmentSelector.DURAK_AGENT_HUMAN:
             return DurakHumanAgent(game=game)
+        return None
+
+    def build_watten_agent(self, agent_profile, native_multi_gpu_enabled=False):
+
+        game = self.game_mapping[agent_profile.game]
+
+        if agent_profile == EnvironmentSelector.WATTEN_AGENT_RANDOM:
+            return AgentRandom()
+        elif agent_profile == EnvironmentSelector.WATTEN_AGENT_HUMAN:
+            pass
+            # return DurakHumanAgent(game=game) #TODO watten human agent
         return None

@@ -1,4 +1,5 @@
 import sys
+
 sys.path.append('../')
 
 # Hello there!
@@ -13,13 +14,15 @@ import keras
 
 from keras.utils import multi_gpu_model as make_multi_gpu
 
+
 class TicTacToeNNet(NNet):
 
     def build_model(self):
 
         learning_rate = 0.01
 
-        input_boards = Input(shape=(self.observation_size_x, self.observation_size_y, self.observation_size_z))  # s: batch_size x board_x x board_y
+        input_boards = Input(shape=(
+        self.observation_size_x, self.observation_size_y, self.observation_size_z))  # s: batch_size x board_x x board_y
 
         x_image = Reshape((self.observation_size_x, self.observation_size_y, self.observation_size_z))(
             input_boards)  # batch_size  x board_x x board_y x 1
@@ -42,7 +45,7 @@ class TicTacToeNNet(NNet):
         if self.multi_gpu:
             _multi_gpu_model = make_multi_gpu(self.model, gpus=self.multi_gpu_n)
             _multi_gpu_model.compile(loss=['categorical_crossentropy', 'mean_squared_error'],
-                                    optimizer=Adam(learning_rate))
+                                     optimizer=Adam(learning_rate))
         else:
             _multi_gpu_model = None
 
@@ -51,5 +54,6 @@ class TicTacToeNNet(NNet):
         return model, _multi_gpu_model
 
     def clone(self):
-        return TicTacToeNNet(self.observation_size_x, self.observation_size_y, self.observation_size_z, self.action_size,
-                            multi_gpu=self.multi_gpu, multi_gpu_n=self.multi_gpu_n)
+        return TicTacToeNNet(self.observation_size_x, self.observation_size_y, self.observation_size_z,
+                             self.action_size,
+                             multi_gpu=self.multi_gpu, multi_gpu_n=self.multi_gpu_n)

@@ -1,9 +1,13 @@
 import numpy as np
 from tqdm import *
 import itertools
+import logging
 
 
 # TODO test games with checkers, when preferans, when update comments in Game
+from games.watten.watten import InconsistentStateError
+
+
 class World():
     """
     An World class where any agents can be play and generate experience
@@ -42,8 +46,8 @@ class World():
                 episode_exp = []
                 break
 
-            if show_every_turn:
-                print("\n", game.get_display_str())
+            # if show_every_turn:
+            #     print("\n", game.get_display_str())
 
             observation = game.get_observation(cur_player)
 
@@ -63,7 +67,12 @@ class World():
 
             action = np.random.choice(len(actions_prob), p=actions_prob)
 
-            _, cur_player = game.make_move(action)
+            try:
+                _, cur_player = game.make_move(action)
+            except InconsistentStateError as e:
+                print(actions_prob)
+                logging.exception("error")
+                raise e
 
             cur_turn_agent.on_turn_finished(game)
 
@@ -80,9 +89,9 @@ class World():
                         game_results[idx] = self.RESULT_DRAW
                 break
 
-        if verbose:
-            print("\n\nFinal observation on step %d.\n%s\n" % (
-                episodeStep, game.get_display_str()))
+        # if verbose:
+        #     print("\n\nFinal observation on step %d.\n%s\n" % (
+        #         episodeStep, game.get_display_str()))
 
         for idx, [cur_observation, cur_player, cur_pi] in enumerate(episode_exp):
             augmented_exp.append((cur_observation, cur_pi, game_results[cur_player]))
@@ -102,7 +111,7 @@ class World():
         if verbose:
             loop_range = tqdm(loop_range)
 
-        for idx in loop_range:
+        for id_loop in loop_range:
             game_experience, game_results = self.execute_game(agents, game,
                                                               max_game_steps_n=max_game_steps_n,
                                                               allow_exploration=allow_exploration, verbose=verbose,

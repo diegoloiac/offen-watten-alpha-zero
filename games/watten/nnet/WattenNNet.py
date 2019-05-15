@@ -11,7 +11,7 @@ from keras.optimizers import *
 from keras.utils import multi_gpu_model
 
 
-class DurakNNet(NNet):
+class WattenNNet(NNet):
 
     def build_model(self):
         learning_rate = 0.0001
@@ -47,4 +47,4 @@ class DurakNNet(NNet):
         return model, _multi_gpu_model
 
     def clone(self):
-        return DurakNNet(self.observation_size_x, self.observation_size_y, 1, self.action_size, self.multi_gpu)
+        return WattenNNet(self.observation_size_x, self.observation_size_y, 1, self.action_size, self.multi_gpu)

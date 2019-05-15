@@ -258,6 +258,7 @@ class AgentMCTS(Agent):
         action = best_act
 
         _, next_player = game.make_move(best_act)
+        # print(next_player)
 
         draw_result, value = self.search_async(game, next_player)
 
@@ -310,6 +311,7 @@ class AgentMCTS(Agent):
 
         if sum(valid_actions) == 0:
             print("Sum of valid actions should not be 0!")
+            game.get_display_str()
             return False, -1
 
         # pick the action with the highest upper confidence bound
@@ -328,6 +330,11 @@ class AgentMCTS(Agent):
                     best_act = action
 
         action = best_act
+
+        if action == -1:
+            print(game.get_action_size())
+            print(action)
+            print(valid_actions)
 
         _, next_player = game.make_move(action)
 

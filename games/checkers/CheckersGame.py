@@ -4,8 +4,8 @@ import sys
 sys.path.insert(0, '../..')
 
 try:
-    from checkers import CheckerBoard
-    from checkers import BLACK_PLAYER, WHITE_PLAYER
+    from games.checkers import CheckerBoard
+    from games.checkers import BLACK_PLAYER, WHITE_PLAYER
 except ImportError:
     from games.checkers.checkers import CheckerBoard
     from games.checkers.checkers import BLACK_PLAYER, WHITE_PLAYER
