@@ -83,7 +83,6 @@ class WorldWatten(object):
 
         self.moves = moves
 
-        # self.LOG.debug(f"Player [{self.current_player}] starts")
         self.starting_state = f"\n{self.current_player}, {self.distributing_cards_player}, {self.player_A_score}, {self.player_B_score}, {self.player_A_hand}, {self.player_B_hand}, {self.played_cards}, {self.current_game_player_A_score}, {self.current_game_player_B_score}, {self.current_game_prize}, {self.is_last_move_raise}, {self.is_last_move_accepted_raise}, {self.first_card_deck}, {self.last_card_deck}, {self.rank}, {self.suit}"
 
         self.moves_series = []
@@ -116,6 +115,9 @@ class WorldWatten(object):
         # is True only if the last move was a raise
         self.is_last_move_raise = False
         self.is_last_move_accepted_raise = False
+
+        # basically, when
+        self.is_last_move_raise_in_last_hand = False
 
         # first and last card in deck (doesn't really matter where those cards are taken :D )
         self.first_card_deck = self.deck[-1:][0]
@@ -218,8 +220,28 @@ class WorldWatten(object):
             valid_moves.append(self.moves["raise_points"])
         return valid_moves
 
-    # TODO RAISE POINTS ONLY IN LAST HAND ONLY IN ONE OF THE THREE SITUATIONS DESCRIBED IN THE PAPER
     def check_allowed_raise_situation(self):
+        # # raise in last card of a hand has some specific conditions
+        # if len(self.played_cards) == 9:
+        #     # condition 1
+        #     last_played_card = self.played_cards[len(self.played_cards) - 1]
+        #     last_card_current_player = self.player_A_hand[0] if self.current_player == 1 else self.player_B_hand[0]
+        #     result = self.compare_cards(last_card_current_player, last_played_card)
+        #     if result:
+        #         return True
+        #     # condition 2
+        #     _, suit_last_played_card = get_rs(last_played_card)
+        #     _, suit_last_card_current_player = get_rs(last_card_current_player)
+        #     if suit_last_played_card == suit_last_card_current_player:
+        #         return True
+        #
+        # if len(self.played_cards) >= 8:
+        #     # condition 3
+        #     last_card_current_player = self.player_A_hand[0] if self.current_player == 1 else self.player_B_hand[0]
+        #     rank_last_card_current_player, suit_last_card_current_player = get_rs(last_card_current_player)
+        #     if self.is_trumpf(rank_last_card_current_player, suit_last_card_current_player):
+        #         return True
+
         # it makes sense to raise only if a player can't win the game with the current game prize
         if self.current_player == 1 and (self.player_A_score + self.current_game_prize) < self.win_threshold:
             return True
@@ -235,9 +257,6 @@ class WorldWatten(object):
     # - continue, a player made a move that didn't bring the current game to an end
     # - current_player_won
     # the next player can be either 1 or -1
-    #
-    # AFTER AN ACT, THE RETURNED PLAYER SHOULD ALWAYS BE THE OPPONENT
-    #
     def act(self, action):
         if action > 48:
             raise InvalidActionError("Action %d is not valid" % action)
@@ -251,36 +270,42 @@ class WorldWatten(object):
 
         self.moves_series.append(action)
 
-        # if a player folds, then the prize is given to the opponent
-        if action == moves["fold_hand"]:
-            self.LOG.debug(f"{self.current_player} folds hand")
-            self._assign_points_fold()
-            self.current_player = self.current_player * -1
-            self._refresh_state_single_hand()
-            return "end", self.current_player
-
         if action == moves["raise_points"]:
+            if self.is_last_move_raise or self.is_last_move_accepted_raise:
+                raise InvalidActionError("Cannot raise if the previous move was a raise")
             self.LOG.debug(f"{self.current_player} raised points")
             self.is_last_move_raise = True
             self.current_game_prize += 1
             return self._act_continue_move()
 
         if action == moves["accept_raise"]:
+            if self.is_last_move_raise is False or self.is_last_move_accepted_raise:
+                raise InvalidActionError("Cannot accept raise if the previous move was not a raise")
             self.LOG.debug(f"{self.current_player} accepted raise")
             self.is_last_move_accepted_raise = True
+            self.is_last_move_raise = False
             return self._act_continue_move()
 
-        if action in moves["pick_suit"]:
-            self.suit = action % 42
-            self.LOG.debug(f"{self.current_player} picked suit [{self.suit}]")
-            return self._act_continue_move()
+        # if a player folds, then the prize is given to the opponent
+        if action == moves["fold_hand"]:
+            if self.is_last_move_raise is False or self.is_last_move_accepted_raise:
+                raise InvalidActionError("Cannot accept raise if the previous move was not a raise")
+            self.LOG.debug(f"{self.current_player} folds hand")
+            self._assign_points_fold()
+            self.current_player = self.distributing_cards_player
+            self.distributing_cards_player = self.distributing_cards_player * -1
+            self._refresh_state_single_hand()
+            return "end", self.current_player
 
-        if action in moves["pick_rank"]:
-            self.rank = action % 33
-            self.LOG.debug(f"{self.current_player} picked rank [{self.rank}]")
-            return self._act_continue_move()
+        # if an action is not a raise, an accept raise or a fold, then the next move is definitely going to
+        # reset the chance for raising
+        self.is_last_move_accepted_raise = False
+        self.is_last_move_raise = False
 
         if action in moves["play_card"]:
+            if self.is_last_move_raise:
+                raise InvalidActionError("Cannot play a card if the previous move was a raise")
+
             self.LOG.debug(f"{self.current_player} played card [{action}]")
 
             hand = self.player_A_hand if self.current_player == 1 else self.player_B_hand
@@ -307,9 +332,28 @@ class WorldWatten(object):
                         self.player_B_score += self.current_game_prize
                     self._set_initial_game_prize()
                     self._refresh_state_single_hand()
+                    self.current_player = self.distributing_cards_player
                     self.distributing_cards_player = self.distributing_cards_player * -1
                     return "end", self.distributing_cards_player
                 return "continue", next_player_move
+
+        if action in moves["pick_suit"]:
+            if self.is_last_move_raise:
+                raise InvalidActionError("Cannot play a card if the previous move was a raise")
+
+            self.suit = action % 42
+            self.LOG.debug(f"{self.current_player} picked suit [{self.suit}]")
+            return self._act_continue_move()
+
+        if action in moves["pick_rank"]:
+            if self.is_last_move_raise:
+                raise InvalidActionError("Cannot play a card if the previous move was a raise")
+
+            self.rank = action % 33
+            if self.rank == 8:
+                self.suit = 3  # weli has suit 3 (balls)
+            self.LOG.debug(f"{self.current_player} picked rank [{self.rank}]")
+            return self._act_continue_move()
 
         self.display()
         raise InconsistentStateError("Action %d is not allowed." % action)
@@ -406,8 +450,8 @@ class WorldWatten(object):
 
         # if a played card has the same chosen suit, then the opponent for winning the hand should play
         # a card of the same suit but with higher rank
-        if self.suit == card1_suit:
-            if self.suit == card2_suit:
+        if self.is_trumpf(card1_rank, card1_suit):
+            if self.is_trumpf(card2_rank, card2_suit):
                 # when both cards are trümpfe then wins the card with the highest rank
                 return self.is_rank_higher(card1_rank, card2_rank)
             # a card of the chosen suit wins against a card without the chosen suit
@@ -439,6 +483,12 @@ class WorldWatten(object):
         if card_rank == self.rank:
             return True
         return False
+
+    def is_trumpf(self, card_rank, card_suit):
+        if self.is_rechte(card_rank, card_suit):
+            return False
+        if self.suit == card_suit:
+            return True
 
     def is_rank_higher(self, card1_rank, card2_rank):
         # the weli has the lowest rank

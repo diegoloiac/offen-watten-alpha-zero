@@ -4,9 +4,14 @@ import games.watten.watten as watten
 from games.watten.watten import WorldWatten
 from games.watten.watten import InconsistentStateError
 from games.watten.watten import CardParsingError
+from games.watten.watten import InvalidActionError
 
 
 class TestWorldWatten(TestCase):
+
+    def test_refresh(self):
+        world = WorldWatten()
+
 
     def test_get_id(self):
         card_id = watten.get_id(8, 3)
@@ -67,12 +72,13 @@ class TestWorldWatten(TestCase):
     def test_get_valid_moves_last_move_accepted_raise(self):
         world = WorldWatten()
 
-        world.is_last_move_raise_accepted = True
+        world.is_last_move_accepted_raise = True
 
         valid_moves = world.get_valid_moves()
 
         # after an accepted raise a player can't raise again
-        self.assertNotEqual([47, 48], valid_moves)
+        self.assertNotIn(46, valid_moves)
+        # self.assertNotEqual([47, 48], valid_moves)
 
     def test_get_valid_moves_declare_rank(self):
         world = WorldWatten()
@@ -91,7 +97,7 @@ class TestWorldWatten(TestCase):
 
         # when the chosen rank is weli, suit is automatically
         world.rank = 8
-        world.suit = None
+        world.suit = 3
 
         # opponent player declare the rank
         valid_moves = world.get_valid_moves()
@@ -156,6 +162,40 @@ class TestWorldWatten(TestCase):
 
         self.assertEqual(valid_moves, [17, 1, 3, 28, 18, 46])
 
+    # def test_get_valid_moves_played_card(self):
+    #     world = WorldWatten()
+    #
+    #     world.player_A_hand = []
+    #     world.player_B_hand = []
+    #
+    #     world.suit = None
+    #     world.rank = None
+    #
+    #     world.played_cards.append()
+    #
+    #     world.current_player = 1
+    #
+    #     valid_moves = world.get_valid_moves()
+    #
+    #     self.assertEqual(valid_moves, [])
+
+    # def test_get_valid_moves_played_card(self):
+    #     world = WorldWatten()
+    #
+    #     world.player_A_hand = []
+    #     world.player_B_hand = []
+    #
+    #     world.suit = None
+    #     world.rank = None
+    #
+    #     world.played_cards.append()
+    #
+    #     world.current_player = 1
+    #
+    #     valid_moves = world.get_valid_moves()
+    #
+    #     self.assertEqual(valid_moves, [])
+
     def test_is_rechte(self):
         world = WorldWatten()
 
@@ -179,8 +219,6 @@ class TestWorldWatten(TestCase):
     def test_is_blinde(self):
         world = WorldWatten()
 
-        world.refresh()
-
         world.rank = 6
         world.suit = 2
 
@@ -189,10 +227,27 @@ class TestWorldWatten(TestCase):
         self.assertFalse(world.is_blinde(1))
         self.assertFalse(world.is_blinde(7))
 
-    def test_compare_cards_rechte(self):
+    def test_is_trumpf(self):
         world = WorldWatten()
 
-        world.refresh()
+        world.rank = 6
+        world.suit = 2
+
+        self.assertTrue(world.is_trumpf(4, 2))
+        self.assertFalse(world.is_trumpf(5, 1))
+        self.assertFalse(world.is_trumpf(6, 2))
+        self.assertTrue(world.is_trumpf(0, 2))
+        self.assertTrue(world.is_trumpf(1, 2))
+        self.assertTrue(world.is_trumpf(3, 2))
+
+        world.rank = 8
+        world.suit = 3
+
+        self.assertTrue(world.is_trumpf(1, 3))
+        self.assertFalse(world.is_trumpf(5, 2))
+
+    def test_compare_cards_rechte(self):
+        world = WorldWatten()
 
         # if weli is rechte, then it should win
         world.rank = 8
@@ -477,10 +532,13 @@ class TestWorldWatten(TestCase):
         result = world.is_won(1)
         self.assertTrue(result)
 
-    def test_act_fold(self):
+    def test_act_unknown_move(self):
         world = WorldWatten()
 
-        world.refresh()
+        self.assertRaises(InvalidActionError, world.act, 49)
+
+    def test_act_fold(self):
+        world = WorldWatten()
 
         world.player_A_score = 4
         world.player_B_score = 7
@@ -488,6 +546,8 @@ class TestWorldWatten(TestCase):
         world.current_game_prize = 3
 
         world.current_player = 1
+        world.distributing_cards_player = -1
+        world.is_last_move_raise = True
 
         result, next_player = world.act(watten.moves["fold_hand"])
 
@@ -497,10 +557,64 @@ class TestWorldWatten(TestCase):
         self.assertEqual(-1, world.current_player)
         self.assertEqual(-1, next_player)
 
-    def test_act_unknown_move(self):
+    def test_act_raise_points(self):
         world = WorldWatten()
 
-        self.assertRaises(InconsistentStateError, world.act, 49)
+        world.current_player = -1
+        world.current_game_prize = 4
+        world.is_last_move_raise = False
+        world.is_last_move_accepted_raise = False
+
+        result, next_player = world.act(46)
+
+        self.assertEqual(result, "continue")
+        self.assertEqual(next_player, 1)
+        self.assertEqual(world.current_player, 1)
+        self.assertEqual(world.current_game_prize, 5)
+        self.assertEqual(world.is_last_move_raise, True)
+        self.assertEqual(world.is_last_move_accepted_raise, False)
+
+    def test_act_accept_raise(self):
+        world = WorldWatten()
+
+        world.current_player = 1
+        world.is_last_move_accepted_raise = False
+        world.is_last_move_raise = True
+
+        result, next_player = world.act(48)
+
+        self.assertEqual(result, "continue")
+        self.assertEqual(next_player, -1)
+        self.assertEqual(world.is_last_move_raise, False)
+        self.assertEqual(world.is_last_move_accepted_raise, True)
+
+    def test_act_pick_suit_1(self):
+        world = WorldWatten()
+
+        world.current_player = 1
+        world.is_last_move_accepted_raise = True
+        world.is_last_move_raise = False
+
+        result, next_player = world.act(45)
+
+        self.assertEqual(result, "continue")
+        self.assertEqual(next_player, -1)
+        self.assertEqual(world.suit, 3)
+        self.assertEqual(world.is_last_move_raise, False)
+        self.assertEqual(world.is_last_move_accepted_raise, False)
+
+    def test_act_pick_suit_2(self):
+        world = WorldWatten()
+
+        world.current_player = -1
+
+        result, next_player = world.act(42)
+
+        self.assertEqual(result, "continue")
+        self.assertEqual(next_player, 1)
+        self.assertEqual(world.suit, 0)
+        self.assertEqual(world.is_last_move_raise, False)
+        self.assertEqual(world.is_last_move_accepted_raise, False)
 
     def test_observe(self):
         world = WorldWatten()
@@ -576,69 +690,5 @@ class TestWorldWatten(TestCase):
         watten.get_valid_moves()
 
         watten.act(1)
-
-        watten.display()
-
-    # TODO debug
-    def test_game_2(self):
-        watten = WorldWatten()
-        watten.LOG.setLevel(DEBUG)
-        watten.init_world_to_state(1, -1, 0, 0, [6, 19, 17, 23, 12], [9, 28, 0, 10, 29], [], 0, 0, 2, False, False, 26,
-                                   16, None, None)
-        watten.display()
-        # 34, 44, 19, 9, 29, 46, 48, 46, 0, 10, 12, 23, 28
-        watten.get_valid_moves()
-
-        watten.act(34)
-
-        watten.get_valid_moves()
-
-        watten.act(44)
-
-        watten.get_valid_moves()
-
-        watten.act(19)
-
-        watten.get_valid_moves()
-
-        watten.act(9)
-
-        watten.get_valid_moves()
-
-        watten.act(29)
-
-        watten.get_valid_moves()
-
-        watten.act(46)
-
-        watten.get_valid_moves()
-
-        watten.act(48)
-
-        watten.get_valid_moves()
-
-        watten.act(46)
-
-        watten.get_valid_moves()
-
-        watten.act(0)
-
-        watten.get_valid_moves()
-
-        watten.act(10)
-
-        watten.get_valid_moves()
-
-        watten.act(12)
-
-        watten.get_valid_moves()
-
-        watten.act(23)
-
-        watten.get_valid_moves()
-
-        watten.act(28)
-
-        watten.get_valid_moves()
 
         watten.display()
