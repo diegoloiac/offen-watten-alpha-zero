@@ -116,7 +116,7 @@ class WorldWatten(object):
         self.is_last_move_raise = False
         self.is_last_move_accepted_raise = False
 
-        # basically, when
+        # raise in last hand implies some specific rules. see act method
         self.is_last_move_raise_in_last_hand = False
 
         # first and last card in deck (doesn't really matter where those cards are taken :D )
@@ -216,32 +216,12 @@ class WorldWatten(object):
         # and if the opponent last move was not an accepted raise (in order to force the game to continue)
         if (not self.is_last_move_raise) and \
                 (not self.is_last_move_accepted_raise) and \
+                (not self.is_last_move_raise_in_last_hand) and \
                 self.check_allowed_raise_situation():
             valid_moves.append(self.moves["raise_points"])
         return valid_moves
 
     def check_allowed_raise_situation(self):
-        # # raise in last card of a hand has some specific conditions
-        # if len(self.played_cards) == 9:
-        #     # condition 1
-        #     last_played_card = self.played_cards[len(self.played_cards) - 1]
-        #     last_card_current_player = self.player_A_hand[0] if self.current_player == 1 else self.player_B_hand[0]
-        #     result = self.compare_cards(last_card_current_player, last_played_card)
-        #     if result:
-        #         return True
-        #     # condition 2
-        #     _, suit_last_played_card = get_rs(last_played_card)
-        #     _, suit_last_card_current_player = get_rs(last_card_current_player)
-        #     if suit_last_played_card == suit_last_card_current_player:
-        #         return True
-        #
-        # if len(self.played_cards) >= 8:
-        #     # condition 3
-        #     last_card_current_player = self.player_A_hand[0] if self.current_player == 1 else self.player_B_hand[0]
-        #     rank_last_card_current_player, suit_last_card_current_player = get_rs(last_card_current_player)
-        #     if self.is_trumpf(rank_last_card_current_player, suit_last_card_current_player):
-        #         return True
-
         # it makes sense to raise only if a player can't win the game with the current game prize
         if self.current_player == 1 and (self.player_A_score + self.current_game_prize) < self.win_threshold:
             return True
@@ -249,6 +229,8 @@ class WorldWatten(object):
             return True
         return False
 
+    # TODO if fold after raise in last hand, check opponent hand
+    # TODO if accept after raise in last hand, check opponent hand
     # make a single move and apply changes to inner state of the world
     # modify the current state of the game and returns an outcome
     # the function should return 2 values: the outcome of the move and the next player
@@ -264,10 +246,6 @@ class WorldWatten(object):
             raise InconsistentStateError("Current game score cannot exceed 3. Player 1 [%d] and player -1 [%d]"
                                          % (self.current_game_player_A_score, self.current_game_player_B_score))
 
-        # mv = self.get_valid_moves()
-        # if action not in mv:
-        #     raise InconsistentStateError("AAA")
-
         self.moves_series.append(action)
 
         if action == moves["raise_points"]:
@@ -275,6 +253,8 @@ class WorldWatten(object):
                 raise InvalidActionError("Cannot raise if the previous move was a raise")
             self.LOG.debug(f"{self.current_player} raised points")
             self.is_last_move_raise = True
+            if len(self.played_cards) >= 8:
+                self.is_last_move_raise_in_last_hand = True
             self.current_game_prize += 1
             return self._act_continue_move()
 
