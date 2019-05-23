@@ -13,7 +13,7 @@ moves = {"play_card": list(range(0, 33)),
          "raise_points": 46,
          "fold_hand": 47,
          "accept_raise": 48,
-         "x-rest": 49}  # x-rest move is needed for making the alpha zero framework work. not a legit game move
+         "force_show_after_raise_last_hand": 49}  # can raise in last hand but some conditions should be verified
 rank_names = {0: "7", 1: "8", 2: "9", 3: "10", 4: "unter", 5: "ober", 6: "kinig", 7: "ass", 8: "weli", None: "-"}
 # suit_names = {0: "♠︎", 1: "♥", 2: "♦", 3: "∙"}
 suit_names = {0: "laab♠", 1: "herz♥", 2: "oachl♦", 3: "schell∙", None: "-"}
@@ -166,7 +166,7 @@ class WorldWatten(object):
         # list to be returned
         valid_moves = []
 
-        current_hand = self.player_A_hand if self.current_player == 1 else self.player_B_hand
+        current_hand = self._get_current_player_hand()
 
         # when the cards in game are even, then no hand has been played or one has just finished so
         # any card in hand of the current player can be played
@@ -176,7 +176,7 @@ class WorldWatten(object):
             return augmented_valid_moves
 
         # at this point the first player has already moved
-        played_rank, played_suit = get_rs(self.played_cards[len(self.played_cards) - 1])
+        played_rank, played_suit = get_rs(self._get_last_played_card())
 
         for card in current_hand:
             card_rank, card_suit = get_rs(card)
@@ -214,9 +214,7 @@ class WorldWatten(object):
         valid_moves.extend(moves)
         # a player can raise only if the last move was not a raise
         # and if the opponent last move was not an accepted raise (in order to force the game to continue)
-        if (not self.is_last_move_raise) and \
-                (not self.is_last_move_accepted_raise) and \
-                (not self.is_last_move_raise_in_last_hand) and \
+        if (not self.is_last_move_raise) and (not self.is_last_move_accepted_raise) and (not self.is_last_move_raise_in_last_hand) and \
                 self.check_allowed_raise_situation():
             valid_moves.append(self.moves["raise_points"])
         return valid_moves
@@ -231,6 +229,7 @@ class WorldWatten(object):
 
     # TODO if fold after raise in last hand, check opponent hand
     # TODO if accept after raise in last hand, check opponent hand
+    # TODO implement new move -> check _last_hand_raise_valid accordingly
     # make a single move and apply changes to inner state of the world
     # modify the current state of the game and returns an outcome
     # the function should return 2 values: the outcome of the move and the next player
@@ -249,7 +248,7 @@ class WorldWatten(object):
         self.moves_series.append(action)
 
         if action == moves["raise_points"]:
-            if self.is_last_move_raise or self.is_last_move_accepted_raise:
+            if self.is_last_move_raise or self.is_last_move_accepted_raise or self.is_last_move_raise_in_last_hand:
                 raise InvalidActionError("Cannot raise if the previous move was a raise")
             self.LOG.debug(f"{self.current_player} raised points")
             self.is_last_move_raise = True
@@ -288,7 +287,7 @@ class WorldWatten(object):
 
             self.LOG.debug(f"{self.current_player} played card [{action}]")
 
-            hand = self.player_A_hand if self.current_player == 1 else self.player_B_hand
+            hand = self._get_current_player_hand()
             if action not in hand:
                 self.display()
                 raise InconsistentStateError(
@@ -300,7 +299,7 @@ class WorldWatten(object):
                 self.played_cards.append(action)
                 return self._act_continue_move()
             else:
-                last_played_card = self.played_cards[len(self.played_cards) - 1]
+                last_played_card = self._get_last_played_card()
                 self.played_cards.append(action)
                 current_played_card = action
                 current_player_wins = self.compare_cards(current_played_card, last_played_card)
@@ -345,15 +344,46 @@ class WorldWatten(object):
     def _remove_card_from_hand(self, action, player):
         if player == 1:
             self.player_A_hand.remove(action)
+            return
         if player == -1:
             self.player_B_hand.remove(action)
+            return
+        raise InvalidActionError("Player should be either 1 or -1. Got %d" % player)
 
     # if a player folds, then the prize is given to the opponent
     def _assign_points_fold(self):
+        fold_points = self.current_game_prize - 1
+        # if self.is_last_move_raise_in_last_hand:
+        #     if self.current_player == 1:
+
         if self.current_player == 1:
-            self.player_A_score += self.current_game_prize
+            self.player_A_score += fold_points
         if self.current_player == -1:
-            self.player_B_score += self.current_game_prize
+            self.player_B_score += fold_points
+
+    # returns true if the player who raised the previous turn satisfies the following rules:
+    # - he has a trumpf
+    # - his card has the same suit of the one played by the previous player
+    # - his card wins against the one played by the opponent player
+    def _last_hand_raise_valid(self):
+        num_played_cards = len(self.played_cards)
+
+        if num_played_cards not in (8, 9):
+            raise InconsistentStateError("Num played cards when fold occurs in last hand can be either 8 or 9. Got %d." % num_played_cards)
+
+        hidden_opponent_card = self._get_opponent_hand()[0]
+        hidd_opp_r, hidd_opp_s = get_rs(hidden_opponent_card)
+
+        if self.is_trumpf(hidd_opp_r, hidd_opp_s):
+            return True
+        if num_played_cards == 9:
+            last_played_card = self._get_last_played_card()
+            last_played_card_rank, last_played_card_suit = get_rs(last_played_card)
+
+            if hidd_opp_s == last_played_card_suit or not self.compare_cards(last_played_card, hidden_opponent_card):
+                return True
+
+        return False
 
     # assign points and returns the player that should play the next move
     def _assign_points_single_hand_ended(self, current_player_wins):
@@ -547,7 +577,7 @@ class WorldWatten(object):
         # last played card
         index += 4  # 112
         if len(self.played_cards) is not 0 and len(self.played_cards) % 2 == 0:
-            observation[index + self.played_cards[len(self.played_cards) - 1]] = 1
+            observation[index + self._get_last_played_card()] = 1
 
         # played cards
         index += 33  # 145
@@ -602,6 +632,18 @@ class WorldWatten(object):
 
         observation = observation.reshape((212, 1))
         return observation
+
+    def _get_last_played_card(self):
+        num_played_cards = len(self.played_cards)
+        if num_played_cards == 0:
+            return None
+        return self.played_cards[num_played_cards - 1]
+
+    def _get_opponent_hand(self):
+        return self.player_B_hand if self.current_player == 1 else self.player_A_hand
+
+    def _get_current_player_hand(self):
+        return self.player_A_hand if self.current_player == 1 else self.player_B_hand
 
     def display(self):
         str_raise = ""

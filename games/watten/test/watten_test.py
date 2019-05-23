@@ -12,7 +12,6 @@ class TestWorldWatten(TestCase):
     def test_refresh(self):
         world = WorldWatten()
 
-
     def test_get_id(self):
         card_id = watten.get_id(8, 3)
         self.assertEqual(card_id, 32)
@@ -552,7 +551,7 @@ class TestWorldWatten(TestCase):
         result, next_player = world.act(watten.moves["fold_hand"])
 
         self.assertEqual("end", result)
-        self.assertEqual(4 + 3, world.player_A_score)
+        self.assertEqual(4 + 2, world.player_A_score)
 
         self.assertEqual(-1, world.current_player)
         self.assertEqual(-1, next_player)
@@ -616,11 +615,268 @@ class TestWorldWatten(TestCase):
         self.assertEqual(world.is_last_move_raise, False)
         self.assertEqual(world.is_last_move_accepted_raise, False)
 
+    def test_last_hand_raise_valid_error(self):
+        world = WorldWatten()
+
+        world.played_cards = [0, 1, 2, 3, 4]
+        world.rank = 3
+        world.suit = 2
+        world.current_player = 1
+        world.player_B_hand = [watten.get_id(4, 1)]
+        world.player_A_hand = [watten.get_id(5, 0)]
+
+        self.assertRaises(InconsistentStateError, world._last_hand_raise_valid)
+
+    def test_last_hand_raise_valid_8_cards(self):
+        # player -1 raised
+        world = WorldWatten()
+
+        world.played_cards = [0, 1, 2, 3, 4, 5, 6, 7]
+        world.rank = 3
+        world.suit = 2
+        world.current_player = 1
+        world.player_B_hand = [watten.get_id(4, 1)]
+        world.player_A_hand = [watten.get_id(5, 0)]
+
+        result = world._last_hand_raise_valid()
+        self.assertFalse(result)
+
+        world = WorldWatten()
+
+        world.played_cards = [0, 1, 2, 3, 4, 5, 6, 7]
+        world.rank = 3
+        world.suit = 2
+        world.current_player = 1
+        world.player_B_hand = [watten.get_id(4, 2)]
+        world.player_A_hand = [watten.get_id(5, 0)]
+
+        result = world._last_hand_raise_valid()
+        self.assertTrue(result)
+
+        # player 1 raised
+        world = WorldWatten()
+
+        world.played_cards = [0, 1, 2, 3, 4, 5, 6, 7]
+        world.rank = 3
+        world.suit = 2
+        world.current_player = -1
+        world.player_B_hand = [watten.get_id(4, 1)]
+        world.player_A_hand = [watten.get_id(5, 0)]
+
+        result = world._last_hand_raise_valid()
+        self.assertFalse(result)
+
+        world = WorldWatten()
+
+        world.played_cards = [0, 1, 2, 3, 4, 5, 6, 7]
+        world.rank = 3
+        world.suit = 2
+        world.current_player = -1
+        world.player_B_hand = [watten.get_id(4, 2)]
+        world.player_A_hand = [watten.get_id(5, 2)]
+
+        result = world._last_hand_raise_valid()
+        self.assertTrue(result)
+
+    def test_last_hand_raise_valid_9_cards(self):
+        # trumpf
+
+        # player -1 raised
+        world = WorldWatten()
+
+        world.played_cards = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+        world.rank = 3
+        world.suit = 2
+        world.current_player = 1
+        world.player_B_hand = [watten.get_id(4, 2)]
+        world.player_A_hand = [watten.get_id(5, 0)]
+
+        result = world._last_hand_raise_valid()
+        self.assertTrue(result)
+
+        # player 1 raised
+        world = WorldWatten()
+
+        world.played_cards = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+        world.rank = 3
+        world.suit = 2
+        world.current_player = -1
+        world.player_B_hand = [watten.get_id(4, 2)]
+        world.player_A_hand = [watten.get_id(5, 2)]
+
+        result = world._last_hand_raise_valid()
+        self.assertTrue(result)
+
+        # same suit
+
+        # player 1 raised
+        world = WorldWatten()
+
+        world.played_cards = [0, 1, 2, 3, 4, 5, 6, 7, watten.get_id(1, 0)]
+        world.rank = 3
+        world.suit = 2
+        world.current_player = 1
+        world.player_B_hand = [watten.get_id(4, 0)]
+        world.player_A_hand = []
+
+        result = world._last_hand_raise_valid()
+        self.assertTrue(result)
+
+        # player -1 raised
+        world = WorldWatten()
+
+        world.played_cards = [0, 1, 2, 3, 4, 5, 6, 7, watten.get_id(1, 0)]
+        world.rank = 3
+        world.suit = 2
+        world.current_player = -1
+        world.player_B_hand = []
+        world.player_A_hand = [watten.get_id(4, 0)]
+
+        result = world._last_hand_raise_valid()
+        self.assertTrue(result)
+
+        # card beats the played one
+
+        # player 1 raised
+        world = WorldWatten()
+
+        world.played_cards = [0, 1, 2, 3, 4, 5, 6, 7, watten.get_id(1, 0)]
+        world.rank = 3
+        world.suit = 2
+        world.current_player = 1
+        world.player_B_hand = [watten.get_id(3, 2)]
+        world.player_A_hand = []
+
+        result = world._last_hand_raise_valid()
+        self.assertTrue(result)
+
+        # player -1 raised
+        world = WorldWatten()
+
+        world.played_cards = [0, 1, 2, 3, 4, 5, 6, 7, watten.get_id(1, 0)]
+        world.rank = 3
+        world.suit = 2
+        world.current_player = -1
+        world.player_B_hand = []
+        world.player_A_hand = [watten.get_id(3, 2)]
+
+        result = world._last_hand_raise_valid()
+        self.assertTrue(result)
+
+        # raise was not legal
+
+        # player 1 raised
+        world = WorldWatten()
+
+        world.played_cards = [0, 1, 2, 3, 4, 5, 6, 7, watten.get_id(1, 0)]
+        world.rank = 3
+        world.suit = 2
+        world.current_player = 1
+        world.player_B_hand = [watten.get_id(6, 3)]
+        world.player_A_hand = []
+
+        result = world._last_hand_raise_valid()
+        self.assertFalse(result)
+
+        # player -1 raised
+        world = WorldWatten()
+
+        world.played_cards = [0, 1, 2, 3, 4, 5, 6, 7, watten.get_id(1, 0)]
+        world.rank = 3
+        world.suit = 2
+        world.current_player = -1
+        world.player_B_hand = []
+        world.player_A_hand = [watten.get_id(6, 3)]
+
+        result = world._last_hand_raise_valid()
+        self.assertFalse(result)
+
+    def test_remove_card_from_hand(self):
+        world = WorldWatten()
+
+        world.player_A_hand = [0, 1, 2, 3, 4]
+        world.player_B_hand = [5, 6, 7, 8, 9]
+
+        world._remove_card_from_hand(3, 1)
+        self.assertTrue(world.player_A_hand, [0, 1, 2, 4])
+
+        world._remove_card_from_hand(5, -1)
+        self.assertTrue(world.player_A_hand, [6, 7, 8, 9])
+
+        world._remove_card_from_hand(4, 1)
+        self.assertTrue(world.player_A_hand, [0, 1, 2])
+
+        world._remove_card_from_hand(8, -1)
+        self.assertTrue(world.player_A_hand, [6, 7, 9])
+
     def test_observe(self):
         world = WorldWatten()
 
         world.current_game_player_A_score = 3
         world.observe(1)
+
+    def test_get_last_played_card(self):
+        world = WorldWatten()
+        world.played_cards = [4, 3, 2]
+        last_played_card = world._get_last_played_card()
+        self.assertEqual(last_played_card, 2)
+
+        world = WorldWatten()
+        world.played_cards = []
+        last_played_card = world._get_last_played_card()
+        self.assertEqual(last_played_card, None)
+
+        world = WorldWatten()
+        world.played_cards = [123]
+        last_played_card = world._get_last_played_card()
+        self.assertEqual(last_played_card, 123)
+
+        world = WorldWatten()
+        world.played_cards = [2, 8]
+        last_played_card = world._get_last_played_card()
+        self.assertEqual(last_played_card, 8)
+
+    def test_get_opponent_hand(self):
+        watten = WorldWatten()
+
+        watten.player_A_hand = [1, 2, 3]
+        watten.player_B_hand = [4, 5, 6]
+
+        watten.current_player = 1
+
+        result = watten._get_opponent_hand()
+        self.assertEqual(result, [4, 5, 6])
+
+        watten = WorldWatten()
+
+        watten.player_A_hand = [1, 2, 3]
+        watten.player_B_hand = [4, 5, 6]
+
+        watten.current_player = -1
+
+        result = watten._get_opponent_hand()
+        self.assertEqual(result, [1, 2, 3])
+
+    def test_get_current_player_hand(self):
+        watten = WorldWatten()
+
+        watten.player_A_hand = [1, 2, 3]
+        watten.player_B_hand = [4, 5, 6]
+
+        watten.current_player = 1
+
+        result = watten._get_current_player_hand()
+        self.assertEqual(result, [1, 2, 3])
+
+        watten = WorldWatten()
+
+        watten.player_A_hand = [1, 2, 3]
+        watten.player_B_hand = [4, 5, 6]
+
+        watten.current_player = -1
+
+        result = watten._get_current_player_hand()
+        self.assertEqual(result, [4, 5, 6])
 
     def test_display(self):
         watten = WorldWatten()
