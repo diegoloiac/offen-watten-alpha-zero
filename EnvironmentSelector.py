@@ -259,7 +259,8 @@ class EnvironmentSelector():
 
         game = self.game_mapping[agent_profile.game]
 
-        nnet = DurakNNet(*game.get_observation_size(), 1, game.get_action_size())
+        x, y = game.get_observation_size()
+        nnet = DurakNNet(x, y, 1, game.get_action_size())
 
         agent_nnet = AgentNNet(nnet)
 
@@ -272,7 +273,8 @@ class EnvironmentSelector():
 
         game = self.game_mapping[agent_profile.game]
 
-        nnet = WattenNNet(*game.get_observation_size(), 1, game.get_action_size())
+        x, y = game.get_observation_size()
+        nnet = WattenNNet(x, y, 1, game.get_action_size())
 
         agent_nnet = AgentNNet(nnet)
 

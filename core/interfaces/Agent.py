@@ -24,7 +24,7 @@ class Agent():
     def load(self, path_to_file):
         pass
 
-    def train(self, train_examples, batch_size = 2048, epochs = 10, verbose = 1):
+    def train(self, train_examples, batch_size=2048, epochs=10, verbose=1):
         pass
 
     def clone(self):

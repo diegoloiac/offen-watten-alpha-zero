@@ -43,6 +43,8 @@ class AgentNNet(Agent):
         target_pis = np.asarray(target_pis)
         target_vs = np.asarray(target_vs)
 
+        print(f"Training with input boards {input_boards.shape}")
+
         self.nnet.train(input_boards, target_pis, target_vs, batch_size=batch_size, epochs=epochs, verbose=verbose)
 
     def clone(self):

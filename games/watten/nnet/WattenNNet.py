@@ -14,11 +14,16 @@ from keras.utils import multi_gpu_model
 class WattenNNet(NNet):
 
     def build_model(self):
+        print(f"Build model with x {self.observation_size_x}, y {self.observation_size_y}, "
+              f"z {self.observation_size_z}, action size {self.action_size}")
+
         learning_rate = 0.0001
 
         input_boards = Input(shape=(self.observation_size_x, self.observation_size_y))
 
         x_image = Reshape((self.observation_size_x, self.observation_size_y, 1))(input_boards)
+
+        print(x_image.shape)
 
         h_input = Flatten()(x_image)
 

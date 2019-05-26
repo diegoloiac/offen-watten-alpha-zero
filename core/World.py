@@ -78,12 +78,17 @@ class World():
 
             if game.is_ended():
                 if not game.is_draw():
-                    print("\n")
+                    results = []
                     for idx, agent in enumerate(agents):
                         game_results[idx] = game.get_score(idx)
-                        if verbose:
-                            print(agent.get_name(), " scored ", game_results[idx])
-                    print("\n")
+                        results.append(game_results[idx])
+
+                        # if verbose:
+                        #     print("\n", agent.get_name(), " scored ", game_results[idx], "\n")
+                    action_size = game.get_action_size()
+                    if action_size == 50:
+                        if results[0] == results[1]:
+                            raise Exception("Watten game cannot end in a draw")
                 else:
                     for idx, agent in enumerate(agents):
                         game_results[idx] = self.RESULT_DRAW
@@ -108,8 +113,8 @@ class World():
 
         loop_range = range(num_games)
 
-        if verbose:
-            loop_range = tqdm(loop_range)
+        # if verbose:
+        loop_range = tqdm(loop_range)
 
         for id_loop in loop_range:
             game_experience, game_results = self.execute_game(agents, game,

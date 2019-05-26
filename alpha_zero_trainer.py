@@ -64,7 +64,7 @@ def generate_open_mpi_distributed_command(hosts, use_gpu):
     return command
 
 
-def execute_commant_synch(command, show_output=True):
+def execute_command_synch(command, show_output=True):
     print("execute command: ", command)
 
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, universal_newlines=True)
@@ -108,7 +108,7 @@ def train(agent_profile, memory_path, cur_agent_path, new_agent_path,
 
             command = open_mpi_command + " " + command
 
-    code = execute_commant_synch(command)
+    code = execute_command_synch(command)
 
     print("training finished, exit code: ", code)
 
@@ -167,7 +167,7 @@ def generate_self_play(agent_profile, agent_path, temp_dir, iteration_memory_pat
 
         command = open_mpi_command + " " + command
 
-    code = execute_commant_synch(command)
+    code = execute_command_synch(command)
 
     print("self-play generation finished, exit code: ", code)
 
@@ -223,7 +223,7 @@ def evaluate(agent_profile, contestant_agent_path,
     if debug:
         command += " --debug"
 
-    code = execute_commant_synch(command)
+    code = execute_command_synch(command)
 
     print("model evaluation finished, exit code: ", code)
 
@@ -271,6 +271,8 @@ if __name__ == "__main__":
 
     parser.add_argument("--iterations", dest="iterations", default=100, type=int,
                         help="Number of iterations of Alpha Zero")
+    parser.add_argument("--epochs", dest="epochs", default=1, type=int,
+                        help="Number of epochs for training neural network")
 
     parser.add_argument("--start_idx", dest="start_idx", default=0, type=int,
                         help="Index of iteration to start")
@@ -282,7 +284,7 @@ if __name__ == "__main__":
                         help="Number of games to play. ")
 
     parser.add_argument('--verbose', dest='verbose', action='store_true', help="Show games outcome")
-    parser.set_defaults(verbose=True)
+    parser.set_defaults(verbose=False)
 
     parser.add_argument('--debug', dest='debug', action='store_true', help="Show games per turn")
     parser.set_defaults(debug=False)
@@ -361,6 +363,7 @@ if __name__ == "__main__":
     # get Agent and Game instances by the profile
     env_selector = EnvironmentSelector()
 
+    print("Agent profile %s" % options.agent_profile)
     agent = env_selector.get_agent(options.agent_profile)
     agent_profile = env_selector.get_profile(options.agent_profile)
     game = env_selector.get_game(agent_profile.game)
@@ -369,6 +372,7 @@ if __name__ == "__main__":
     # this way every agent will play from different positions in the evaluation phase
     if not options.test_games_num:
         test_games_num = game.get_players_num()
+        print(test_games_num)
     else:
         test_games_num = options.test_games_num
 
@@ -379,7 +383,7 @@ if __name__ == "__main__":
             train(options.agent_profile, options.memory_path, None, cur_agent_path,
                   hosts=hosts, train_distributed=options.train_distributed,
                   train_distributed_native=options.train_distributed_native,
-                  epochs=10)
+                  epochs=options.epochs)
         else:
             agent.save(cur_agent_path)
     else:
@@ -419,7 +423,7 @@ if __name__ == "__main__":
         train(options.agent_profile, memory_path, cur_agent_path, contestant_agent_path,
               hosts=hosts, train_distributed=options.train_distributed,
               train_distributed_native=options.train_distributed_native,
-              epochs=1)
+              epochs=options.epochs)
 
         if options.skip_evaluation:
 

@@ -27,10 +27,10 @@ class WattenGame(Game):
         return 2
 
     def get_action_size(self):
-        return 49
+        return 50
 
     def get_observation_size(self):
-        return 212, 1
+        return 213, 1
 
     def make_move(self, action):
         # stdout_logger.info("make move")

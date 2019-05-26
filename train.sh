@@ -4,5 +4,5 @@ python3 alpha_zero_trainer.py \
 --max_steps 400 \
 --games_num 100 \
 --iterations 100 \
---verbose \
---exploration_decay_steps 15
+--exploration_decay_steps 15 \
+--epochs 1

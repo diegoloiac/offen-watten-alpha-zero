@@ -159,6 +159,7 @@ class NNet(ABC):
                       epochs=epochs,
                       verbose=verbose)
         else:
+            print("Fit model with epochs %d and batch size %d" % (epochs, batch_size))
             model.fit(x=input_boards, y=[target_pis, target_vs], batch_size=batch_size, epochs=epochs, verbose=verbose)
 
     def get_model(self):
