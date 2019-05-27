@@ -76,15 +76,16 @@ class WorldWatten(object):
         self.player_A_score = 0
         self.player_B_score = 0
 
-        self._refresh_state_single_hand()
-
         # points to achieve for winning a game
         self.win_threshold = 15
+
+        self._refresh_state_single_hand()
 
         self.moves = moves
 
         self.starting_state = f"\n{self.current_player}, {self.distributing_cards_player}, {self.player_A_score}, {self.player_B_score}, {self.player_A_hand}, {self.player_B_hand}, {self.played_cards}, {self.current_game_player_A_score}, {self.current_game_player_B_score}, {self.current_game_prize}, {self.is_last_move_raise}, {self.is_last_move_accepted_raise}, {self.first_card_deck}, {self.last_card_deck}, {self.rank}, {self.suit}, {self.is_last_hand_raise_valid}"
 
+        # list of actions taken in a game, used for debugging purposes
         self.moves_series = []
 
     def _refresh_state_single_hand(self):
@@ -110,8 +111,6 @@ class WorldWatten(object):
         self.current_game_player_A_score = 0
         self.current_game_player_B_score = 0
 
-        self.current_game_prize = 2
-
         # is True only if the last move was a raise
         self.is_last_move_raise = False
         self.is_last_move_accepted_raise = False
@@ -127,6 +126,8 @@ class WorldWatten(object):
 
         self.rank = None  # schlag
         self.suit = None  # farb
+
+        self._set_initial_game_prize()
 
     def get_valid_moves_zeros(self):
         valid_moves = self.get_valid_moves()
@@ -350,7 +351,6 @@ class WorldWatten(object):
         raise InconsistentStateError("Action %d is not allowed." % action)
 
     def _hand_is_done_after_card_is_played_common(self):
-        self._set_initial_game_prize()
         self._refresh_state_single_hand()
         self.current_player = self.distributing_cards_player
         self.distributing_cards_player = self.distributing_cards_player * -1
@@ -439,9 +439,6 @@ class WorldWatten(object):
             return
 
         self.current_game_prize = 2
-
-    def _raise_points(self):
-        pass
 
     # routine for deciding whether a card (card1) wins over another card (card2)
     # returns true if the first card wins, false otherwise
@@ -562,15 +559,18 @@ class WorldWatten(object):
     # - picked suit (list of 4)
     # - last played card (list of 33)
     # - played cards (list of 33)
-    # - points current hand current player
-    # - points current hand opponent player
-    # - points game current player
-    # - points game opponent player
+    # - points current hand current player (max 2)
+    # - points current hand opponent player (max 2)
+    # - points game current player (max 14)
+    # - points game opponent player (max 14)
+    # - last move raise (1)
+    # - last move valid raise (1)
+    # - current prize (13)
     def observe(self, player):
         if player not in [1, -1]:
             raise InvalidInputError("Player should be either 1 or -1. Input is %d." % player)
 
-        observation = np.zeros((213,))
+        observation = np.zeros((226,))
 
         # first card deck
         observation[self.first_card_deck] = 1
@@ -656,9 +656,13 @@ class WorldWatten(object):
         else:
             observation[index] = 1
 
-        # total size = 212 + 1 = 213
+        index += 1
+        if self.current_game_prize - 3 >= 0:
+            observation[index + self.current_game_prize - 3] = 1
 
-        observation = observation.reshape((213, 1))
+        # total size = 213 + 13 = 226
+
+        observation = observation.reshape((226, 1))
         return observation
 
     def _get_last_played_card(self):

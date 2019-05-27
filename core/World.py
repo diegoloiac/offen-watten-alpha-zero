@@ -82,6 +82,8 @@ class World():
                     for idx, agent in enumerate(agents):
                         game_results[idx] = game.get_score(idx)
                         results.append(game_results[idx])
+                        # if 46 not in game.trueboard.moves_series:
+                        #     game.trueboard.display()
 
                         # if verbose:
                         #     print("\n", agent.get_name(), " scored ", game_results[idx], "\n")

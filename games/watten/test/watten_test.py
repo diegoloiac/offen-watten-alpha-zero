@@ -842,12 +842,6 @@ class TestWorldWatten(TestCase):
         world._remove_card_from_hand(8, -1)
         self.assertTrue(world.player_A_hand, [6, 7, 9])
 
-    def test_observe(self):
-        world = WorldWatten()
-
-        world.current_game_player_A_score = 3
-        world.observe(1)
-
     def test_get_last_played_card(self):
         world = WorldWatten()
         world.played_cards = [4, 3, 2]
@@ -1042,6 +1036,57 @@ class TestWorldWatten(TestCase):
 
         result = world._get_current_player_hand()
         self.assertEqual(result, [4, 5, 6])
+
+    def test_set_initial_game_prize_player_A_ahead(self):
+        world = WorldWatten()
+
+        self.assertEqual(world.current_game_prize, 2)
+
+        world = WorldWatten()
+        world.player_A_score = 13
+        world.player_B_score = 4
+
+        world._set_initial_game_prize()
+
+        self.assertEqual(world.current_game_prize, 4)
+
+        world = WorldWatten()
+        world.player_A_score = 13
+        world.player_B_score = 10
+
+        world._set_initial_game_prize()
+
+        self.assertEqual(world.current_game_prize, 3)
+
+    def test_set_initial_game_prize_player_B_ahead(self):
+        world = WorldWatten()
+
+        self.assertEqual(world.current_game_prize, 2)
+
+        world = WorldWatten()
+        world.player_B_score = 13
+        world.player_A_score = 4
+
+        world._set_initial_game_prize()
+
+        self.assertEqual(world.current_game_prize, 4)
+
+        world = WorldWatten()
+        world.player_B_score = 13
+        world.player_A_score = 10
+
+        world._set_initial_game_prize()
+
+        self.assertEqual(world.current_game_prize, 3)
+
+    def test_observe(self):
+        world = WorldWatten()
+
+        world.current_game_prize = 15
+
+        result = world.observe(1)
+
+        print(result)
 
     def test_display(self):
         watten = WorldWatten()
