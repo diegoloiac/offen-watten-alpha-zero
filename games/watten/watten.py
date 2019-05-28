@@ -83,7 +83,7 @@ class WorldWatten(object):
 
         self.moves = moves
 
-        self.starting_state = f"\n{self.current_player}, {self.distributing_cards_player}, {self.player_A_score}, {self.player_B_score}, {self.player_A_hand}, {self.player_B_hand}, {self.played_cards}, {self.current_game_player_A_score}, {self.current_game_player_B_score}, {self.current_game_prize}, {self.is_last_move_raise}, {self.is_last_move_accepted_raise}, {self.first_card_deck}, {self.last_card_deck}, {self.rank}, {self.suit}, {self.is_last_hand_raise_valid}"
+        self.starting_state = f"\n{self.current_player}, {self.distributing_cards_player}, {self.player_A_score}, {self.player_B_score}, {self.player_A_hand}, {self.player_B_hand}, {self.played_cards}, {self.current_game_player_A_score}, {self.current_game_player_B_score}, {self.current_game_prize}, {self.is_last_move_raise}, {self.is_last_move_accepted_raise}, {self.is_last_hand_raise_valid}, {self.first_card_deck}, {self.last_card_deck}, {self.rank}, {self.suit}"
 
         # list of actions taken in a game, used for debugging purposes
         self.moves_series = []
@@ -128,6 +128,29 @@ class WorldWatten(object):
         self.suit = None  # farb
 
         self._set_initial_game_prize()
+
+        for card in self.player_A_hand:
+            if card in self.deck:
+                raise InconsistentStateError("Card %d cannot be in deck." % card)
+        for card in self.player_B_hand:
+            if card in self.deck:
+                raise InconsistentStateError("Card %d cannot be in deck." % card)
+
+    def _set_initial_game_prize(self):
+        if (self.win_threshold - self.player_A_score) <= 2:
+            if self.player_B_score < 10:
+                self.current_game_prize = 4
+            else:
+                self.current_game_prize = 3
+            return
+        if (self.win_threshold - self.player_B_score) <= 2:
+            if self.player_A_score < 10:
+                self.current_game_prize = 4
+            else:
+                self.current_game_prize = 3
+            return
+
+        self.current_game_prize = 2
 
     def get_valid_moves_zeros(self):
         valid_moves = self.get_valid_moves()
@@ -240,6 +263,8 @@ class WorldWatten(object):
     # the next player can be either 1 or -1
     def act(self, action):
         num_played_cards = len(self.played_cards)
+        if action not in self.get_valid_moves():
+            raise InvalidActionError("Action %d cannot be played" % action)
 
         if action > 49:
             raise InvalidActionError("Action %d is not valid" % action)
@@ -423,22 +448,6 @@ class WorldWatten(object):
             else:
                 self.current_game_player_A_score += 1
                 return 1
-
-    def _set_initial_game_prize(self):
-        if (self.win_threshold - self.player_A_score) <= 2:
-            if self.player_B_score < 10:
-                self.current_game_prize = 4
-            else:
-                self.current_game_prize = 3
-            return
-        if (self.win_threshold - self.player_B_score) <= 2:
-            if self.player_A_score < 10:
-                self.current_game_prize = 4
-            else:
-                self.current_game_prize = 3
-            return
-
-        self.current_game_prize = 2
 
     # routine for deciding whether a card (card1) wins over another card (card2)
     # returns true if the first card wins, false otherwise
@@ -693,14 +702,10 @@ class WorldWatten(object):
                       f"\nPlayer -1 hand: {self._str_cards(self.player_B_hand)} - {self.player_B_hand}"
                       f"\nRank: |{self.rank} - {rank_names[self.rank]}|, Suit: |{self.suit} - {suit_names[self.suit]}|"
                       f"\nPlayed cards: {self._str_cards(self.played_cards)}"
-                      f"\n{self.current_player}, {self.distributing_cards_player}, {self.player_A_score}, "
-                      f"{self.player_B_score}, {self.player_A_hand}, {self.player_B_hand}, {self.played_cards}, "
-                      f"{self.current_game_player_A_score}, {self.current_game_player_B_score}, "
-                      f"{self.current_game_prize}, {self.is_last_move_raise}, {self.is_last_move_accepted_raise}, {self.is_last_hand_raise_valid},"
-                      f"{self.first_card_deck}, {self.last_card_deck}, {self.rank}, {self.suit}, {self.is_last_hand_raise_valid}")
+                      f"\n{self.distributing_cards_player}, {self.is_last_hand_raise_valid}, {self.first_card_deck}, {self.last_card_deck}")
 
-        # self.LOG.info(f"{self.starting_state}")
-        # self.LOG.info(f"{self.moves_series}")
+        self.LOG.info(f"{self.starting_state}")
+        self.LOG.info(f"{self.moves_series}")
 
     def _str_cards(self, cards):
         str_cards = ""
@@ -714,7 +719,6 @@ class WorldWatten(object):
     def deepcopy(self):
         new_world = WorldWatten()
         new_world.LOG = self.LOG
-        new_world.moves = self.moves.copy()
         new_world.current_player = self.current_player
         new_world.distributing_cards_player = self.distributing_cards_player
         new_world.deck = self.deck.copy()
@@ -742,7 +746,8 @@ class WorldWatten(object):
     def init_world_to_state(self, current_player, distributing_cards_player, player_A_score, player_B_score,
                             player_A_hand, player_B_hand, played_cards, current_game_player_A_score,
                             current_game_player_B_score, current_game_prize, is_last_move_raise,
-                            is_last_move_accepted_raise, first_card_deck, last_card_deck, rank, suit, is_last_hand_raise_valid):
+                            is_last_move_accepted_raise, is_last_hand_raise_valid, first_card_deck, last_card_deck, rank, suit):
+
         self.current_player = current_player
         self.distributing_cards_player = distributing_cards_player
         self.player_A_score = player_A_score
@@ -755,11 +760,11 @@ class WorldWatten(object):
         self.current_game_prize = current_game_prize
         self.is_last_move_raise = is_last_move_raise
         self.is_last_move_accepted_raise = is_last_move_accepted_raise
+        self.is_last_hand_raise_valid = is_last_hand_raise_valid
         self.first_card_deck = first_card_deck
         self.last_card_deck = last_card_deck
         self.rank = rank
         self.suit = suit
-        self.is_last_hand_raise_valid = is_last_hand_raise_valid
 
 
 class Error(Exception):

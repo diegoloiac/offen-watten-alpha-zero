@@ -624,6 +624,7 @@ class TestWorldWatten(TestCase):
         world = WorldWatten()
 
         world.current_player = 1
+        world.rank = 3
         world.is_last_move_accepted_raise = True
         world.is_last_move_raise = False
 
@@ -639,6 +640,7 @@ class TestWorldWatten(TestCase):
         world = WorldWatten()
 
         world.current_player = -1
+        world.rank = 3
 
         result, next_player = world.act(42)
 
