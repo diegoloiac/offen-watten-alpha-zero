@@ -83,10 +83,9 @@ class WorldWatten(object):
 
         self.moves = moves
 
-        self.starting_state = f"\n{self.current_player}, {self.distributing_cards_player}, {self.player_A_score}, {self.player_B_score}, {self.player_A_hand}, {self.player_B_hand}, {self.played_cards}, {self.current_game_player_A_score}, {self.current_game_player_B_score}, {self.current_game_prize}, {self.is_last_move_raise}, {self.is_last_move_accepted_raise}, {self.is_last_hand_raise_valid}, {self.first_card_deck}, {self.last_card_deck}, {self.rank}, {self.suit}"
-
         # list of actions taken in a game, used for debugging purposes
         self.moves_series = []
+        self.starting_state = f"\n{self.current_player}, {self.distributing_cards_player}, {self.player_A_score}, {self.player_B_score}, {self.player_A_hand}, {self.player_B_hand}, {self.played_cards}, {self.current_game_player_A_score}, {self.current_game_player_B_score}, {self.current_game_prize}, {self.is_last_move_raise}, {self.is_last_move_accepted_raise}, {self.is_last_hand_raise_valid}, {self.first_card_deck}, {self.last_card_deck}, {self.rank}, {self.suit}"
 
     def _refresh_state_single_hand(self):
         # init deck
@@ -179,13 +178,13 @@ class WorldWatten(object):
 
         # player that has not given cards declare the rank
         if self.rank is None:
-            augmented_valid_moves = self.augment_valid_moves(self.moves["pick_rank"])
+            augmented_valid_moves = self._augment_valid_moves(self.moves["pick_rank"])
             self.LOG.debug(f"Valid moves for player [{self.current_player}] are {augmented_valid_moves}")
             return augmented_valid_moves
 
         # player that has given cards declare the suit. If weli was chosen as rank, then suit is irrelevant
         if self.suit is None:
-            augmented_valid_moves = self.augment_valid_moves(self.moves["pick_suit"])
+            augmented_valid_moves = self._augment_valid_moves(self.moves["pick_suit"])
             self.LOG.debug(f"Valid moves for player [{self.current_player}] are {augmented_valid_moves}")
             return augmented_valid_moves
 
@@ -197,7 +196,7 @@ class WorldWatten(object):
         # when the cards in game are even, then no hand has been played or one has just finished so
         # any card in hand of the current player can be played
         if (len(self.played_cards) % 2) == 0:
-            augmented_valid_moves = self.augment_valid_moves(current_hand)
+            augmented_valid_moves = self._augment_valid_moves(current_hand)
             self.LOG.debug(f"Valid moves for player [{self.current_player}] are {augmented_valid_moves}")
             return augmented_valid_moves
 
@@ -224,18 +223,18 @@ class WorldWatten(object):
         if len(valid_moves) == 1:
             card_rank, card_suit = get_rs(valid_moves[0])
             if self.rank == card_rank and self.suit == card_suit:
-                augmented_valid_moves = self.augment_valid_moves(current_hand)
+                augmented_valid_moves = self._augment_valid_moves(current_hand)
                 self.LOG.debug(f"Valid moves for player [{self.current_player}] are {augmented_valid_moves}")
                 return augmented_valid_moves
 
         if len(valid_moves) == 0:
             valid_moves = current_hand
 
-        augmented_valid_moves = self.augment_valid_moves(valid_moves)
+        augmented_valid_moves = self._augment_valid_moves(valid_moves)
         self.LOG.debug(f"Valid moves for player [{self.current_player}] are {augmented_valid_moves}")
         return augmented_valid_moves
 
-    def augment_valid_moves(self, moves):
+    def _augment_valid_moves(self, moves):
         valid_moves = []
         valid_moves.extend(moves)
         # a player can raise only if the last move was not a raise
