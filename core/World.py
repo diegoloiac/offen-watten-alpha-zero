@@ -70,7 +70,8 @@ class World():
             try:
                 _, cur_player = game.make_move(action)
             except InconsistentStateError as e:
-                print(actions_prob)
+                print(game.trueboard.moves_series)
+                print(game.trueboard.starting_state)
                 logging.exception("error")
                 raise e
 
@@ -82,8 +83,8 @@ class World():
                     for idx, agent in enumerate(agents):
                         game_results[idx] = game.get_score(idx)
                         results.append(game_results[idx])
-                        # if 46 not in game.trueboard.moves_series:
-                        #     game.trueboard.display()
+                        if 46 not in game.trueboard.moves_series:
+                            game.trueboard.display()
 
                         # if verbose:
                         #     print("\n", agent.get_name(), " scored ", game_results[idx], "\n")
