@@ -172,40 +172,6 @@ class TestWorldWatten(TestCase):
 
         self.assertEqual(valid_moves, [17, 1, 3, 28, 18, 46])
 
-    # def test_get_valid_moves_played_card(self):
-    #     world = WorldWatten()
-    #
-    #     world.player_A_hand = []
-    #     world.player_B_hand = []
-    #
-    #     world.suit = None
-    #     world.rank = None
-    #
-    #     world.played_cards.append()
-    #
-    #     world.current_player = 1
-    #
-    #     valid_moves = world.get_valid_moves()
-    #
-    #     self.assertEqual(valid_moves, [])
-
-    # def test_get_valid_moves_played_card(self):
-    #     world = WorldWatten()
-    #
-    #     world.player_A_hand = []
-    #     world.player_B_hand = []
-    #
-    #     world.suit = None
-    #     world.rank = None
-    #
-    #     world.played_cards.append()
-    #
-    #     world.current_player = 1
-    #
-    #     valid_moves = world.get_valid_moves()
-    #
-    #     self.assertEqual(valid_moves, [])
-
     def test_is_rechte(self):
         world = WorldWatten()
 

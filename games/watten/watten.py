@@ -184,7 +184,7 @@ class WorldWatten(object):
             return augmented_valid_moves
 
         # player that has given cards declare the suit. If weli was chosen as rank, then suit is irrelevant
-        if self.rank != 8 != self.suit is None:
+        if self.suit is None:
             augmented_valid_moves = self.augment_valid_moves(self.moves["pick_suit"])
             self.LOG.debug(f"Valid moves for player [{self.current_player}] are {augmented_valid_moves}")
             return augmented_valid_moves
@@ -323,7 +323,7 @@ class WorldWatten(object):
             self._remove_card_from_hand(action, self.current_player)
 
             if num_played_cards % 2 == 0:
-                if not self.is_last_hand_raise_valid:
+                if self.is_last_hand_raise_valid is not None and not self.is_last_hand_raise_valid:
                     # played cards are 8 and current player also raised without respecting the conditions
                     if self.current_player == 1:
                         self.player_B_score += self.current_game_prize
@@ -333,7 +333,7 @@ class WorldWatten(object):
                 self.played_cards.append(action)
                 return self._act_continue_move()
             else:
-                if not self.is_last_hand_raise_valid:
+                if self.is_last_hand_raise_valid is not None and not self.is_last_hand_raise_valid:
                     # played cards are 9 and current player also raised without respecting the conditions
                     if self.current_player == 1:
                         self.player_B_score += self.current_game_prize
@@ -367,8 +367,6 @@ class WorldWatten(object):
                 raise InvalidActionError("Cannot play a card if the previous move was a raise")
 
             self.rank = action % 33
-            if self.rank == 8:
-                self.suit = 3  # weli has suit 3 (balls)
             self.LOG.debug(f"{self.current_player} picked rank [{self.rank}]")
             return self._act_continue_move()
 
