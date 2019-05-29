@@ -69,7 +69,8 @@ class World():
 
             try:
                 _, cur_player = game.make_move(action)
-            except InconsistentStateError as e:
+            except Exception as e:
+                print("ERROR")
                 print(game.trueboard.moves_series)
                 print(game.trueboard.starting_state)
                 logging.exception("error")
