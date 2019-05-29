@@ -614,39 +614,27 @@ class WorldWatten(object):
 
         # points current hand current player
         index += 33  # 178
-        if player == 1:
-            for i in range(self.current_game_player_A_score):
-                observation[index + i] = 1
-        else:
-            for i in range(self.current_game_player_B_score):
-                observation[index + i] = 1
+        points_current_hand_current = self.current_game_player_A_score if player == 1 else self.current_game_player_B_score
+        if points_current_hand_current != 0:
+            observation[index + points_current_hand_current - 1] = 1
 
         # points current hand opponent player
         index += 2  # 180
-        if player == 1:
-            for i in range(self.current_game_player_B_score):
-                observation[index + i] = 1
-        else:
-            for i in range(self.current_game_player_A_score):
-                observation[index + i] = 1
+        points_current_hand_opponent = self.current_game_player_B_score if player == 1 else self.current_game_player_A_score
+        if points_current_hand_opponent != 0:
+            observation[index + points_current_hand_opponent - 1] = 1
 
         # points game current player
         index += 2  # 182
-        if player == 1:
-            for i in range(self.player_A_score):
-                observation[index + i] = 1
-        else:
-            for i in range(self.player_B_score):
-                observation[index + i] = 1
+        points_game_current = self.player_A_score if player == 1 else self.player_B_score
+        if points_game_current != 0:
+            observation[index + points_game_current - 1] = 1
 
         # points game opponent player
         index += 14  # 196
-        if player == 1:
-            for i in range(self.player_B_score):
-                observation[index + i] = 1
-        else:
-            for i in range(self.player_A_score):
-                observation[index + i] = 1
+        points_game_opponent = self.player_B_score if player == 1 else self.player_A_score
+        if points_game_opponent != 0:
+            observation[index + points_game_opponent - 1] = 1
 
         index += 14  # 210
         if self.is_last_move_raise:
