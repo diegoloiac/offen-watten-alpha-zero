@@ -604,7 +604,7 @@ class WorldWatten(object):
 
         # last played card
         index += 4  # 112
-        if len(self.played_cards) is not 0 and len(self.played_cards) % 2 == 0:
+        if len(self.played_cards) % 2 == 1:
             observation[index + self._get_last_played_card()] = 1
 
         # played cards
@@ -644,13 +644,13 @@ class WorldWatten(object):
         if self.is_last_move_accepted_raise:
             observation[index] = 1
 
-        index += 1
+        index += 1 # 212
         if self.is_last_hand_raise_valid is None:
             observation[index] = 0
         else:
             observation[index] = 1
 
-        index += 1
+        index += 1 # 213
         if self.current_game_prize - 3 >= 0:
             observation[index + self.current_game_prize - 3] = 1
 
