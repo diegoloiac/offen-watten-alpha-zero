@@ -9,14 +9,18 @@ from games.watten.watten import InvalidActionError
 
 class TestWorldCompleteGameWatten(TestCase):
 
-    def test_game_no_raise_1(self):
+    def test_game_no_raise_player_A_starts(self):
         world = WorldWatten()
         world.LOG.setLevel(DEBUG)
 
-        world.init_world_to_state(1, -1, 0, 0, [12, 29, 32, 24, 16], [13, 20, 31, 4, 25], [], 0, 0, 2, False, False, None, 3, 14, None, None)
+        world.init_world_to_state(1, -1, 0, 0, [14, 30, 2, 28, 11], [4, 23, 31, 7, 22], [], 0, 0, 2, False, False, None, 21, 26, None, None)
 
-        # [32, 34, 44, 23, 38, 45, 21, 41, 44, 13, 38, 44, 16, 36, 43, 4, 36,
-        #  43, 7, 41, 44, 20, 36, 43, 1, 33, 43, 21, 38, 43, 11, 34, 43, 13, 33, 43, 7, 35, 43, 3]
+        # [40, 45, 29, 12, 28, 13, 26, 0, 33, 45,
+        #  3, 25, 6, 16, 30, 14, 13, 1, 38, 43, 13, 5, 32, 3, 21, 27, 33, 42, 0,
+        #  4, 30, 31, 23, 7, 29, 1, 25, 9, 33, 42, 9, 30, 14, 32, 7, 25, 34, 42,
+        #  29, 7, 15, 19, 11, 17, 20, 27, 0, 2, 35, 44, 31, 4, 28, 1, 12, 3, 33,
+        #  45, 24, 25, 7, 11, 14, 18, 37, 45, 2, 27, 3, 0, 8, 10, 6, 26, 33, 43,
+        #  21, 22, 6, 10, 24, 14, 8, 16, 33, 42, 3, 0, 29, 17, 13, 31]
         world_copy = world.deepcopy()
 
         ######## MOVE ########
@@ -24,58 +28,11 @@ class TestWorldCompleteGameWatten(TestCase):
         self.assertEqual(valid_moves, [33, 34, 35, 36, 37, 38, 39, 40, 41, 46])
         self._compare_worlds(world, world_copy)
 
-        outcome, next_player = world.act(34)
+        outcome, next_player = world.act(36)
         self.assertEqual(outcome, "continue")
         self.assertEqual(next_player, -1)
 
-        world_copy.rank = 1
-        world_copy.current_player = -1
-        self._compare_worlds(world, world_copy)
-
-        ######## MOVE ########
-        valid_moves = world.get_valid_moves()
-        self.assertEqual(valid_moves, [42, 43, 44, 45, 46])
-        self._compare_worlds(world, world_copy)
-
-        outcome, next_player = world.act(42)
-        self.assertEqual(outcome, "continue")
-        self.assertEqual(next_player, 1)
-
-        world_copy.suit = 0
-        world_copy.current_player = 1
-        self._compare_worlds(world, world_copy)
-
-        ######## MOVE ########
-        valid_moves = world.get_valid_moves()
-        self.assertEqual(valid_moves, [12, 29, 32, 24, 16, 46])
-        self._compare_worlds(world, world_copy)
-
-        outcome, next_player = world.act(32)
-        self.assertEqual(outcome, "continue")
-        self.assertEqual(next_player, -1)
-
-        world_copy.player_A_hand = [12, 29, 24, 16]
-        world_copy.played_cards = [32]
-        world_copy.current_player = -1
-
-    def test_game_no_raise_error(self):
-        world = WorldWatten()
-        world.LOG.setLevel(DEBUG)
-
-        world.init_world_to_state(1, -1, 0, 0, [19, 30, 24, 23, 20], [31, 12, 7, 18, 16], [], 0, 0, 2, False, False, None, 25, 0, None, None)
-
-        world_copy = world.deepcopy()
-
-        ######## MOVE ########
-        valid_moves = world.get_valid_moves()
-        self.assertEqual(valid_moves, [33, 34, 35, 36, 37, 38, 39, 40, 41, 46])
-        self._compare_worlds(world, world_copy)
-
-        outcome, next_player = world.act(37)
-        self.assertEqual(outcome, "continue")
-        self.assertEqual(next_player, -1)
-
-        world_copy.rank = 4
+        world_copy.rank = 3
         world_copy.current_player = -1
         self._compare_worlds(world, world_copy)
 
@@ -94,86 +51,104 @@ class TestWorldCompleteGameWatten(TestCase):
 
         ######## MOVE ########
         valid_moves = world.get_valid_moves()
-        self.assertEqual(valid_moves, [19, 30, 24, 23, 20, 46])
+        self.assertEqual(valid_moves, [14, 30, 2, 28, 11, 46])
         self._compare_worlds(world, world_copy)
 
-        outcome, next_player = world.act(23)
+        outcome, next_player = world.act(30)
         self.assertEqual(outcome, "continue")
         self.assertEqual(next_player, -1)
 
-        world_copy.player_A_hand = [19, 30, 24, 20]
-        world_copy.player_B_hand = [31, 12, 7, 18, 16]
-        world_copy.played_cards = [23]
+        world_copy.player_A_hand = [14, 2, 28, 11]
+        world_copy.played_cards = [30]
         world_copy.current_player = -1
         self._compare_worlds(world, world_copy)
 
         ######## MOVE ########
         valid_moves = world.get_valid_moves()
-        self.assertEqual(valid_moves, [31, 12, 7, 18, 16, 46])
+        self.assertEqual(valid_moves, [31, 46])
         self._compare_worlds(world, world_copy)
 
         outcome, next_player = world.act(31)
         self.assertEqual(outcome, "continue")
         self.assertEqual(next_player, -1)
-        self.assertEqual(world.current_game_player_A_score, 0)
-        self.assertEqual(world.current_game_player_B_score, 1)
 
-        world_copy.player_A_hand = [19, 30, 24, 20]
-        world_copy.player_B_hand = [12, 7, 18, 16]
         world_copy.current_game_player_B_score = 1
-        world_copy.played_cards = [23, 31]
-        world_copy.current_player = -1
+        world_copy.player_B_hand = [4, 23, 7, 22]
+        world_copy.played_cards = [30, 31]
         self._compare_worlds(world, world_copy)
 
         ######## MOVE ########
         valid_moves = world.get_valid_moves()
-        self.assertEqual(valid_moves, [12, 7, 18, 16, 46])
+        self.assertEqual(valid_moves, [4, 23, 7, 22, 46])
         self._compare_worlds(world, world_copy)
 
-        outcome, next_player = world.act(18)
+        outcome, next_player = world.act(22)
         self.assertEqual(outcome, "continue")
         self.assertEqual(next_player, 1)
 
-        world_copy.player_B_hand = [12, 7, 16]
-        world_copy.played_cards = [23, 31, 18]
+        world_copy.player_B_hand = [4, 23, 7]
+        world_copy.played_cards = [30, 31, 22]
         world_copy.current_player = 1
         self._compare_worlds(world, world_copy)
 
         ######## MOVE ########
         valid_moves = world.get_valid_moves()
-        self.assertEqual(valid_moves, [19, 30, 24, 20, 46])
+        self.assertEqual(valid_moves, [14, 2, 28, 11, 46])
         self._compare_worlds(world, world_copy)
 
-        outcome, next_player = world.act(20)
-        self.assertEqual(outcome, "continue")
-        self.assertEqual(next_player, 1)
-
-        world_copy.player_A_hand = [19, 30, 24]
-        world_copy.current_game_player_A_score = 1
-        world_copy.played_cards = [23, 31, 18, 20]
-        world_copy.current_player = 1
-        self._compare_worlds(world, world_copy)
-
-        ######## MOVE ########
-        valid_moves = world.get_valid_moves()
-        self.assertEqual(valid_moves, [19, 30, 24, 46])
-        self._compare_worlds(world, world_copy)
-
-        outcome, next_player = world.act(24)
+        outcome, next_player = world.act(2)
         self.assertEqual(outcome, "continue")
         self.assertEqual(next_player, -1)
 
-        world_copy.player_A_hand = [19, 30]
-        world_copy.played_cards = [23, 31, 18, 20, 24]
+        world_copy.player_A_hand = [14, 28, 11]
+        world_copy.current_game_player_B_score = 2
+        world_copy.played_cards = [30, 31, 22, 2]
         world_copy.current_player = -1
         self._compare_worlds(world, world_copy)
 
         ######## MOVE ########
-        print(world._str_cards([24, 12, 7, 16]))
-
         valid_moves = world.get_valid_moves()
+        self.assertEqual(valid_moves, [4, 23, 7, 46])
+        self._compare_worlds(world, world_copy)
 
-        # ERROR, played 16
+        outcome, next_player = world.act(23)
+        self.assertEqual(outcome, "continue")
+        self.assertEqual(next_player, 1)
+
+        world_copy.player_B_hand = [4, 7]
+        world_copy.played_cards = [30, 31, 22, 2, 23]
+        world_copy.current_player = 1
+        self._compare_worlds(world, world_copy)
+
+        ######## MOVE ########
+        valid_moves = world.get_valid_moves()
+        self.assertEqual(valid_moves, [14, 28, 11, 46])
+        self._compare_worlds(world, world_copy)
+
+        outcome, next_player = world.act(14)
+        self.assertEqual(outcome, "end")
+        self.assertEqual(next_player, -1)
+
+        world.player_A_hand = [20, 21, 22, 23, 24]
+        world.player_B_hand = [25, 26, 27, 28, 29]
+        world.first_card_deck = 4
+        world.last_card_deck = 5
+        world.deck = [8, 9, 10]
+
+        world_copy.player_A_hand = [20, 21, 22, 23, 24]
+        world_copy.player_B_hand = [25, 26, 27, 28, 29]
+        world_copy.first_card_deck = 4
+        world_copy.last_card_deck = 5
+        world_copy.deck = [8, 9, 10]
+        world_copy.current_player = -1
+        world_copy.distributing_cards_player = 1
+        world_copy.player_B_score = 2
+        world_copy.played_cards = []
+        world_copy.current_game_player_A_score = 0
+        world_copy.current_game_player_B_score = 0
+        world_copy.rank = None
+        world_copy.suit = None
+        self._compare_worlds(world, world_copy)
 
     def _compare_worlds(self, world1, world2):
         self.assertEqual(world1.current_player, world2.current_player)
