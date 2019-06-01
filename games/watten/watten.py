@@ -343,7 +343,7 @@ class WorldWatten(object):
                 last_played_card = self._get_last_played_card()
                 self.played_cards.append(action)
                 current_played_card = action
-                current_player_wins = self.compare_cards(current_played_card, last_played_card)
+                current_player_wins = not self.compare_cards(last_played_card, current_played_card)
                 next_player_move = self._assign_points_move(current_player_wins)
                 if self.current_game_player_A_score == 3 or self.current_game_player_B_score == 3:
                     if self.current_game_player_A_score == 3:
@@ -448,6 +448,7 @@ class WorldWatten(object):
 
     # routine for deciding whether a card (card1) wins over another card (card2)
     # returns true if the first card wins, false otherwise
+    # the first card is expected to be played before the second one
     #
     # ORDER OF IMPORTANCE:
     # - Rechte (card with the same suit and rank chosen when the game started)
