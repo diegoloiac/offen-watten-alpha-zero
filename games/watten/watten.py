@@ -377,7 +377,7 @@ class WorldWatten(object):
         self._refresh_state_single_hand()
         self.current_player = self.distributing_cards_player
         self.distributing_cards_player = self.distributing_cards_player * -1
-        return "end", self.distributing_cards_player
+        return "end", self.current_player
 
     def _act_continue_move(self):
         self.current_player = self.current_player * -1
