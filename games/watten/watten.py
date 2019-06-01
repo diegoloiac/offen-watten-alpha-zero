@@ -351,6 +351,7 @@ class WorldWatten(object):
                     else:
                         self.player_B_score += self.current_game_prize
                     return self._hand_is_done_after_card_is_played_common()
+                self.current_player = next_player_move
                 return "continue", next_player_move
 
         if action in moves["pick_suit"]:
