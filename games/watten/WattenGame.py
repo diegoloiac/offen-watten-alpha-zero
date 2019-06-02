@@ -12,16 +12,19 @@ from core.interfaces.Game import Game
 
 from loggers import stdout_logger
 
+
 class WattenGame(Game):
     def __init__(self):
         self.trueboard = watten.WorldWatten()
+        self.players = {1: 0, -1: 1}
+        self.players_inv = {0: 1, 1: -1}
 
     def reset(self):
         self.trueboard = watten.WorldWatten()
 
     def get_cur_player(self):
         player = self.trueboard.get_player()
-        return player
+        return self.players[player]
 
     def get_players_num(self):
         return 2
@@ -37,11 +40,11 @@ class WattenGame(Game):
         game_status, next_player = self.trueboard.act(action)
         if game_status == "end" and self.trueboard.is_game_end():
             if self.trueboard.is_won(next_player):
-                return 1.0, next_player
+                return 1.0, self.players[next_player]
             else:
-                return -1.0, next_player
+                return -1.0, self.players[next_player]
         else:
-            return 0.0, next_player
+            return 0.0, self.players[next_player]
 
     def get_valid_moves(self, player=None):
         # self.trueboard.actions.append("Valid moves are %s" % self.trueboard.get_valid_moves() )
@@ -55,8 +58,7 @@ class WattenGame(Game):
         return False
 
     def get_score(self, player):
-        player_curr = 1 if player == 0 else -1
-        # player_enemy = player_curr * -1
+        player_curr = self.players_inv[player]  # 1 if player == 0 else -1
 
         if self.trueboard.is_game_end():
             if self.trueboard.is_won(player_curr):
@@ -66,7 +68,9 @@ class WattenGame(Game):
         return 0.0
 
     def get_observation(self, player):
-        player_in = 1 if player == 0 else -1
+        if player not in [0, 1]:
+            print("WARNING: %d not in [0, 1]" % player)
+        player_in = self.players_inv[player]  # 1 if player == 0 else -1
         observation = self.trueboard.observe(player_in)
         return observation
 
