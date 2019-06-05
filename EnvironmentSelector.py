@@ -13,6 +13,8 @@ from games.durak.agent.DurakHumanAgent import DurakHumanAgent
 
 from games.watten.WattenGame import WattenGame
 from games.watten.nnet.WattenNNet import WattenNNet
+from games.watten.nnet.WattenNNet4x512 import WattenNNet4x512
+from games.watten.nnet.WattenNNetFirstLayerBig import WattenNNetFirstLayerBig
 # from games.watten.agent.DurakHumanAgent import DurakHumanAgent
 
 from core.nnet.NNet import NNet
@@ -69,6 +71,8 @@ class EnvironmentSelector():
     DURAK_AGENT_HUMAN = AgentProfile(GAME_DURAK_DEFAULT, "durak_agent_human")
 
     WATTEN_AGENT_TRAIN = AgentProfile(GAME_WATTEN_DEFAULT, "watten_agent_train_default")
+    WATTEN_AGENT_BIG_TRAIN = AgentProfile(GAME_WATTEN_DEFAULT, "watten_agent_train_big")
+    WATTEN_AGENT_4_512_TRAIN = AgentProfile(GAME_WATTEN_DEFAULT, "watten_agent_train_4_512")
     WATTEN_AGENT_RANDOM = AgentProfile(GAME_WATTEN_DEFAULT, "watten_agent_random")
 
     def __init__(self):
@@ -103,6 +107,8 @@ class EnvironmentSelector():
             EnvironmentSelector.DURAK_AGENT_HUMAN: self.build_durak_agent,
 
             EnvironmentSelector.WATTEN_AGENT_TRAIN: self.build_watten_train_agent,
+            EnvironmentSelector.WATTEN_AGENT_BIG_TRAIN: self.build_watten_train_big_agent,
+            EnvironmentSelector.WATTEN_AGENT_4_512_TRAIN: self.build_watten_train_4_512_agent,
             EnvironmentSelector.WATTEN_AGENT_RANDOM: self.build_watten_agent,
         }
 
@@ -128,6 +134,8 @@ class EnvironmentSelector():
             EnvironmentSelector.DURAK_AGENT_HUMAN,
 
             EnvironmentSelector.WATTEN_AGENT_TRAIN,
+            EnvironmentSelector.WATTEN_AGENT_BIG_TRAIN,
+            EnvironmentSelector.WATTEN_AGENT_4_512_TRAIN,
             EnvironmentSelector.WATTEN_AGENT_RANDOM,
         ]
 
@@ -279,9 +287,41 @@ class EnvironmentSelector():
         agent_nnet = AgentNNet(nnet)
 
         if agent_profile == EnvironmentSelector.WATTEN_AGENT_TRAIN:
+            print("Configuring build_watten_train_agent...")
             return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=100,
                              max_predict_time=10, num_threads=4)
         return None
+
+    def build_watten_train_big_agent(self, agent_profile, native_multi_gpu_enabled=False):
+
+        game = self.game_mapping[agent_profile.game]
+
+        x, y = game.get_observation_size()
+        nnet = WattenNNetFirstLayerBig(x, y, 1, game.get_action_size())
+
+        agent_nnet = AgentNNet(nnet)
+
+        if agent_profile == EnvironmentSelector.WATTEN_AGENT_BIG_TRAIN:
+            print("Configuring build_watten_train_big_agent...")
+            return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=100,
+                             max_predict_time=10, num_threads=16)
+        return None
+
+    def build_watten_train_4_512_agent(self, agent_profile, native_multi_gpu_enabled=False):
+
+        game = self.game_mapping[agent_profile.game]
+
+        x, y = game.get_observation_size()
+        nnet = WattenNNet4x512(x, y, 1, game.get_action_size())
+
+        agent_nnet = AgentNNet(nnet)
+
+        if agent_profile == EnvironmentSelector.WATTEN_AGENT_4_512_TRAIN:
+            print("Configuring build_watten_train_4_512_agent...")
+            return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=100,
+                             max_predict_time=10, num_threads=16)
+        return None
+
 
     def build_durak_agent(self, agent_profile, native_multi_gpu_enabled=False):
 
