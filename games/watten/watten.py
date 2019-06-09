@@ -389,9 +389,9 @@ class WorldWatten(object):
         return "continue", self.current_player
 
     def _assign_winning_player(self):
-        if self.current_player == 1 and self.player_A_score >= 15:
+        if self.player_A_score >= self.win_threshold:
             self.winning_player = 1
-        elif self.current_player == -1 and self.player_B_score >= 15:
+        elif self.player_B_score >= self.win_threshold:
             self.winning_player = -1
 
     def _remove_card_from_hand(self, action, player):

@@ -62,3 +62,14 @@ class TestWorldWatten(TestCase):
         self.assertEqual(watten_game.get_score(1), -1.0)
         self.assertEqual(watten_game.get_score(0), 1.0)
 
+        watten_game = WattenGame()
+        watten_game.trueboard.current_player = -1
+        self.assertEqual(watten_game.get_score(1), 0.0)
+        self.assertEqual(watten_game.get_score(0), 0.0)
+
+        watten_game.trueboard.winning_player = -1
+        watten_game.trueboard.player_B_score = 15
+        self.assertEqual(watten_game.get_score(1), 1.0)
+        self.assertEqual(watten_game.get_score(0), -1.0)
+
+

@@ -96,6 +96,7 @@ class World():
                 else:
                     for idx, agent in enumerate(agents):
                         game_results[idx] = self.RESULT_DRAW
+                    raise Exception("Watten game cannot end in a draw")
                 break
 
         # if verbose:

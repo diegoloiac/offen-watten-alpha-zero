@@ -16,7 +16,7 @@ from loggers import stdout_logger
 class WattenGame(Game):
     def __init__(self):
         self.trueboard = watten.WorldWatten()
-        self.players = {1: 0, -1: 1} # player NUMBER 1 is [0] and player NUMBER -1 is [1]
+        self.players = {1: 0, -1: 1}  # player NUMBER 1 is [0] and player NUMBER -1 is [1]
         self.players_inv = {0: 1, 1: -1}
 
     def reset(self):
@@ -39,6 +39,9 @@ class WattenGame(Game):
         current_player = self.trueboard.current_player
         game_status, next_player = self.trueboard.act(action)
         if game_status == "end" and self.trueboard.is_game_end():
+            if self.trueboard.winning_player is None:
+                raise Exception("Winning player cannot be None if game is ended")
+
             if self.trueboard.winning_player == current_player:
                 return 1.0, self.players[next_player]
             else:
