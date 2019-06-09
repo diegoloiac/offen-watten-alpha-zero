@@ -277,6 +277,10 @@ class EnvironmentSelector():
                              max_predict_time=10)
         return None
 
+    ############################################################
+    #  NN 1
+    ############################################################
+
     def build_watten_train_agent(self, agent_profile, native_multi_gpu_enabled=False):
 
         game = self.game_mapping[agent_profile.game]
@@ -292,6 +296,10 @@ class EnvironmentSelector():
                              max_predict_time=10, num_threads=4)
         return None
 
+    ############################################################
+    #  NN 2
+    ############################################################
+
     def build_watten_train_big_agent(self, agent_profile, native_multi_gpu_enabled=False):
 
         game = self.game_mapping[agent_profile.game]
@@ -306,6 +314,10 @@ class EnvironmentSelector():
             return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=100,
                              max_predict_time=10, num_threads=16)
         return None
+
+    ############################################################
+    #  NN 3
+    ############################################################
 
     def build_watten_train_4_512_agent(self, agent_profile, native_multi_gpu_enabled=False):
 

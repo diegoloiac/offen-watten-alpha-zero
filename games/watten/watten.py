@@ -81,6 +81,9 @@ class WorldWatten(object):
 
         self._refresh_state_single_hand()
 
+        # player who won the game
+        self.winning_player = None
+
         self.moves = moves
 
         # list of actions taken in a game, used for debugging purposes
@@ -297,6 +300,7 @@ class WorldWatten(object):
                 raise InvalidActionError("Cannot fold hand if the previous move was not a raise")
             self.LOG.debug(f"{self.current_player} folds hand")
             self._assign_points_fold()
+            self._assign_winning_player()
             self.current_player = self.distributing_cards_player
             self.distributing_cards_player = self.distributing_cards_player * -1
             self._refresh_state_single_hand()
@@ -374,6 +378,7 @@ class WorldWatten(object):
         raise InconsistentStateError("Action %d is not allowed." % action)
 
     def _hand_is_done_after_card_is_played_common(self):
+        self._assign_winning_player()
         self._refresh_state_single_hand()
         self.current_player = self.distributing_cards_player
         self.distributing_cards_player = self.distributing_cards_player * -1
@@ -382,6 +387,12 @@ class WorldWatten(object):
     def _act_continue_move(self):
         self.current_player = self.current_player * -1
         return "continue", self.current_player
+
+    def _assign_winning_player(self):
+        if self.current_player == 1 and self.player_A_score >= 15:
+            self.winning_player = 1
+        elif self.current_player == -1 and self.player_B_score >= 15:
+            self.winning_player = -1
 
     def _remove_card_from_hand(self, action, player):
         if player == 1:
@@ -661,6 +672,10 @@ class WorldWatten(object):
         observation = observation.reshape((226, 1))
         return observation
 
+    # def observation_str_raw(self, observe):
+    #     new_observe = np.concatenate((observe, np.array([[1 if self.current_player == 1 else 0]])))
+    #     print(new_observe)
+
     def _get_last_played_card(self):
         num_played_cards = len(self.played_cards)
         if num_played_cards == 0:
@@ -725,6 +740,7 @@ class WorldWatten(object):
         new_world.rank = self.rank
         new_world.suit = self.suit
         new_world.is_last_hand_raise_valid = self.is_last_hand_raise_valid
+        new_world.winning_player = self.winning_player
 
         new_world.starting_state = self.starting_state
         new_world.moves_series = self.moves_series.copy()

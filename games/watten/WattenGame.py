@@ -16,7 +16,7 @@ from loggers import stdout_logger
 class WattenGame(Game):
     def __init__(self):
         self.trueboard = watten.WorldWatten()
-        self.players = {1: 0, -1: 1}
+        self.players = {1: 0, -1: 1} # player NUMBER 1 is [0] and player NUMBER -1 is [1]
         self.players_inv = {0: 1, 1: -1}
 
     def reset(self):
@@ -36,10 +36,10 @@ class WattenGame(Game):
         return 226, 1
 
     def make_move(self, action):
-        # stdout_logger.info("make move")
+        current_player = self.trueboard.current_player
         game_status, next_player = self.trueboard.act(action)
         if game_status == "end" and self.trueboard.is_game_end():
-            if self.trueboard.is_won(next_player):
+            if self.trueboard.winning_player == current_player:
                 return 1.0, self.players[next_player]
             else:
                 return -1.0, self.players[next_player]
@@ -47,7 +47,6 @@ class WattenGame(Game):
             return 0.0, self.players[next_player]
 
     def get_valid_moves(self, player=None):
-        # self.trueboard.actions.append("Valid moves are %s" % self.trueboard.get_valid_moves() )
         return self.trueboard.get_valid_moves_zeros()
 
     def is_ended(self):
@@ -60,12 +59,16 @@ class WattenGame(Game):
     def get_score(self, player):
         player_curr = self.players_inv[player]  # 1 if player == 0 else -1
 
+        if self.trueboard.winning_player is None:
+            return 0.0
+
         if self.trueboard.is_game_end():
-            if self.trueboard.is_won(player_curr):
+            if self.trueboard.winning_player == player_curr:
                 return 1.0
             else:
                 return -1.0
-        return 0.0
+
+        raise Exception("Inconsistent score")
 
     def get_observation(self, player):
         if player not in [0, 1]:
