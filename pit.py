@@ -53,9 +53,11 @@ if __name__ == "__main__":
 
     env_selector = EnvironmentSelector()
     agent_first = env_selector.get_agent(options.agent_profile_new)
+    print("Pit with agent ", agent_first.name)
     agent_first.set_exploration_enabled(False)
 
     agent_second = env_selector.get_agent(options.agent_profile_old)
+    print("Pit with agent ", agent_second.name)
     agent_second.set_exploration_enabled(False)
 
     agent_profile = env_selector.get_profile(options.agent_profile_new)

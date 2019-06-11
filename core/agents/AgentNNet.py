@@ -47,5 +47,8 @@ class AgentNNet(Agent):
 
         self.nnet.train(input_boards, target_pis, target_vs, batch_size=batch_size, epochs=epochs, verbose=verbose)
 
+    def set_exploration_enabled(self, enabled):
+        pass
+
     def clone(self):
         return AgentNNet(self.nnet, name=self.name)

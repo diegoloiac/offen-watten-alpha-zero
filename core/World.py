@@ -136,7 +136,7 @@ class World():
 
         if verbose:
             for idx, agent in enumerate(agents):
-                print("%s: %d" % (agent.get_name(), games_results[idx]))
+                print("--- %s: %d ---" % (agent.get_name(), games_results[idx]))
 
         return games_experience, games_results
 

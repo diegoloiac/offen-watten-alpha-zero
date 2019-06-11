@@ -73,6 +73,11 @@ class EnvironmentSelector():
     WATTEN_AGENT_TRAIN = AgentProfile(GAME_WATTEN_DEFAULT, "watten_agent_train_default")
     WATTEN_AGENT_BIG_TRAIN = AgentProfile(GAME_WATTEN_DEFAULT, "watten_agent_train_big")
     WATTEN_AGENT_4_512_TRAIN = AgentProfile(GAME_WATTEN_DEFAULT, "watten_agent_train_4_512")
+
+    WATTEN_AGENT_EVALUATE = AgentProfile(GAME_WATTEN_DEFAULT, "watten_agent_evaluate_default")
+    WATTEN_AGENT_BIG_EVALUATE = AgentProfile(GAME_WATTEN_DEFAULT, "watten_agent_evaluate_big")
+    WATTEN_AGENT_4_512_EVALUATE = AgentProfile(GAME_WATTEN_DEFAULT, "watten_agent_evaluate_4_512")
+
     WATTEN_AGENT_RANDOM = AgentProfile(GAME_WATTEN_DEFAULT, "watten_agent_random")
 
     def __init__(self):
@@ -109,6 +114,11 @@ class EnvironmentSelector():
             EnvironmentSelector.WATTEN_AGENT_TRAIN: self.build_watten_train_agent,
             EnvironmentSelector.WATTEN_AGENT_BIG_TRAIN: self.build_watten_train_big_agent,
             EnvironmentSelector.WATTEN_AGENT_4_512_TRAIN: self.build_watten_train_4_512_agent,
+
+            EnvironmentSelector.WATTEN_AGENT_EVALUATE: self.build_watten_train_agent,
+            EnvironmentSelector.WATTEN_AGENT_BIG_EVALUATE: self.build_watten_train_big_agent,
+            EnvironmentSelector.WATTEN_AGENT_4_512_EVALUATE: self.build_watten_train_4_512_agent,
+
             EnvironmentSelector.WATTEN_AGENT_RANDOM: self.build_watten_agent,
         }
 
@@ -136,6 +146,12 @@ class EnvironmentSelector():
             EnvironmentSelector.WATTEN_AGENT_TRAIN,
             EnvironmentSelector.WATTEN_AGENT_BIG_TRAIN,
             EnvironmentSelector.WATTEN_AGENT_4_512_TRAIN,
+
+            EnvironmentSelector.WATTEN_AGENT_EVALUATE,
+
+            EnvironmentSelector.WATTEN_AGENT_BIG_EVALUATE,
+            EnvironmentSelector.WATTEN_AGENT_4_512_EVALUATE,
+
             EnvironmentSelector.WATTEN_AGENT_RANDOM,
         ]
 
@@ -294,6 +310,11 @@ class EnvironmentSelector():
             print("Configuring build_watten_train_agent...")
             return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=100,
                              max_predict_time=10, num_threads=4)
+        elif agent_profile == EnvironmentSelector.WATTEN_AGENT_EVALUATE:
+            print("Configuring build_watten_evaluate_agent...")
+            return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=2,
+                         max_predict_time=10, num_threads=16, name="build_watten_evaluate_agent")
+
         return None
 
     ############################################################
@@ -313,6 +334,10 @@ class EnvironmentSelector():
             print("Configuring build_watten_train_big_agent...")
             return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=100,
                              max_predict_time=10, num_threads=16)
+        elif agent_profile == EnvironmentSelector.WATTEN_AGENT_BIG_EVALUATE:
+            print("Configuring build_watten_evaluate_big_agent...")
+            return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=2,
+                             max_predict_time=10, num_threads=16, name="build_watten_evaluate_big_agent")
         return None
 
     ############################################################
@@ -332,8 +357,11 @@ class EnvironmentSelector():
             print("Configuring build_watten_train_4_512_agent...")
             return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=100,
                              max_predict_time=10, num_threads=16)
+        elif agent_profile == EnvironmentSelector.WATTEN_AGENT_4_512_EVALUATE:
+            print("Configuring build_watten_evaluate_4_512_agent...")
+            return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=2,
+                             max_predict_time=10, num_threads=16, name="build_watten_evaluate_4_512_agent")
         return None
-
 
     def build_durak_agent(self, agent_profile, native_multi_gpu_enabled=False):
 
