@@ -93,6 +93,7 @@ class World():
                     if action_size == 50:
                         if results[0] == results[1]:
                             raise Exception("Watten game cannot end in a draw")
+                    # game.get_display_str()
                 else:
                     for idx, agent in enumerate(agents):
                         game_results[idx] = self.RESULT_DRAW

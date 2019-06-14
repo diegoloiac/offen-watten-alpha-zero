@@ -12,6 +12,7 @@ from games.durak.nnet.DurakNNet import DurakNNet
 from games.durak.agent.DurakHumanAgent import DurakHumanAgent
 
 from games.watten.WattenGame import WattenGame
+from games.watten.agent.WattenHumanAgent import WattenHumanAgent
 from games.watten.nnet.WattenNNet import WattenNNet
 from games.watten.nnet.WattenNNet4x512 import WattenNNet4x512
 from games.watten.nnet.WattenNNetFirstLayerBig import WattenNNetFirstLayerBig
@@ -79,6 +80,7 @@ class EnvironmentSelector():
     WATTEN_AGENT_4_512_EVALUATE = AgentProfile(GAME_WATTEN_DEFAULT, "watten_agent_evaluate_4_512")
 
     WATTEN_AGENT_RANDOM = AgentProfile(GAME_WATTEN_DEFAULT, "watten_agent_random")
+    WATTEN_AGENT_HUMAN = AgentProfile(GAME_WATTEN_DEFAULT, "watten_agent_human")
 
     def __init__(self):
         super().__init__()
@@ -120,6 +122,7 @@ class EnvironmentSelector():
             EnvironmentSelector.WATTEN_AGENT_4_512_EVALUATE: self.build_watten_train_4_512_agent,
 
             EnvironmentSelector.WATTEN_AGENT_RANDOM: self.build_watten_agent,
+            EnvironmentSelector.WATTEN_AGENT_HUMAN: self.build_watten_agent,
         }
 
         self.agent_profiles = [
@@ -153,6 +156,7 @@ class EnvironmentSelector():
             EnvironmentSelector.WATTEN_AGENT_4_512_EVALUATE,
 
             EnvironmentSelector.WATTEN_AGENT_RANDOM,
+            EnvironmentSelector.WATTEN_AGENT_HUMAN,
         ]
 
     def get_profile(self, agent_profile_str):
@@ -313,7 +317,9 @@ class EnvironmentSelector():
         elif agent_profile == EnvironmentSelector.WATTEN_AGENT_EVALUATE:
             print("Configuring build_watten_evaluate_agent...")
             return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=2,
-                         max_predict_time=10, num_threads=16, name="build_watten_evaluate_agent")
+                             max_predict_time=10, num_threads=16, name="build_watten_evaluate_agent")
+        elif agent_profile == EnvironmentSelector.WATTEN_AGENT_HUMAN:
+            return WattenHumanAgent(game)
 
         return None
 
@@ -338,6 +344,9 @@ class EnvironmentSelector():
             print("Configuring build_watten_evaluate_big_agent...")
             return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=2,
                              max_predict_time=10, num_threads=16, name="build_watten_evaluate_big_agent")
+        elif agent_profile == EnvironmentSelector.WATTEN_AGENT_HUMAN:
+            return WattenHumanAgent(game)
+
         return None
 
     ############################################################
@@ -361,6 +370,9 @@ class EnvironmentSelector():
             print("Configuring build_watten_evaluate_4_512_agent...")
             return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=2,
                              max_predict_time=10, num_threads=16, name="build_watten_evaluate_4_512_agent")
+        elif agent_profile == EnvironmentSelector.WATTEN_AGENT_HUMAN:
+            return WattenHumanAgent(game)
+
         return None
 
     def build_durak_agent(self, agent_profile, native_multi_gpu_enabled=False):
@@ -380,6 +392,6 @@ class EnvironmentSelector():
         if agent_profile == EnvironmentSelector.WATTEN_AGENT_RANDOM:
             return AgentRandom()
         elif agent_profile == EnvironmentSelector.WATTEN_AGENT_HUMAN:
-            pass
-            # return DurakHumanAgent(game=game) #TODO watten human agent
+            return WattenHumanAgent(game)
+
         return None

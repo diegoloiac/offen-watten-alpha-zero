@@ -1,6 +1,7 @@
 from logging import DEBUG
 from unittest import TestCase
 import games.watten.watten as watten
+from games.watten.WattenGame import WattenGame
 from games.watten.watten import WorldWatten
 from games.watten.watten import InconsistentStateError
 from games.watten.watten import CardParsingError
@@ -282,6 +283,35 @@ class TestWorldCompleteGameWatten(TestCase):
         valid_moves = world.get_valid_moves()
         self.assertEqual(valid_moves, [9, 30, 46])
         self._compare_worlds(world, world_copy)
+
+    def test_game_complete(self):
+        # [36, 45, 14, 5, 25, 20, 46, 48, 1, 46, 48, 13, 35, 45, 15, 18, 7, 2,
+        #  30, 46, 47, 36, 43, 27, 5, 46, 48, 6, 2, 22, 46, 47, 35, 44, 29, 8, 46,
+        #  48, 18, 21, 27, 26, 14, 11, 9, 46, 48, 17, 34, 43, 10, 1, 46, 47, 41,
+        #  42, 24, 17, 46, 48, 0, 14, 3, 29, 46, 48, 41, 45, 19, 8, 30, 24, 20,
+        #  16, 34, 46, 47, 39, 44, 16, 30, 18, 46, 48, 21, 46, 47, 39, 43, 24,
+        #  26, 14, 22, 29, 6, 5, 7]
+
+        game = WattenGame()
+        world = WorldWatten()
+        world.init_world_to_state(1, -1, 0, 0, [25, 9, 1, 32, 14], [5, 13, 7, 10, 20], [], 0, 0, 2, False, False, None, 16, 28, None, None)
+        game.trueboard = world
+
+        cur_player = game.get_cur_player()
+        self.assertEqual(cur_player, 0)
+
+        moves = game.get_valid_moves_no_zeros()
+        self.assertEqual(moves, [33, 34, 35, 36, 37, 38, 39, 40, 41, 46])
+
+        self.assertEqual(game.make_move(36), (0.0, 1))
+
+        cur_player = game.get_cur_player()
+        self.assertEqual(cur_player, 1)
+
+        moves = game.get_valid_moves_no_zeros()
+        self.assertEqual(moves, [42, 43, 44, 45, 46])
+
+
 
     def _compare_worlds(self, world1, world2):
         self.assertEqual(world1.current_player, world2.current_player)

@@ -52,6 +52,9 @@ class WattenGame(Game):
     def get_valid_moves(self, player=None):
         return self.trueboard.get_valid_moves_zeros()
 
+    def get_valid_moves_no_zeros(self):
+        return self.trueboard.get_valid_moves()
+
     def is_ended(self):
         return self.trueboard.is_game_end()
 
