@@ -9,6 +9,8 @@ from core.interfaces.Agent import Agent
 from multiprocessing import connection, Pipe
 from threading import Thread
 
+# import operator
+
 
 class AgentNNet(Agent):
     def __init__(self, nnet, name="Agent NNet"):
@@ -28,7 +30,9 @@ class AgentNNet(Agent):
         observation = game.get_observation(game_player)
         observation = observation[np.newaxis, :, :]
 
-        return self.nnet.predict(observation)
+        result = self.nnet.predict(observation)
+
+        return result
 
     def save(self, path_to_file):
         self.nnet.save(path_to_file)

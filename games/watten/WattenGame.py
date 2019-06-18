@@ -100,3 +100,38 @@ class WattenGame(Game):
 
     def reset_unknown_states(self, player):
         pass
+
+    def get_player_visible_state(self, player):
+        player_in = self.players_inv[player]
+
+        player_hand = self.trueboard.player_A_hand if player_in == 1 else self.trueboard.player_B_hand
+
+        first_card_deck = self.trueboard.first_card_deck
+        last_card_deck = self.trueboard.last_card_deck if player_in == self.trueboard.distributing_cards_player else None
+
+        current_game_player_A_score = self.trueboard.current_game_player_A_score
+        current_game_player_B_score = self.trueboard.current_game_player_B_score
+
+        player_A_score = self.trueboard.player_A_score
+        player_B_score = self.trueboard.player_B_score
+
+        played_cards = self.trueboard.played_cards
+
+        current_game_prize = self.trueboard.current_game_prize
+
+        suit = self.trueboard.suit
+        rank = self.trueboard.rank
+
+        return {
+            'player_hand': player_hand,
+            'first_card_deck': first_card_deck,
+            'last_card_deck': last_card_deck,
+            'current_game_player_A_score': current_game_player_A_score,
+            'current_game_player_B_score': current_game_player_B_score,
+            'player_A_score': player_A_score,
+            'player_B_score': player_B_score,
+            'played_cards': played_cards,
+            'current_game_prize': current_game_prize,
+            'suit': suit,
+            'rank': rank
+        }

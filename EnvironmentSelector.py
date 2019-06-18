@@ -81,6 +81,7 @@ class EnvironmentSelector():
 
     WATTEN_AGENT_RANDOM = AgentProfile(GAME_WATTEN_DEFAULT, "watten_agent_random")
     WATTEN_AGENT_HUMAN = AgentProfile(GAME_WATTEN_DEFAULT, "watten_agent_human")
+    WATTEN_AGENT_NNET = AgentProfile(GAME_WATTEN_DEFAULT, "watten_agent_nnet")
 
     def __init__(self):
         super().__init__()
@@ -123,6 +124,7 @@ class EnvironmentSelector():
 
             EnvironmentSelector.WATTEN_AGENT_RANDOM: self.build_watten_agent,
             EnvironmentSelector.WATTEN_AGENT_HUMAN: self.build_watten_agent,
+            EnvironmentSelector.WATTEN_AGENT_NNET: self.build_watten_train_4_512_agent
         }
 
         self.agent_profiles = [
@@ -157,6 +159,7 @@ class EnvironmentSelector():
 
             EnvironmentSelector.WATTEN_AGENT_RANDOM,
             EnvironmentSelector.WATTEN_AGENT_HUMAN,
+            EnvironmentSelector.WATTEN_AGENT_NNET
         ]
 
     def get_profile(self, agent_profile_str):
@@ -368,10 +371,12 @@ class EnvironmentSelector():
                              max_predict_time=10, num_threads=16)
         elif agent_profile == EnvironmentSelector.WATTEN_AGENT_4_512_EVALUATE:
             print("Configuring build_watten_evaluate_4_512_agent...")
-            return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=2,
+            return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=30,
                              max_predict_time=10, num_threads=16, name="build_watten_evaluate_4_512_agent")
         elif agent_profile == EnvironmentSelector.WATTEN_AGENT_HUMAN:
             return WattenHumanAgent(game)
+        elif agent_profile == EnvironmentSelector.WATTEN_AGENT_NNET:
+            return agent_nnet
 
         return None
 
