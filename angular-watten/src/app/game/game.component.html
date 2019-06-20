@@ -1,0 +1,16 @@
+<div id="card-container"></div>
+<p id="first-card-description">First deck card</p>
+<p id="last-card-description" *ngIf="displayLastCardDesc">Last deck card<br>Click on it once you have memorized it</p>
+<p id="your-hand-description">Your hand</p>
+<p id="opponent-hand-description">Opponent hand</p>
+
+<div id="game-description-box">
+  <p>Your points: {{$playerScore | async}}</p>
+  <p>Opponent points: {{$opponentScore | async}}</p>
+  <p>Current game prize: {{$currentGamePrize | async}}</p>
+  <p>Selected suit: {{$suit | async}}</p>
+  <p>Selected rank: {{$rank | async}}</p>
+  <hr>
+  <p>{{$gameDescription | async}}</p>
+
+</div>

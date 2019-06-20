@@ -1,0 +1,43 @@
+#card-container {
+  position: fixed;
+  top: calc(50% + 1.5rem);
+  left: 50%;
+  -webkit-transform: translate3d(-50%, -50%, 0);
+  -moz-transform: translate3d(-50%, -50%, 0);
+  -o-transform: translate3d(-50%, -50%, 0);
+  -ms-transform: translate3d(-50%, -50%, 0);
+  transform: translate3d(-50%, -50%, 0);
+}
+
+#first-card-description {
+  position: fixed;
+  top: calc(50% + 3.5rem);
+  left: calc(50% - 8rem);
+}
+
+#last-card-description {
+  position: fixed;
+  top: calc(50% + 3.5rem);
+  left: calc(50% - 23rem);
+}
+
+#your-hand-description {
+  position: fixed;
+  top: calc(50% + 13.5rem);
+  left: calc(50% - 2rem);
+}
+
+#opponent-hand-description {
+  position: fixed;
+  top: calc(50% - 13.5rem);
+  left: calc(50% - 3rem);
+}
+
+#game-description-box {
+  background: ghostwhite;
+  padding: 8px;
+  position: fixed;
+  top: calc(50% - 7rem);
+  left: calc(50% + 16rem);
+  border-radius: 10px;
+}

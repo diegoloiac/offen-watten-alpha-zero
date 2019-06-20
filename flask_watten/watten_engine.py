@@ -17,17 +17,21 @@ class WattenEngine():
     def get_valid_moves(self, game):
         return game.get_valid_moves_no_zeros()
 
-    def make_move_against_ai(self, game, move):
-        current_player = game.get_cur_player()
-        game_result, next_player = game.make_move(move)
-
+    def make_move_against_ai(self, game, move=None):
         states_after_moves = []
 
-        if next_player == current_player:
-            states_after_moves.append({'state': game.get_player_visible_state(current_player), 'move': move})
-            return states_after_moves
+        print("move is ", move)
 
-        while next_player != current_player:
+        if move is not None:
+            game_result, next_player = game.make_move(move)
+
+            if next_player == 0:
+                states_after_moves.append({'state': game.get_player_visible_state(0), 'move': move})
+                return states_after_moves
+        else:
+            next_player = 1
+
+        while next_player != 0:
             prediction = self.nnet.predict(game, next_player)[0]
             valid_moves = game.get_valid_moves() * prediction
 
@@ -38,8 +42,10 @@ class WattenEngine():
 
             game_result, next_player = game.make_move(best_move)
 
+            print("next player is ", next_player)
+
             states_after_moves.append({
-                'state': game.get_player_visible_state(current_player),
+                'state': game.get_player_visible_state(0),
                 'move': best_move,
                 'game_result': game_result
             })

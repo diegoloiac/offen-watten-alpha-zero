@@ -15,8 +15,8 @@ moves = {"play_card": list(range(0, 33)),
          "accept_raise": 48,
          "fold_hand_and_show_valid_raise": 49}  # can raise in last hand but some conditions should be verified
 rank_names = {0: "7", 1: "8", 2: "9", 3: "10", 4: "unter", 5: "ober", 6: "kinig", 7: "ass", 8: "weli", None: "-"}
-# suit_names = {0: "♠︎", 1: "♥", 2: "♦", 3: "∙"}
-suit_names = {0: "laab♠", 1: "herz♥", 2: "oachl♦", 3: "schell∙", None: "-"}
+# suit_names = {0: "♠︎", 1: "♥", 2: "♣︎", 3: "∙"}
+suit_names = {0: "laab♠", 1: "herz♥", 2: "oachl♣", 3: "schell∙", None: "-"}
 
 
 # returns the unique id of a card given its rank and suit

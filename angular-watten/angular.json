@@ -30,7 +30,10 @@
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/deck-of-cards/dist/deck.min.js",
+              "node_modules/jquery/dist/jquery.min.js"
+            ]
           },
           "configurations": {
             "production": {
@@ -119,6 +122,7 @@
           }
         }
       }
-    }},
+    }
+  },
   "defaultProject": "angular-watten"
 }

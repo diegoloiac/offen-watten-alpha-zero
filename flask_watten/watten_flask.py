@@ -26,10 +26,28 @@ class FlaskWattenGame(Resource):
     @marshal_with(response_fields)
     def put(self):
         """ Starts a new game """
-        result = {'game_id': str(uuid.uuid4())}
-        res = WattenResponse(message="Game started successfully", body=result)
+        game_id = str(uuid.uuid4())
 
-        running_games[result["game_id"]] = WattenGame()
+        request_body = request.get_json(force=True)
+        player_distributes_cards = request_body['player_distributes_cards']
+
+        new_game = WattenGame()
+        starting_state = new_game.get_player_visible_state(0)
+        states = None
+        if player_distributes_cards:
+            new_game.trueboard.current_player = -1
+            new_game.trueboard.distributing_cards_player = 1
+
+            starting_state = new_game.get_player_visible_state(0)  # override starting state
+            states = watten_engine.make_move_against_ai(new_game)
+
+        running_games[game_id] = new_game
+        res = WattenResponse(message="Game started successfully",
+                             body={
+                                 'game_id': game_id,
+                                 'starting_state': starting_state,
+                                 'states': states
+                             })
 
         return res
 
