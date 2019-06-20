@@ -9,6 +9,9 @@ import {isNullOrUndefined} from "util";
 import {UpdateGameDescAction} from "../../redux/actions/update-game-desc-action";
 import {GameStateMoveResult} from "../model/game-state-move-result";
 import {UpdateGameStateAction} from "../../redux/actions/update-game-state-action";
+import {WattenGameService} from "../service/watten-game.service";
+import {ValidMovesAction} from "../../redux/actions/valid-moves-action";
+import {BlockUI, NgBlockUI} from "ng-block-ui";
 
 declare var $: any; // jquery
 
@@ -19,10 +22,44 @@ declare var $: any; // jquery
 })
 export class GameComponent implements OnInit {
 
+  @BlockUI() blockUI: NgBlockUI;
+
+  moveQueue: GameStateMoveResult[] = [];
+
+  ranksAndSuits = [
+    {'label': '7', 'value': 33},
+    {'label': '8', 'value': 34},
+    {'label': '9', 'value': 35},
+    {'label': '10', 'value': 36},
+    {'label': 'unter', 'value': 37},
+    {'label': 'ober', 'value': 38},
+    {'label': 'kining', 'value': 39},
+    {'label': 'ass', 'value': 40},
+    {'label': 'weli', 'value': 41},
+
+    {'label': 'spades', 'value': 42},
+    {'label': 'hearts', 'value': 43},
+    {'label': 'clubs', 'value': 44},
+    {'label': 'diamonds', 'value': 45}
+  ];
+
+  raiseMoves = [
+    {'label': 'Raise points', 'value': 46},
+    {'label': 'Fold hand', 'value': 47},
+    {'label': 'Accept raise', 'value': 48}
+  ];
+
   displayLastCardDesc: boolean;
+  lockPlayerMoves: boolean = true;
 
   $cardContainer: any;
   deck: Deck;
+
+  playedCards: any[] = [];
+
+  isGameAlreadyStarted: boolean = false;
+
+  @select(['valid_moves']) readonly $validMoves: Observable<number[]>;
 
   @select(['game_description']) readonly $gameDescription: Observable<string>;
 
@@ -34,12 +71,33 @@ export class GameComponent implements OnInit {
 
   constructor(private ngRedux: NgRedux<IAppState>,
               private updateGameDescAction: UpdateGameDescAction,
-              private updateGameStateAction: UpdateGameStateAction) {
+              private updateGameStateAction: UpdateGameStateAction,
+              private validMovesAction: ValidMovesAction,
+              private wattenGameService: WattenGameService) {
   }
 
   ngOnInit() {
+    this.refreshTable();
+  }
+
+  private refreshTable(): void {
+    if (!isNullOrUndefined(this.deck)) {
+      this.deck.unmount();
+    }
+
+    // refresh variables
+    this.moveQueue = [];
+    this.displayLastCardDesc = undefined;
+    this.lockPlayerMoves = true;
+    this.$cardContainer = undefined;
+    this.deck = undefined;
+    this.playedCards = [];
+    this.isGameAlreadyStarted = false;
+
+
     // init state of the game
     let startingPlayerHand: number[] = this.ngRedux.getState().current_state.player_hand;
+    let startingOpponentHand: number[] = this.ngRedux.getState().current_state.opponent_hand;
     let firstCardDeck: number = this.ngRedux.getState().current_state.first_card_deck;
     let lastCardDeck: number = this.ngRedux.getState().current_state.last_card_deck;
     this.displayLastCardDesc = this.ngRedux.getState().player_distributes_cards;
@@ -53,9 +111,135 @@ export class GameComponent implements OnInit {
 
     this.deck.sort();
 
-    this.changeCardsPositionInDeck(this.deck, startingPlayerHand, firstCardDeck, lastCardDeck);
+    this.changeCardsPositionInDeck(this.deck, startingPlayerHand, startingOpponentHand, firstCardDeck, lastCardDeck);
 
     setTimeout(() => this.distributeCards(lastCardDeck), 1000);
+
+    this.blockUI.stop();
+  }
+
+  // returne a boolean that states whether the game interaction should continue
+  public makeMove(move?: number): void {
+    if (this.playedCards.length == 2) {
+      this.playedCards.forEach((card) => {
+        card.animateTo({
+          delay: 100,
+          duration: 300,
+          ease: 'quintOut',
+
+          x: -400,
+          y: 0
+        });
+        card.setSide('back');
+      });
+      this.playedCards.length = 0;
+    }
+
+    if (this.moveQueue.length > 0) {
+      let stateMoveResult: GameStateMoveResult = this.moveQueue.pop();
+      this.makeMoveAux(stateMoveResult);
+      if (this.moveQueue.length == 0) {
+        this.updateAvailableMoves();
+      }
+      return;
+    }
+
+    this.wattenGameService.makeMove(move).subscribe(res => {
+      this.ngRedux.dispatch(this.validMovesAction.updateValidMoves([]));
+      res.body = res.body.reverse();
+      let stateMoveResult: GameStateMoveResult = res.body.pop();
+      this.makeMoveAux(stateMoveResult);
+      res.body.forEach((state) => {
+        this.moveQueue.push(state);
+      });
+      if (this.moveQueue.length > 0) {
+        this.lockPlayerMoves = true;
+      } else if (move < 33) {
+        this.updateAvailableMoves();
+      }
+    });
+  }
+
+  private makeMoveAux(stateMoveResult: GameStateMoveResult): void {
+    this.ngRedux.dispatch(this.updateGameStateAction.updateGameState(stateMoveResult.state));
+    // move card
+    if (stateMoveResult.move < 33) {
+      let coords = this.playedCardCoordinates(stateMoveResult.state);
+      if (stateMoveResult.player == 1) { // opponent
+        this.deck.cards.forEach((card) => {
+          if (card.i == stateMoveResult.move) {
+            card.animateTo({
+              delay: 100,
+              duration: 300,
+              ease: 'quintOut',
+
+              x: coords.x,
+              y: coords.y
+            });
+            card.setSide('front');
+            this.playedCards.push(card);
+          }
+        });
+      }
+    }
+
+    // dispatch new game description
+    let whoPlayedMoveDesc = stateMoveResult.player == 0 ? 'You' : 'Opponent';
+    let actionMoveDesc: string;
+    if (stateMoveResult.move < 33) {
+      actionMoveDesc = 'played card';
+    } else if (stateMoveResult.move < 42) {
+      actionMoveDesc = 'picked rank';
+    } else if (stateMoveResult.move < 46) {
+      actionMoveDesc = 'picked suit';
+      this.isGameAlreadyStarted = true; // used for refreshing state after hand
+    } else if (stateMoveResult.move == 46) {
+      actionMoveDesc = 'raised points';
+    } else if (stateMoveResult.move == 47) {
+      actionMoveDesc = 'folded hand';
+    } else if (stateMoveResult.move == 48) {
+      actionMoveDesc = 'accepted raise';
+    } else if (stateMoveResult.move == 49) {
+      actionMoveDesc = 'folded and forced to show hand';
+    }
+    // updates the state of the game
+    this.ngRedux.dispatch(this.updateGameDescAction.updateGameDesc(`${whoPlayedMoveDesc} ${actionMoveDesc}`))
+  }
+
+  private playedCardCoordinates(state: GameState): any {
+    if ((this.playedCards.length % 2) == 0) {
+      return {x: 100, y: 0}
+    } else {
+      return {x: 180, y: 0}
+    }
+  }
+
+  public shouldShowActionButton(move: number): boolean {
+    for (let rankOrSuit of this.ranksAndSuits) {
+      if (rankOrSuit.value == move) {
+        return true;
+      }
+    }
+    for (let raiseMove of this.raiseMoves) {
+      if (raiseMove.value == move) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public getLabelMove(move: number): string {
+    for (let rankOrSuit of this.ranksAndSuits) {
+      if (rankOrSuit.value == move) {
+        return rankOrSuit.label;
+      }
+    }
+    for (let raiseMove of this.raiseMoves) {
+      if (raiseMove.value == move) {
+        return raiseMove.label;
+      }
+    }
+    return "NONE";
   }
 
   private lastCardClicked(): void {
@@ -72,21 +256,18 @@ export class GameComponent implements OnInit {
     }
     this.displayLastCardDesc = false;
     this.ngRedux.dispatch(this.updateGameStateAction.updateGameState(nextStateMoveResult.state));
+
+    this.updateAvailableMoves();
   }
 
   private distributeCards(lastCardDeckId: number): void {
-
-    this.deck.cards.forEach((card, i) => {
-      $(card.$el).click(() => {
-        console.log(card.i);
-      });
-    });
-
     // distributes cards to player
     let x_player = -160;
     let y_player = 200;
     for (let i = 0; i < 5; i++) {
-      this.deck.cards[i].animateTo({
+      let cardTemp: any = this.deck.cards[i];
+
+      cardTemp.animateTo({
         delay: 1000 + i * 2, // wait 1 second + i * 2 ms
         duration: 500,
         ease: 'quintOut',
@@ -94,14 +275,36 @@ export class GameComponent implements OnInit {
         x: x_player,
         y: y_player
       });
-      this.deck.cards[i].setSide('front');
+      cardTemp.setSide('front');
       x_player += 80;
+
+      $(cardTemp.$el).click(() => {
+        if (!this.lockPlayerMoves) {
+          let validMoves: number[] = this.ngRedux.getState().valid_moves;
+          if (validMoves.includes(cardTemp.i)) {
+            this.makeMove(cardTemp.i);
+            let currentState: GameState = this.ngRedux.getState().current_state;
+            let coord: any = this.playedCardCoordinates(currentState);
+            cardTemp.animateTo({
+              delay: 100,
+              duration: 300,
+              ease: 'quintOut',
+
+              x: coord.x,
+              y: coord.y
+            });
+            this.playedCards.push(cardTemp);
+          } else {
+            alert("Invalid move");
+          }
+        }
+      });
     }
 
     // distributes cards to opponent
     let x_opp = -160;
     let y_opp = -200;
-    for (let i = 27; i < 32; i++) {
+    for (let i = 7; i < 12; i++) {
       this.deck.cards[i].animateTo({
         delay: 1000 + i * 2, // wait 1 second + i * 2 ms
         duration: 500,
@@ -171,6 +374,7 @@ export class GameComponent implements OnInit {
 
   private changeCardsPositionInDeck(deck: Deck,
                                     startingPlayerHand: number[],
+                                    startingOpponentHand: number[],
                                     firstCardDeckId: number,
                                     lastCardDeckId: number): void {
     // change player cards position in deck for distributing them later
@@ -198,12 +402,35 @@ export class GameComponent implements OnInit {
       });
     }
 
+    // change opponent cards position in deck for distributing them later
+    startingOpponentHand.forEach((cardId, i) => {
+      deck.cards.forEach((card, y) => {
+        if (card.i == cardId) {
+          this.changeElementPosition(deck.cards, y, i + 7);
+        }
+      });
+    });
+
   }
 
   private changeElementPosition(arr, fromIndex, toIndex) {
     var element = arr[fromIndex];
     arr.splice(fromIndex, 1);
     arr.splice(toIndex, 0, element);
+  }
+
+  private updateAvailableMoves(): void {
+    this.wattenGameService.getAvailableMoves().subscribe(res => {
+      this.ngRedux.dispatch(this.validMovesAction.updateValidMoves(res.body.valid_moves));
+      this.lockPlayerMoves = false;
+      if (this.isGameAlreadyStarted) {
+        if (res.body.valid_moves.includes(33) || res.body.valid_moves.includes(42)) {
+          console.log("RESET GAME");
+          this.blockUI.start("Hand done. Setting up table for next hand.");
+          this.refreshTable();
+        }
+      }
+    });
   }
 
 }

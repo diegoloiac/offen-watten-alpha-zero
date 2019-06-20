@@ -3,6 +3,15 @@
 <p id="last-card-description" *ngIf="displayLastCardDesc">Last deck card<br>Click on it once you have memorized it</p>
 <p id="your-hand-description">Your hand</p>
 <p id="opponent-hand-description">Opponent hand</p>
+<button id="continue-button" mat-raised-button (click)="makeMove()" *ngIf="moveQueue.length > 0">Continue</button>
+
+<div>
+  <ng-container *ngFor="let move of $validMoves | async">
+    <button class="move-button" mat-raised-button (click)="makeMove(move)" *ngIf="shouldShowActionButton(move)">
+      {{getLabelMove(move)}}
+    </button>
+  </ng-container>
+</div>
 
 <div id="game-description-box">
   <p>Your points: {{$playerScore | async}}</p>

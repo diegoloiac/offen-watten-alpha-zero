@@ -17,6 +17,7 @@ import {GameComponent} from './game/game.component';
 import {UpdateGameDescAction} from "../redux/actions/update-game-desc-action";
 import {UpdateGameStateAction} from "../redux/actions/update-game-state-action";
 import {ValidMovesAction} from "../redux/actions/valid-moves-action";
+import {BlockUIModule} from "ng-block-ui";
 
 @NgModule({
   declarations: [
@@ -35,7 +36,9 @@ import {ValidMovesAction} from "../redux/actions/valid-moves-action";
     BrowserAnimationsModule,
     MatButtonModule,
     MatToolbarModule,
-    MatSlideToggleModule
+    MatSlideToggleModule,
+
+    BlockUIModule.forRoot()
   ],
   providers: [StartGameActions, UpdateGameDescAction, UpdateGameStateAction, ValidMovesAction],
   bootstrap: [AppComponent]

@@ -105,6 +105,7 @@ class WattenGame(Game):
         player_in = self.players_inv[player]
 
         player_hand = self.trueboard.player_A_hand if player_in == 1 else self.trueboard.player_B_hand
+        opponent_hand = self.trueboard.player_B_hand if player_in == 1 else self.trueboard.player_A_hand
 
         first_card_deck = self.trueboard.first_card_deck
         last_card_deck = self.trueboard.last_card_deck if player_in == self.trueboard.distributing_cards_player else None
@@ -124,6 +125,7 @@ class WattenGame(Game):
 
         return {
             'player_hand': player_hand,
+            'opponent_hand': opponent_hand,  # TODO remove (needs frontend refactoring)
             'first_card_deck': first_card_deck,
             'last_card_deck': last_card_deck,
             'current_game_player_A_score': current_game_player_A_score,

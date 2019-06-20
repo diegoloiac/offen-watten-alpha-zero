@@ -4,4 +4,5 @@ export class GameStateMoveResult {
   state: GameState;
   move: number;
   game_result: number;
+  player: number;
 }

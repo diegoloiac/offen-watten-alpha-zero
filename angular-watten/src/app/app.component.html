@@ -1,18 +1,20 @@
-<mat-toolbar color="primary">
-  <mat-toolbar-row>
-    <h1>UnibzWatten</h1>
-    <span class="toolbar-spacer"></span>
-    <div *ngIf="($game_id | async) === undefined">
-      <mat-slide-toggle [(ngModel)]="playerDistributesCards" color="accent" style="padding-right: 30px">
-        Player distributes cards
-      </mat-slide-toggle>
-      <button mat-flat-button color="accent" (click)="startGame(playerDistributesCards)">New Game</button>
-    </div>
-    <div *ngIf="($game_id | async) !== undefined">
-      <button mat-flat-button color="warning" (click)="quitGame()">Quit Game</button>
-    </div>
-  </mat-toolbar-row>
+<block-ui>
+  <mat-toolbar color="primary">
+    <mat-toolbar-row>
+      <h1>UnibzWatten</h1>
+      <span class="toolbar-spacer"></span>
+      <div *ngIf="($game_id | async) === undefined">
+        <mat-slide-toggle [(ngModel)]="playerDistributesCards" color="accent" style="padding-right: 30px">
+          Player distributes cards
+        </mat-slide-toggle>
+        <button mat-flat-button color="accent" (click)="startGame(playerDistributesCards)">New Game</button>
+      </div>
+      <div *ngIf="($game_id | async) !== undefined">
+        <button mat-flat-button color="warning" (click)="quitGame()">Quit Game</button>
+      </div>
+    </mat-toolbar-row>
 
-</mat-toolbar>
+  </mat-toolbar>
 
-<router-outlet></router-outlet>
+  <router-outlet></router-outlet>
+</block-ui>

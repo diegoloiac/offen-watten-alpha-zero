@@ -41,3 +41,13 @@
   left: calc(50% + 16rem);
   border-radius: 10px;
 }
+
+.move-button {
+  margin: 5px;
+}
+
+#continue-button {
+  position: fixed;
+  top: calc(50% + 5rem);
+  left: calc(50%);
+}

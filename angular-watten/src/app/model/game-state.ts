@@ -1,5 +1,6 @@
 export class GameState {
   player_hand: number[];
+  opponent_hand: number[];
   first_card_deck: number;
   last_card_deck: number;
   current_game_player_A_score: number;

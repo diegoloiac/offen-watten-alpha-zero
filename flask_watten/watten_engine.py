@@ -24,9 +24,8 @@ class WattenEngine():
 
         if move is not None:
             game_result, next_player = game.make_move(move)
-
+            states_after_moves.append({'state': game.get_player_visible_state(0), 'move': move, 'player': 0})
             if next_player == 0:
-                states_after_moves.append({'state': game.get_player_visible_state(0), 'move': move})
                 return states_after_moves
         else:
             next_player = 1
@@ -47,7 +46,8 @@ class WattenEngine():
             states_after_moves.append({
                 'state': game.get_player_visible_state(0),
                 'move': best_move,
-                'game_result': game_result
+                'game_result': game_result,
+                'player': 1
             })
 
             if game_result != 0.0:

@@ -8,6 +8,7 @@ import {StartGamePayloadReq} from "./model/start-game-payload-req";
 import {NgRedux} from "@angular-redux/store";
 import {IAppState} from "../../redux/IAppState";
 import {ValidMovesPayloadRes} from "./model/valid-moves-payload-res";
+import {GameStateMoveResult} from "../model/game-state-move-result";
 
 @Injectable({providedIn: 'root'})
 export class WattenGameService {
@@ -30,6 +31,12 @@ export class WattenGameService {
   public getAvailableMoves(): Observable<WattenResponse<ValidMovesPayloadRes>> {
     let url: string = `${environment.apiPrefix}/moves/${this.ngRedux.getState().game_id}`;
     return this.http.get<WattenResponse<ValidMovesPayloadRes>>(url);
+  }
+
+  public makeMove(move: number): Observable<WattenResponse<GameStateMoveResult[]>> {
+    let payload: any = {'move': move};
+    let url: string = `${environment.apiPrefix}/moves/${this.ngRedux.getState().game_id}`;
+    return this.http.post<WattenResponse<GameStateMoveResult[]>>(url, payload);
   }
 
 }
