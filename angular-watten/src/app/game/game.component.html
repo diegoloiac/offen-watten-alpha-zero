@@ -3,11 +3,14 @@
 <p id="last-card-description" *ngIf="displayLastCardDesc">Last deck card<br>Click on it once you have memorized it</p>
 <p id="your-hand-description">Your hand</p>
 <p id="opponent-hand-description">Opponent hand</p>
-<button id="continue-button" mat-raised-button (click)="makeMove()" *ngIf="moveQueue.length > 0">Continue</button>
+<button id="continue-button" mat-raised-button (click)="makeMove()"
+        *ngIf="moveQueue.length > 0 && !displayLastCardDesc">Continue
+</button>
 
 <div>
   <ng-container *ngFor="let move of $validMoves | async">
-    <button class="move-button" mat-raised-button (click)="makeMove(move)" *ngIf="shouldShowActionButton(move)">
+    <button class="move-button" mat-raised-button (click)="makeMove(move)"
+            *ngIf="shouldShowActionButton(move) && !displayLastCardDesc && moveQueue.length == 0">
       {{getLabelMove(move)}}
     </button>
   </ng-container>

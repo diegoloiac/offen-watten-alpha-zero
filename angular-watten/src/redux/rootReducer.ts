@@ -18,13 +18,14 @@ export function rootReducer(lastState: IAppState, action: AnyAction): IAppState 
         valid_moves: lastState.valid_moves
       };
     case StartGameActions.QUIT_GAME:
+      console.log(`QUIT GAME action`);
       return {
-        game_id: undefined,
+        game_id: '',
         current_state: undefined,
         next_states: undefined,
         game_description: undefined,
         player_distributes_cards: undefined,
-        valid_moves: undefined
+        valid_moves: []
       };
     case UpdateGameDescAction.UPDATE_GAME_DESC:
       return {

@@ -12,6 +12,7 @@ import {UpdateGameStateAction} from "../../redux/actions/update-game-state-actio
 import {WattenGameService} from "../service/watten-game.service";
 import {ValidMovesAction} from "../../redux/actions/valid-moves-action";
 import {BlockUI, NgBlockUI} from "ng-block-ui";
+import {Router} from "@angular/router";
 
 declare var $: any; // jquery
 
@@ -73,7 +74,8 @@ export class GameComponent implements OnInit {
               private updateGameDescAction: UpdateGameDescAction,
               private updateGameStateAction: UpdateGameStateAction,
               private validMovesAction: ValidMovesAction,
-              private wattenGameService: WattenGameService) {
+              private wattenGameService: WattenGameService,
+              private router: Router) {
   }
 
   ngOnInit() {
@@ -86,8 +88,6 @@ export class GameComponent implements OnInit {
     }
 
     // refresh variables
-    this.moveQueue = [];
-    this.displayLastCardDesc = undefined;
     this.lockPlayerMoves = true;
     this.$cardContainer = undefined;
     this.deck = undefined;
@@ -100,7 +100,16 @@ export class GameComponent implements OnInit {
     let startingOpponentHand: number[] = this.ngRedux.getState().current_state.opponent_hand;
     let firstCardDeck: number = this.ngRedux.getState().current_state.first_card_deck;
     let lastCardDeck: number = this.ngRedux.getState().current_state.last_card_deck;
-    this.displayLastCardDesc = this.ngRedux.getState().player_distributes_cards;
+    if (isNullOrUndefined(lastCardDeck)) {
+      this.displayLastCardDesc = false;
+    } else {
+      this.displayLastCardDesc = true;
+    }
+
+    let playerFirstMove: boolean = this.ngRedux.getState().player_distributes_cards;
+    if (!playerFirstMove) {
+      this.updateAvailableMoves();
+    }
 
     this.$cardContainer = document.getElementById('card-container');
     this.deck = Deck();
@@ -160,8 +169,28 @@ export class GameComponent implements OnInit {
     });
   }
 
+  private checkGameEnded(result: string): boolean {
+    if (result === 'player_won') {
+      alert("You won!");
+      this.wattenGameService.quitGame(this.ngRedux.getState().game_id).subscribe(() => {
+        this.router.navigateByUrl('/');
+      });
+      return true;
+    } else if (result === 'opponent_won') {
+      alert("Opponent won!");
+      this.wattenGameService.quitGame(this.ngRedux.getState().game_id).subscribe(() => {
+        this.router.navigateByUrl('/');
+      });
+      return true;
+    }
+    return false;
+  }
+
   private makeMoveAux(stateMoveResult: GameStateMoveResult): void {
     this.ngRedux.dispatch(this.updateGameStateAction.updateGameState(stateMoveResult.state));
+    if (this.checkGameEnded(stateMoveResult.game_result)) {
+      return;
+    }
     // move card
     if (stateMoveResult.move < 33) {
       let coords = this.playedCardCoordinates(stateMoveResult.state);
@@ -197,6 +226,7 @@ export class GameComponent implements OnInit {
       actionMoveDesc = 'raised points';
     } else if (stateMoveResult.move == 47) {
       actionMoveDesc = 'folded hand';
+      this.refreshTable();
     } else if (stateMoveResult.move == 48) {
       actionMoveDesc = 'accepted raise';
     } else if (stateMoveResult.move == 49) {
@@ -244,6 +274,10 @@ export class GameComponent implements OnInit {
 
   private lastCardClicked(): void {
     let nextStates: GameStateMoveResult[] = this.ngRedux.getState().next_states;
+    this.displayLastCardDesc = false;
+    if (isNullOrUndefined(nextStates)) {
+      return;
+    }
     if (nextStates.length > 1) {
       console.error("next states cannot be more than 1 when last card is clicked");
     }
@@ -254,7 +288,6 @@ export class GameComponent implements OnInit {
     } else {
       this.ngRedux.dispatch(this.updateGameDescAction.updateGameDesc("Opponent picked rank"));
     }
-    this.displayLastCardDesc = false;
     this.ngRedux.dispatch(this.updateGameStateAction.updateGameState(nextStateMoveResult.state));
 
     this.updateAvailableMoves();
@@ -425,7 +458,6 @@ export class GameComponent implements OnInit {
       this.lockPlayerMoves = false;
       if (this.isGameAlreadyStarted) {
         if (res.body.valid_moves.includes(33) || res.body.valid_moves.includes(42)) {
-          console.log("RESET GAME");
           this.blockUI.start("Hand done. Setting up table for next hand.");
           this.refreshTable();
         }
