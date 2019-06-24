@@ -24,6 +24,8 @@ from core.agents.AgentNNet import AgentNNet
 from core.agents.AgentMCTS import AgentMCTS
 from core.agents.AgentRandom import AgentRandom
 
+import os
+
 import GPUtil
 
 
@@ -376,6 +378,7 @@ class EnvironmentSelector():
         elif agent_profile == EnvironmentSelector.WATTEN_AGENT_HUMAN:
             return WattenHumanAgent(game)
         elif agent_profile == EnvironmentSelector.WATTEN_AGENT_NNET:
+            agent_nnet.load(os.path.abspath("../games/watten/training/best-4-512-new.h5"))
             return agent_nnet
 
         return None

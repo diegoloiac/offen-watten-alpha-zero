@@ -21,6 +21,7 @@ def shift_list(list_obj, n):
 def evaluate(agent_profile, agent_new_path, agent_old_path,
              games_num, experience_path=None, acceptance_rate=0.6,
              verbose=True, debug=False, max_steps=None, self_play_examples_deque=deque([])):
+    print("Evaluating model with games_num %d and acceptance_rate %f" % (games_num, acceptance_rate))
 
     env_selector = EnvironmentSelector()
     agent = env_selector.get_agent(agent_profile)
@@ -71,9 +72,8 @@ def evaluate(agent_profile, agent_new_path, agent_old_path,
     cur_rewards = arena_games_results[0]
     other_rewards = sum(arena_games_results) - cur_rewards
 
-    if verbose:
-        print("Current agent got rewards: %d\n"
-              "Total reward across all other agents: %d" % (cur_rewards, other_rewards))
+    print("Current agent got rewards: %d\n"
+          "Total reward across all other agents: %d" % (cur_rewards, other_rewards))
 
     updated = (cur_rewards > other_rewards) >= acceptance_rate
 

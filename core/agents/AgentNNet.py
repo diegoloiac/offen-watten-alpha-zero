@@ -38,6 +38,7 @@ class AgentNNet(Agent):
         self.nnet.save(path_to_file)
 
     def load(self, path_to_file):
+        print("Loading model", path_to_file)
         self.nnet.load(path_to_file)
 
     def train(self, examples, batch_size=2048, epochs=10, verbose=1):
