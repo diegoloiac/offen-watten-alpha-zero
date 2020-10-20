@@ -44,7 +44,7 @@ class NNet(ABC):
         self.model, self.multi_gpu_model = self.build_model()
 
         self.model_optimized = False
-        self.graph = tf.get_default_graph()
+        self.graph = tf.compat.v1.get_default_graph()
         self.sess = None
 
     def enable_training_capability(self):

@@ -82,7 +82,7 @@ def train(agent_profile, memory_path, cur_agent_path, new_agent_path,
           hosts=None, train_distributed=False, train_distributed_native=False,
           epochs=1):
     # call trainer script
-    command = "python3 trainer.py"
+    command = "python trainer.py"
     command += " --agent %s" % agent_profile
     command += " --memory_path %s" % memory_path
     command += " --out_agent_path %s" % new_agent_path
@@ -129,7 +129,7 @@ def generate_self_play(agent_profile, agent_path, temp_dir, iteration_memory_pat
     distributed = hosts is not None
 
     if not distributed:
-        command = "python3 self_play_generator.py"
+        command = "python self_play_generator.py"
         command += " --agent %s" % agent_profile
         command += " --agent_path %s" % agent_path
         command += " --out_experience_path %s" % iteration_memory_path
@@ -149,7 +149,7 @@ def generate_self_play(agent_profile, agent_path, temp_dir, iteration_memory_pat
 
         games_num = math.ceil(games_num / processes)
 
-        command = "python3 self_play_generator_distributed.py"
+        command = "python self_play_generator_distributed.py"
         command += " --agent %s" % agent_profile
         command += " --agent_path %s" % agent_path
         command += " --temp_path %s" % temp_dir
@@ -210,7 +210,7 @@ def evaluate(agent_profile, contestant_agent_path,
     if os.path.isfile(test_memory_path):
         os.remove(test_memory_path)
 
-    command = "python3 evaluator.py"
+    command = "python evaluator.py"
     command += " --agent %s" % agent_profile
     command += " --agent_new_path %s" % contestant_agent_path
     command += " --agent_old_path %s" % cur_agent_path
@@ -334,9 +334,9 @@ if __name__ == "__main__":
             hosts.append(parse_host(host_str))
 
     # force agent to use CPU in the main script
-    config = tf.ConfigProto(device_count={'CPU': 1, 'GPU': 0})
-    session = tf.Session(config=config)
-    K.set_session(session)
+    config = tf.compat.v1.ConfigProto(device_count={'CPU': 1, 'GPU': 0})
+    session = tf.compat.v1.Session(config=config)
+    tf.compat.v1.keras.backend.set_session(session)
 
     # define and create a workspace
     temp_dir = options.workspace + '/temp'
