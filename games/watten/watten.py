@@ -583,6 +583,7 @@ class WorldWatten(object):
     # - points game current player (max 14)
     # - points game opponent player (max 14)
     # - last move raise (1)
+    # - last move accepted raise (1)
     # - last move valid raise (1)
     # - current prize (13)
     def observe(self, player):
