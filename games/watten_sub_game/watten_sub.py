@@ -532,9 +532,10 @@ class WorldSubWatten(object):
         self.rank = rank
         self.suit = suit
 
+
 class Error(Exception):
     """Base class for other exceptions"""
-pass
+    pass
 
 
 class InconsistentStateError(Error):
