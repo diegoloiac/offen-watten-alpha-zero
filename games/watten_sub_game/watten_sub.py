@@ -81,7 +81,7 @@ class WorldSubWatten(object):
 
         # list of actions taken in a game, used for debugging purposes
         self.moves_series = []
-        self.starting_state = f"\n{self.current_player}, {self.distributing_cards_player}, {self.player_A_hand}, {self.player_B_hand}, {self.played_cards}, {self.current_game_player_A_score}, {self.current_game_player_B_score}, {self.current_game_prize}, {self.is_last_move_raise}, {self.is_last_move_accepted_raise}, {self.is_last_hand_raise_valid}, {self.first_card_deck}, {self.last_card_deck}, {self.rank}, {self.suit}"
+        self.starting_state = f"\n{self.current_player}, {self.distributing_cards_player}, {self.player_A_hand}, {self.player_B_hand}, {self.played_cards}, {self.current_game_player_A_score}, {self.current_game_player_B_score}, {self.first_card_deck}, {self.last_card_deck}, {self.rank}, {self.suit}"
 
     def _initialize_hand(self):
         # init deck
@@ -143,13 +143,13 @@ class WorldSubWatten(object):
 
         # player that has not given cards declare the rank
         if self.rank is None:
-            valid_moves = valid_moves.extend(self.moves["pick_rank"])
+            valid_moves.extend(self.moves["pick_rank"])
             self.LOG.debug(f"Valid moves for player [{self.current_player}] are {valid_moves}")
             return valid_moves
 
         # player that has given cards declare the suit. If weli was chosen as rank, then suit is irrelevant
         if self.suit is None:
-            valid_moves = valid_moves.extend(self.moves["pick_suit"])
+            valid_moves.extend(self.moves["pick_suit"])
             self.LOG.debug(f"Valid moves for player [{self.current_player}] are {valid_moves}")
             return valid_moves
 
@@ -160,7 +160,7 @@ class WorldSubWatten(object):
         # when the cards in game are even, then no hand has been played or one has just finished so
         # any card in hand of the current player can be played
         if (len(self.played_cards) % 2) == 0:
-            valid_moves = valid_moves.extend(current_hand)
+            valid_moves.extend(current_hand)
             self.LOG.debug(f"Valid moves for player [{self.current_player}] are {valid_moves}")
             return valid_moves
 
@@ -187,12 +187,13 @@ class WorldSubWatten(object):
         if len(valid_moves) == 1:
             card_rank, card_suit = get_rs(valid_moves[0])
             if self.rank == card_rank and self.suit == card_suit:
-                valid_moves = valid_moves.extend(current_hand)
+                valid_moves = []
+                valid_moves.extend(current_hand)
                 self.LOG.debug(f"Valid moves for player [{self.current_player}] are {valid_moves}")
                 return valid_moves
 
         if len(valid_moves) == 0:
-            valid_moves = valid_moves.extend(current_hand)
+            valid_moves.extend(current_hand)
 
         self.LOG.debug(f"Valid moves for player [{self.current_player}] are {valid_moves}")
         return valid_moves
@@ -247,7 +248,7 @@ class WorldSubWatten(object):
                         self.winning_player = 1
                     else:
                         self.winning_player = -1
-                    return "end", self.current_player
+                    return "end", self.distributing_cards_player
                 self.current_player = next_player_move
                 return "continue", next_player_move
 
@@ -389,6 +390,19 @@ class WorldSubWatten(object):
         else:
             return False
 
+    # this is called after act, player is the next player
+    def is_won(self, player):
+        if player not in [1, -1]:
+            raise InvalidInputError("Player should be either 1 or -1. Input is %d." % player)
+
+        if self.current_game_player_A_score >= 3 and self.current_game_player_B_score >= 3:
+            raise InconsistentStateError("Both player cannot exceed score threshold. Only one winner is allowed.")
+        if player == -1 and self.current_game_player_A_score >= 3:
+            return True
+        if player == 1 and self.current_game_player_B_score >= 3:
+            return True
+        return False
+
     def get_player(self):
         return self.current_player
 
@@ -481,7 +495,7 @@ class WorldSubWatten(object):
                       f"\nPlayer -1 hand: {self._str_cards(self.player_B_hand)} - {self.player_B_hand}"
                       f"\nRank: |{self.rank} - {rank_names[self.rank]}|, Suit: |{self.suit} - {suit_names[self.suit]}|"
                       f"\nPlayed cards: {self._str_cards(self.played_cards)}"
-                      f"\n{self.distributing_cards_player}, {self.is_last_hand_raise_valid}, {self.first_card_deck}, {self.last_card_deck}")
+                      f"\n{self.distributing_cards_player}, {self.first_card_deck}, {self.last_card_deck}")
 
         self.LOG.info(f"{self.starting_state}")
         self.LOG.info(f"{self.moves_series}")

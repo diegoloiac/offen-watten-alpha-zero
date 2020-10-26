@@ -12,7 +12,7 @@ from core.interfaces.Game import Game
 
 from loggers import stdout_logger
 
-class WattenGame(Game):
+class WattenSubGame(Game):
     def __init__(self):
         self.trueboard = watten_sub.WorldSubWatten()
         self.players = {1: 0, -1: 1}  # player NUMBER 1 is [0] and player NUMBER -1 is [1]
