@@ -18,6 +18,9 @@ from games.watten.nnet.WattenNNet4x512 import WattenNNet4x512
 from games.watten.nnet.WattenNNetFirstLayerBig import WattenNNetFirstLayerBig
 # from games.watten.agent.DurakHumanAgent import DurakHumanAgent
 
+from games.watten_sub_game.WattenSubGame import WattenSubGame
+from games.watten_sub_game.agent.SubWattenHumanAgent import SubWattenHumanAgent
+
 from core.nnet.NNet import NNet
 
 from core.agents.AgentNNet import AgentNNet
@@ -37,6 +40,8 @@ class EnvironmentSelector():
     GAME_DURAK_DEFAULT = "durak_environment_default"
 
     GAME_WATTEN_DEFAULT = "watten_environment_default"
+
+    GAME_SUB_WATTEN_DEFAULT = "sub_watten_environment_default"
 
     class AgentProfile():
         def __init__(self, game, agent_profile):
@@ -85,6 +90,9 @@ class EnvironmentSelector():
     WATTEN_AGENT_HUMAN = AgentProfile(GAME_WATTEN_DEFAULT, "watten_agent_human")
     WATTEN_AGENT_NNET = AgentProfile(GAME_WATTEN_DEFAULT, "watten_agent_nnet")
 
+    SUB_WATTEN_AGENT_RANDOM = AgentProfile(GAME_SUB_WATTEN_DEFAULT, "sub_watten_agent_random")
+    SUB_WATTEN_AGENT_HUMAN = AgentProfile(GAME_SUB_WATTEN_DEFAULT, "sub_watten_agent_human")
+
     def __init__(self):
         super().__init__()
 
@@ -93,6 +101,7 @@ class EnvironmentSelector():
             EnvironmentSelector.GAME_TICTACTOE_DEFAULT: TicTacToeGame(),
             EnvironmentSelector.GAME_DURAK_DEFAULT: DurakGame(),
             EnvironmentSelector.GAME_WATTEN_DEFAULT: WattenGame(),
+            EnvironmentSelector.GAME_SUB_WATTEN_DEFAULT: WattenSubGame(),
         }
 
         self.agent_builder_mapping = {
@@ -127,6 +136,9 @@ class EnvironmentSelector():
             EnvironmentSelector.WATTEN_AGENT_RANDOM: self.build_watten_agent,
             EnvironmentSelector.WATTEN_AGENT_HUMAN: self.build_watten_agent,
             EnvironmentSelector.WATTEN_AGENT_NNET: self.build_watten_train_4_512_agent
+
+            EnvironmentSelector.SUB_WATTEN_AGENT_RANDOM: self.build_sub_watten_agent,
+            EnvironmentSelector.SUB_WATTEN_AGENT_HUMAN: self.build_sub_watten_agent,
         }
 
         self.agent_profiles = [
@@ -161,7 +173,10 @@ class EnvironmentSelector():
 
             EnvironmentSelector.WATTEN_AGENT_RANDOM,
             EnvironmentSelector.WATTEN_AGENT_HUMAN,
-            EnvironmentSelector.WATTEN_AGENT_NNET
+            EnvironmentSelector.WATTEN_AGENT_NNET,
+
+            EnvironmentSelector.SUB_WATTEN_AGENT_RANDOM,
+            EnvironmentSelector.SUB_WATTEN_AGENT_HUMAN,
         ]
 
     def get_profile(self, agent_profile_str):
@@ -176,8 +191,7 @@ class EnvironmentSelector():
     def get_agent(self, agent_profile_str, native_multi_gpu_enabled=False):
         agent_profile = self.get_profile(agent_profile_str)
         if agent_profile in self.agent_builder_mapping:
-            return self.agent_builder_mapping[agent_profile](agent_profile,
-                                                             native_multi_gpu_enabled=native_multi_gpu_enabled)
+            return self.agent_builder_mapping[agent_profile](agent_profile, native_multi_gpu_enabled=native_multi_gpu_enabled)
 
         print("Error: could not find an agent by the key: ", agent_profile_str)
 
@@ -401,5 +415,16 @@ class EnvironmentSelector():
             return AgentRandom()
         elif agent_profile == EnvironmentSelector.WATTEN_AGENT_HUMAN:
             return WattenHumanAgent(game)
+
+        return None
+
+    def build_sub_watten_agent(selfself, agent_profile, native_multi_gpu_enabled=False):
+
+        game = self.game_mapping[agent_profile.game]
+
+        if agent_profile == EnvironmentSelector.SUB_WATTEN_AGENT_RANDOM:
+            return AgentRandom()
+        elif agent_profile == EnvironmentSelector.SUB_WATTEN_AGENT_HUMAN:
+            return SubWattenHumanAgent(game)
 
         return None
