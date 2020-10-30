@@ -19,6 +19,7 @@ from games.watten.nnet.WattenNNetFirstLayerBig import WattenNNetFirstLayerBig
 # from games.watten.agent.DurakHumanAgent import DurakHumanAgent
 
 from games.watten_sub_game.WattenSubGame import WattenSubGame
+from games.watten_sub_game.nnet.SubWattenNNet import SubWattenNNet
 from games.watten_sub_game.agent.SubWattenHumanAgent import SubWattenHumanAgent
 
 from core.nnet.NNet import NNet
@@ -90,6 +91,7 @@ class EnvironmentSelector():
     WATTEN_AGENT_HUMAN = AgentProfile(GAME_WATTEN_DEFAULT, "watten_agent_human")
     WATTEN_AGENT_NNET = AgentProfile(GAME_WATTEN_DEFAULT, "watten_agent_nnet")
 
+    SUB_WATTEN_AGENT_TRAIN = AgentProfile(GAME_SUB_WATTEN_DEFAULT, "sub_watten_agent_train_default")
     SUB_WATTEN_AGENT_RANDOM = AgentProfile(GAME_SUB_WATTEN_DEFAULT, "sub_watten_agent_random")
     SUB_WATTEN_AGENT_HUMAN = AgentProfile(GAME_SUB_WATTEN_DEFAULT, "sub_watten_agent_human")
 
@@ -135,8 +137,9 @@ class EnvironmentSelector():
 
             EnvironmentSelector.WATTEN_AGENT_RANDOM: self.build_watten_agent,
             EnvironmentSelector.WATTEN_AGENT_HUMAN: self.build_watten_agent,
-            EnvironmentSelector.WATTEN_AGENT_NNET: self.build_watten_train_4_512_agent
+            EnvironmentSelector.WATTEN_AGENT_NNET: self.build_watten_train_4_512_agent,
 
+            EnvironmentSelector.SUB_WATTEN_AGENT_TRAIN: self.build_sub_watten_train_agent,
             EnvironmentSelector.SUB_WATTEN_AGENT_RANDOM: self.build_sub_watten_agent,
             EnvironmentSelector.SUB_WATTEN_AGENT_HUMAN: self.build_sub_watten_agent,
         }
@@ -175,6 +178,7 @@ class EnvironmentSelector():
             EnvironmentSelector.WATTEN_AGENT_HUMAN,
             EnvironmentSelector.WATTEN_AGENT_NNET,
 
+            EnvironmentSelector.SUB_WATTEN_AGENT_TRAIN,
             EnvironmentSelector.SUB_WATTEN_AGENT_RANDOM,
             EnvironmentSelector.SUB_WATTEN_AGENT_HUMAN,
         ]
@@ -418,7 +422,23 @@ class EnvironmentSelector():
 
         return None
 
-    def build_sub_watten_agent(selfself, agent_profile, native_multi_gpu_enabled=False):
+    def build_sub_watten_train_agent(self, agent_profile, native_multi_gpu_enabled=False):
+
+        game = self.game_mapping[agent_profile.game]
+
+        x, y = game.get_observation_size()
+        nnet = SubWattenNNet(x, y, 1, game.get_action_size())
+
+        agent_nnet = AgentNNet(nnet)
+
+        if agent_profile == EnvironmentSelector.SUB_WATTEN_AGENT_TRAIN:
+            print("Configuring build_sub_watten_train_agent...")
+            return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=100,
+                             max_predict_time=10, num_threads=1)
+
+        return None
+
+    def build_sub_watten_agent(self, agent_profile, native_multi_gpu_enabled=False):
 
         game = self.game_mapping[agent_profile.game]
 
