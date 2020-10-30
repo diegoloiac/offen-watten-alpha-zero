@@ -93,7 +93,7 @@ class WattenSubGame(Game):
         return ""
 
     def clone(self):
-        cloned_game = WattenGame()
+        cloned_game = WattenSubGame()
         cloned_game.trueboard = self.trueboard.deepcopy()
         return cloned_game
 

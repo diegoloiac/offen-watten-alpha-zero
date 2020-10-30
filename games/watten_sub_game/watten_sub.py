@@ -66,11 +66,14 @@ class WorldSubWatten(object):
         # player can be either 1 or -1
         # player 1 is A
         # player -1 is B
-        self.current_player = 1
+        if np.random.rand() >= 0.5:
+            self.current_player = 1
+        else:
+            self.current_player = -1
 
         # player who distributes cards when the game starts; each game the starting player is switched
         # the opponent picks rank and playes the first move
-        self.distributing_cards_player = -1
+        self.distributing_cards_player = -self.current_player
 
         self._initialize_hand()
 
