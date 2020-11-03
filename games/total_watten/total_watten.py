@@ -196,6 +196,7 @@ class WorldTotalWatten(object):
                 (self.is_last_hand_raise_valid is None) and self.check_allowed_raise_situation():
             valid_moves.append(self.moves["raise_points"])
 
+        self.LOG.debug(f"Valid moves for player [{self.current_player}] are {valid_moves}")
         return valid_moves
 
     def check_allowed_raise_situation(self):
@@ -299,6 +300,8 @@ class WorldTotalWatten(object):
                     self.display()
                     raise InconsistentStateError(
                         'Played card [%d] not in %s of player %d' % (move, hand, self.current_player))
+
+                self.LOG.debug(f"{self.current_player} played card {move}")
 
                 self._remove_card_from_hand(move, self.current_player)
 

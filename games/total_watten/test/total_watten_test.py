@@ -961,7 +961,7 @@ class TestWorldTotalWatten(TestCase):
 
         watten.display()
 
-    
+
     def test_agent_returns_prediction(self):
         world = WorldTotalWatten()
 
