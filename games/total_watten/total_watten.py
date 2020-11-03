@@ -189,8 +189,13 @@ class WorldTotalWatten(object):
             self.LOG.debug(f"Valid moves for player [{self.current_player}] are {valid_moves}")
             return valid_moves
 
-        # if last move was not a raise, then the player can raise or make the best sub_watten move
-        valid_moves = [moves["raise_points"], moves["make_best_move"]]
+        # if last move was not a raise, then the player can make the best sub_watten move
+        valid_moves = [moves["make_best_move"]]
+
+        if (not self.is_last_move_raise) and (not self.is_last_move_accepted_raise) and\
+                (self.is_last_hand_raise_valid is None) and self.check_allowed_raise_situation():
+            valid_moves.append(self.moves["raise_points"])
+
         return valid_moves
 
     def check_allowed_raise_situation(self):
