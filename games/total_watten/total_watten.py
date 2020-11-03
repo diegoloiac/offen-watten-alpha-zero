@@ -7,16 +7,12 @@ from games.watten_sub_game.WattenSubGame import WattenSubGame
 from loggers import stdout_logger
 
 # allowed moves:
-# 0 - 32 -> play a card
-# 33 - 41 -> pick rank, 41 is the weli
-# 42 - 45 -> pick a suit
-moves = {"play_card": list(range(0, 33)),
-         "pick_rank": list(range(33, 42)),
-         "pick_suit": list(range(42, 46)),
-         "raise_points": 46,
-         "fold_hand": 47,
-         "accept_raise": 48,
-         "fold_hand_and_show_valid_raise": 49}  # can raise in last hand but some conditions should be verified
+# 0 -> make the best sub_watten choice (rank, suit or play card)
+moves = {"make_best_move": 0,
+         "raise_points": 1,
+         "fold_hand": 2,
+         "accept_raise": 3,
+         "fold_hand_and_show_valid_raise": 4}  # can raise in last hand but some conditions should be verified
 rank_names = {0: "7", 1: "8", 2: "9", 3: "10", 4: "unter", 5: "ober", 6: "kinig", 7: "ass", 8: "weli", None: "-"}
 # suit_names = {0: "♠︎", 1: "♥", 2: "♣︎", 3: "∙"}
 suit_names = {0: "laab♠", 1: "herz♥", 2: "oachl♣", 3: "schell∙", None: "-"}
@@ -66,12 +62,12 @@ class WorldTotalWatten(object):
         self.refresh()
 
     def refresh(self):
-        #getting agent for sub_watten
+        # getting agent for sub_watten
         self.env_selector = EnvironmentSelector()
         self.agent = self.env_selector.get_agent("sub_watten_agent_train_default")
         self.agent.set_exploration_enabled(False)
 
-        #loading best model for sub_watten agent
+        # loading best model for sub_watten agent
         self.agent.load("../../watten_sub_game/training/gen3/best.h5")
 
         # player can be either 1 or -1
@@ -149,13 +145,8 @@ class WorldTotalWatten(object):
             if card in self.deck:
                 raise InconsistentStateError("Card %d cannot be in deck." % card)
 
-        # set sub_watten game initial state
+        # create a sub_watten game
         self.sub_watten_game = WattenSubGame()
-        self.sub_watten_game.trueboard.init_world_to_state(self.current_player, self.distributing_cards_player,
-                                                           self.player_A_hand, self.player_B_hand, self.played_cards,
-                                                           self.current_game_player_A_score,
-                                                           self.current_game_player_B_score, self.first_card_deck,
-                                                           self.last_card_deck, self.rank, self.suit)
 
     def _set_initial_game_prize(self):
         if (self.win_threshold - self.player_A_score) <= 2:
@@ -178,7 +169,7 @@ class WorldTotalWatten(object):
         if len(valid_moves) == 0:
             self.display()
             raise ValidMovesError("Valid moves cannot be 0!")
-        valid_moves_zeros = [0] * 50  # number of possible moves
+        valid_moves_zeros = [0] * 5  # number of possible moves
         for valid_move in valid_moves:
             valid_moves_zeros[valid_move] = 1
         return valid_moves_zeros
@@ -198,72 +189,8 @@ class WorldTotalWatten(object):
             self.LOG.debug(f"Valid moves for player [{self.current_player}] are {valid_moves}")
             return valid_moves
 
-        # player that has not given cards declare the rank
-        if self.rank is None:
-            augmented_valid_moves = self._augment_valid_moves(self.moves["pick_rank"])
-            self.LOG.debug(f"Valid moves for player [{self.current_player}] are {augmented_valid_moves}")
-            return augmented_valid_moves
-
-        # player that has given cards declare the suit. If weli was chosen as rank, then suit is irrelevant
-        if self.suit is None:
-            augmented_valid_moves = self._augment_valid_moves(self.moves["pick_suit"])
-            self.LOG.debug(f"Valid moves for player [{self.current_player}] are {augmented_valid_moves}")
-            return augmented_valid_moves
-
-        # list to be returned
-        valid_moves = []
-
-        current_hand = self._get_current_player_hand()
-
-        # when the cards in game are even, then no hand has been played or one has just finished so
-        # any card in hand of the current player can be played
-        if (len(self.played_cards) % 2) == 0:
-            augmented_valid_moves = self._augment_valid_moves(current_hand)
-            self.LOG.debug(f"Valid moves for player [{self.current_player}] are {augmented_valid_moves}")
-            return augmented_valid_moves
-
-        # at this point the first player has already moved
-        played_rank, played_suit = get_rs(self._get_last_played_card())
-
-        for card in current_hand:
-            card_rank, card_suit = get_rs(card)
-
-            # if a player plays a card of the chosen suit, the opponent should play a card of the same rank or a card
-            # of the chosen rank
-            if played_suit == self.suit and card_suit == played_suit:
-                valid_moves.append(card)
-                # print("1: rank {} --- suit {}".format(card_rank, card_suit))
-            # card of the chosen rank (blinden)
-            elif card_rank == self.rank:
-                valid_moves.append(card)
-                # print("2: rank {} --- suit {}".format(card_rank, card_suit))
-            elif played_suit != self.suit:
-                valid_moves.append(card)
-                # print("3: rank {} --- suit {}".format(card_rank, card_suit))
-
-        # if the opponent has only the rechte in his hand with the same played suit, then he is not forced to play it
-        if len(valid_moves) == 1:
-            card_rank, card_suit = get_rs(valid_moves[0])
-            if self.rank == card_rank and self.suit == card_suit:
-                augmented_valid_moves = self._augment_valid_moves(current_hand)
-                self.LOG.debug(f"Valid moves for player [{self.current_player}] are {augmented_valid_moves}")
-                return augmented_valid_moves
-
-        if len(valid_moves) == 0:
-            valid_moves = current_hand
-
-        augmented_valid_moves = self._augment_valid_moves(valid_moves)
-        self.LOG.debug(f"Valid moves for player [{self.current_player}] are {augmented_valid_moves}")
-        return augmented_valid_moves
-
-    def _augment_valid_moves(self, moves):
-        valid_moves = []
-        valid_moves.extend(moves)
-        # a player can raise only if the last move was not a raise
-        # and if the opponent last move was not an accepted raise (in order to force the game to continue)
-        if (not self.is_last_move_raise) and (not self.is_last_move_accepted_raise) and (self.is_last_hand_raise_valid is None) and \
-                self.check_allowed_raise_situation():
-            valid_moves.append(self.moves["raise_points"])
+        # if last move was not a raise, then the player can raise or make the best sub_watten move
+        valid_moves = [moves["raise_points"], moves["make_best_move"]]
         return valid_moves
 
     def check_allowed_raise_situation(self):
@@ -287,7 +214,7 @@ class WorldTotalWatten(object):
         if action not in self.get_valid_moves():
             raise InvalidActionError("Action %d cannot be played" % action)
 
-        if action > 49:
+        if action > 4:
             raise InvalidActionError("Action %d is not valid" % action)
         if self.current_game_player_A_score > 3 or self.current_game_player_B_score > 3:
             raise InconsistentStateError("Current game score cannot exceed 3. Player 1 [%d] and player -1 [%d]"
@@ -330,68 +257,82 @@ class WorldTotalWatten(object):
         self.is_last_move_accepted_raise = False
         self.is_last_move_raise = False
 
-        if action in moves["play_card"]:
+        # if an action is make best move, then the sub_watten agent will predict the move
+        if action == moves["make_best_move"]:
             if self.is_last_move_raise:
                 raise InvalidActionError("Cannot play a card if the previous move was a raise")
 
-            self.LOG.debug(f"{self.current_player} played card [{action}]")
+            self.LOG.debug(f"{self.current_player} made best sub_watten move")
 
-            hand = self._get_current_player_hand()
-            if action not in hand:
-                self.display()
-                raise InconsistentStateError(
-                    'Played card [%d] not in %s of player %d' % (action, hand, self.current_player))
+            # set sub_watten game to represent the current state
+            self.sub_watten_game.trueboard.init_world_to_state(self.current_player, self.distributing_cards_player,
+                                                               self.player_A_hand, self.player_B_hand, self.played_cards,
+                                                               self.current_game_player_A_score,
+                                                               self.current_game_player_B_score, self.first_card_deck,
+                                                               self.last_card_deck, self.rank, self.suit)
 
-            self._remove_card_from_hand(action, self.current_player)
+            best_move_array, v = self.agent.predict(self.sub_watten_game, self.sub_watten_game.get_cur_player())
 
-            if num_played_cards % 2 == 0:
-                if self.is_last_hand_raise_valid is not None and not self.is_last_hand_raise_valid:
-                    # played cards are 8 and current player also raised without respecting the conditions
-                    if self.current_player == 1:
-                        self.player_B_score += self.current_game_prize
-                    else:
-                        self.player_A_score += self.current_game_prize
-                    return self._hand_is_done_after_card_is_played_common()
-                self.played_cards.append(action)
+            # index of the move in sub_watten
+            move = np.argmax(best_move_array)
+
+            # rank is between 33 and 42
+            if 33 <= move < 42:
+                self.rank = move % 33
+                self.LOG.debug(f"{self.current_player} picked rank [{self.rank}]")
                 return self._act_continue_move()
-            else:
-                if self.is_last_hand_raise_valid is not None and not self.is_last_hand_raise_valid:
-                    # played cards are 9 and current player also raised without respecting the conditions
-                    if self.current_player == 1:
-                        self.player_B_score += self.current_game_prize
-                    else:
-                        self.player_A_score += self.current_game_prize
-                    return self._hand_is_done_after_card_is_played_common()
 
-                last_played_card = self._get_last_played_card()
-                self.played_cards.append(action)
-                current_played_card = action
-                current_player_wins = not self.compare_cards(last_played_card, current_played_card)
-                next_player_move = self._assign_points_move(current_player_wins)
-                if self.current_game_player_A_score == 3 or self.current_game_player_B_score == 3:
-                    if self.current_game_player_A_score == 3:
-                        self.player_A_score += self.current_game_prize
-                    else:
-                        self.player_B_score += self.current_game_prize
-                    return self._hand_is_done_after_card_is_played_common()
-                self.current_player = next_player_move
-                return "continue", next_player_move
+            # suit is between 42 and 46
+            if 42 <= move < 46:
+                self.suit = move % 42
+                self.LOG.debug(f"{self.current_player} picked suit [{self.suit}]")
+                return self._act_continue_move()
 
-        if action in moves["pick_suit"]:
-            if self.is_last_move_raise:
-                raise InvalidActionError("Cannot play a card if the previous move was a raise")
+            if 0 <= move < 33:
+                hand = self._get_current_player_hand()
+                if move not in hand:
+                    self.display()
+                    raise InconsistentStateError(
+                        'Played card [%d] not in %s of player %d' % (move, hand, self.current_player))
 
-            self.suit = action % 42
-            self.LOG.debug(f"{self.current_player} picked suit [{self.suit}]")
-            return self._act_continue_move()
+                self._remove_card_from_hand(move, self.current_player)
 
-        if action in moves["pick_rank"]:
-            if self.is_last_move_raise:
-                raise InvalidActionError("Cannot play a card if the previous move was a raise")
+                if num_played_cards % 2 == 0:
+                    if self.is_last_hand_raise_valid is not None and not self.is_last_hand_raise_valid:
+                        # played cards are 8 and current player also raised without respecting the conditions
+                        if self.current_player == 1:
+                            self.player_B_score += self.current_game_prize
+                        else:
+                            self.player_A_score += self.current_game_prize
+                        return self._hand_is_done_after_card_is_played_common()
+                    self.played_cards.append(move)
+                    return self._act_continue_move()
+                else:
+                    if self.is_last_hand_raise_valid is not None and not self.is_last_hand_raise_valid:
+                        # played cards are 9 and current player also raised without respecting the conditions
+                        if self.current_player == 1:
+                            self.player_B_score += self.current_game_prize
+                        else:
+                            self.player_A_score += self.current_game_prize
+                        return self._hand_is_done_after_card_is_played_common()
 
-            self.rank = action % 33
-            self.LOG.debug(f"{self.current_player} picked rank [{self.rank}]")
-            return self._act_continue_move()
+                    last_played_card = self._get_last_played_card()
+                    self.played_cards.append(action)
+                    current_played_card = action
+                    current_player_wins = not self.compare_cards(last_played_card, current_played_card)
+                    next_player_move = self._assign_points_move(current_player_wins)
+
+                    if self.current_game_player_A_score == 3 or self.current_game_player_B_score == 3:
+                        if self.current_game_player_A_score == 3:
+                            self.player_A_score += self.current_game_prize
+                        else:
+                            self.player_B_score += self.current_game_prize
+                        return self._hand_is_done_after_card_is_played_common()
+
+                    self.current_player = next_player_move
+                    return "continue", next_player_move
+
+            raise InconsistentStateError("Best_move %d is not allowed." % move)
 
         self.display()
         raise InconsistentStateError("Action %d is not allowed." % action)
@@ -788,6 +729,7 @@ class WorldTotalWatten(object):
         self.last_card_deck = last_card_deck
         self.rank = rank
         self.suit = suit
+
 
 
 class Error(Exception):
