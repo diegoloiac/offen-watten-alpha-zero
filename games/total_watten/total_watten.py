@@ -1,6 +1,4 @@
 import numpy as np
-import os as os
-import logging
 from EnvironmentSelector import EnvironmentSelector
 from games.watten_sub_game.WattenSubGame import WattenSubGame
 
@@ -55,6 +53,7 @@ def human_readable_card(card_id):
 
 
 # Schlagtausch e Bessere are not implemented in the current version of the game
+# noinspection PyAttributeOutsideInit
 class WorldTotalWatten(object):
 
     def __init__(self, logger=stdout_logger):
@@ -69,6 +68,9 @@ class WorldTotalWatten(object):
 
         # loading best model for sub_watten agent
         self.agent.load("../../watten_sub_game/training/gen3/best.h5")
+
+        # create a sub_watten game
+        self.sub_watten_game = WattenSubGame()
 
         # player can be either 1 or -1
         # player 1 is A
@@ -144,9 +146,6 @@ class WorldTotalWatten(object):
         for card in self.player_B_hand:
             if card in self.deck:
                 raise InconsistentStateError("Card %d cannot be in deck." % card)
-
-        # create a sub_watten game
-        self.sub_watten_game = WattenSubGame()
 
     def _set_initial_game_prize(self):
         if (self.win_threshold - self.player_A_score) <= 2:
@@ -539,106 +538,78 @@ class WorldTotalWatten(object):
 
     # should return a unique id with the state of the game
     # the needed info are:
-    # - first card of the deck (for both player)
-    # - last card of the deck (for the player who distributed cards)
-    # - cards in hand (list of 33)
-    # - picked rank (list of 9)
-    # - picked suit (list of 4)
-    # - last played card (list of 33)
-    # - played cards (list of 33)
+    # - observation value of current sub_watten state (101)
     # - points current hand current player (max 2)
     # - points current hand opponent player (max 2)
     # - points game current player (max 14)
     # - points game opponent player (max 14)
     # - last move raise (1)
     # - last move accepted raise (1)
-    # - last move valid raise (1)
+    # - last hand raise valid (1)
     # - current prize (13)
     def observe(self, player):
         if player not in [1, -1]:
             raise InvalidInputError("Player should be either 1 or -1. Input is %d." % player)
 
-        observation = np.zeros((226,))
+        observation = np.zeros((149,))
 
-        # first card deck
-        observation[self.first_card_deck] = 1
+        # set sub_watten game to current state
+        self.sub_watten_game.trueboard.init_world_to_state(self.current_player, self.distributing_cards_player,
+                                                           self.player_A_hand, self.player_B_hand, self.played_cards,
+                                                           self.current_game_player_A_score,
+                                                           self.current_game_player_B_score, self.first_card_deck,
+                                                           self.last_card_deck, self.rank, self.suit)
 
-        # last card deck
-        index = 33
-        if player == self.distributing_cards_player:
-            observation[index + self.last_card_deck] = 1
-
-        # cards in hand
-        index += 33  # 66
-        player_hand = self.player_A_hand if player == 1 else self.player_B_hand
-        for card in player_hand:
-            observation[index + card] = 1
-
-        # picked rank
-        index += 33  # 99
-        if self.rank is not None:
-            observation[index + self.rank] = 1
-
-        # picked suit
-        index += 9  # 108
-        if self.suit is not None:
-            observation[index + self.suit] = 1
-
-        # last played card
-        index += 4  # 112
-        if len(self.played_cards) % 2 == 1:
-            observation[index + self._get_last_played_card()] = 1
-
-        # played cards
-        index += 33  # 145
-        for card in self.played_cards:
-            observation[index + card] = 1
+        # observation value of sub_watten state
+        best_move_array, v = self.agent.predict(self.sub_watten_game, self.sub_watten_game.get_cur_player())
+        arg = np.rint(v*100).astype(int)
+        observation[arg] = 1
 
         # points current hand current player
-        index += 33  # 178
+        index = 101  # 101
         points_current_hand_current = self.current_game_player_A_score if player == 1 else self.current_game_player_B_score
         if points_current_hand_current != 0:
             observation[index + points_current_hand_current - 1] = 1
 
         # points current hand opponent player
-        index += 2  # 180
+        index += 2  # 103
         points_current_hand_opponent = self.current_game_player_B_score if player == 1 else self.current_game_player_A_score
         if points_current_hand_opponent != 0:
             observation[index + points_current_hand_opponent - 1] = 1
 
         # points game current player
-        index += 2  # 182
+        index += 2  # 105
         points_game_current = self.player_A_score if player == 1 else self.player_B_score
         if points_game_current != 0:
             observation[index + points_game_current - 1] = 1
 
         # points game opponent player
-        index += 14  # 196
+        index += 14  # 119
         points_game_opponent = self.player_B_score if player == 1 else self.player_A_score
         if points_game_opponent != 0:
             observation[index + points_game_opponent - 1] = 1
 
-        index += 14  # 210
+        index += 14  # 133
         if self.is_last_move_raise:
             observation[index] = 1
 
-        index += 1  # 211
+        index += 1  # 134
         if self.is_last_move_accepted_raise:
             observation[index] = 1
 
-        index += 1 # 212
+        index += 1  # 135
         if self.is_last_hand_raise_valid is None:
             observation[index] = 0
         else:
             observation[index] = 1
 
-        index += 1 # 213
+        index += 1  # 136
         if self.current_game_prize - 3 >= 0:
             observation[index + self.current_game_prize - 3] = 1
 
-        # total size = 213 + 13 = 226
+        # total size = 136 + 13 = 149
 
-        observation = observation.reshape((226, 1))
+        observation = observation.reshape((149, 1))
         return observation
 
     # def observation_str_raw(self, observe):
