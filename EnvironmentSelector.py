@@ -22,6 +22,10 @@ from games.watten_sub_game.WattenSubGame import WattenSubGame
 from games.watten_sub_game.nnet.SubWattenNNet import SubWattenNNet
 from games.watten_sub_game.agent.SubWattenHumanAgent import SubWattenHumanAgent
 
+from games.total_watten.TotalWattenGame import TotalWattenGame
+from games.total_watten.nnet.TotalWattenNNet import TotalWattenNNet
+from games.total_watten.agent.TotalWattenHumanAgent import TotalWattenHumanAgent
+
 from core.nnet.NNet import NNet
 
 from core.agents.AgentNNet import AgentNNet
@@ -43,6 +47,8 @@ class EnvironmentSelector():
     GAME_WATTEN_DEFAULT = "watten_environment_default"
 
     GAME_SUB_WATTEN_DEFAULT = "sub_watten_environment_default"
+
+    GAME_TOTAL_WATTEN_DEFAULT = "total_watten_environment_default"
 
     class AgentProfile():
         def __init__(self, game, agent_profile):
@@ -95,6 +101,10 @@ class EnvironmentSelector():
     SUB_WATTEN_AGENT_RANDOM = AgentProfile(GAME_SUB_WATTEN_DEFAULT, "sub_watten_agent_random")
     SUB_WATTEN_AGENT_HUMAN = AgentProfile(GAME_SUB_WATTEN_DEFAULT, "sub_watten_agent_human")
 
+    TOTAL_WATTEN_AGENT_TRAIN = AgentProfile(GAME_TOTAL_WATTEN_DEFAULT, "total_watten_agent_train_default")
+    TOTAL_WATTEN_AGENT_RANDOM = AgentProfile(GAME_TOTAL_WATTEN_DEFAULT, "total_watten_agent_random")
+    TOTAL_WATTEN_AGENT_HUMAN = AgentProfile(GAME_TOTAL_WATTEN_DEFAULT, "total_watten_agent_human")
+
     def __init__(self):
         super().__init__()
 
@@ -104,6 +114,7 @@ class EnvironmentSelector():
             EnvironmentSelector.GAME_DURAK_DEFAULT: DurakGame(),
             EnvironmentSelector.GAME_WATTEN_DEFAULT: WattenGame(),
             EnvironmentSelector.GAME_SUB_WATTEN_DEFAULT: WattenSubGame(),
+            EnvironmentSelector.GAME_TOTAL_WATTEN_DEFAULT: TotalWattenGame(),
         }
 
         self.agent_builder_mapping = {
@@ -142,6 +153,10 @@ class EnvironmentSelector():
             EnvironmentSelector.SUB_WATTEN_AGENT_TRAIN: self.build_sub_watten_train_agent,
             EnvironmentSelector.SUB_WATTEN_AGENT_RANDOM: self.build_sub_watten_agent,
             EnvironmentSelector.SUB_WATTEN_AGENT_HUMAN: self.build_sub_watten_agent,
+
+            EnvironmentSelector.TOTAL_WATTEN_AGENT_TRAIN: self.build_total_watten_train_agent,
+            EnvironmentSelector.TOTAL_WATTEN_AGENT_RANDOM: self.build_total_watten_agent,
+            EnvironmentSelector.TOTAL_WATTEN_AGENT_HUMAN: self.build_total_watten_agent,
         }
 
         self.agent_profiles = [
@@ -181,6 +196,10 @@ class EnvironmentSelector():
             EnvironmentSelector.SUB_WATTEN_AGENT_TRAIN,
             EnvironmentSelector.SUB_WATTEN_AGENT_RANDOM,
             EnvironmentSelector.SUB_WATTEN_AGENT_HUMAN,
+
+            EnvironmentSelector.TOTAL_WATTEN_AGENT_TRAIN,
+            EnvironmentSelector.TOTAL_WATTEN_AGENT_RANDOM,
+            EnvironmentSelector.TOTAL_WATTEN_AGENT_HUMAN,
         ]
 
     def get_profile(self, agent_profile_str):
@@ -448,3 +467,27 @@ class EnvironmentSelector():
             return SubWattenHumanAgent(game)
 
         return None
+
+    def build_total_watten_train_agent(self, agent_profile, native_multi_gpu_enabled=False):
+        game = self.game_mapping[agent_profile.game]
+
+        x, y = game.get_observation_size()
+        nnet = TotalWattenNNet(x, y, 1, game.get_action_size())
+
+        agent_nnet = AgentNNet(nnet)
+
+        if agent_profile == EnvironmentSelector.SUB_WATTEN_AGENT_TRAIN:
+            print("Configuring build_total_watten_train_agent...")
+            return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=100,
+                             max_predict_time=10, num_threads=1)
+
+        return None
+
+    def build_total_watten_agent(self, agent_profile, native_multi_gpu_enabled=False):
+
+        game = self.game_mapping[agent_profile.game]
+
+        if agent_profile == EnvironmentSelector.TOTAL_WATTEN_AGENT_RANDOM:
+            return AgentRandom()
+        elif agent_profile == EnvironmentSelector.TOTAL_WATTEN_AGENT_HUMAN:
+            return TotalWattenHumanAgent(game)
