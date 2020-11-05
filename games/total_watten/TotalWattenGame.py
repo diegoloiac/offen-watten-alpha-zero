@@ -10,8 +10,9 @@ import numpy as np
 from core.interfaces.Game import Game
 
 
+# noinspection PyPep8Naming
 class TotalWattenGame(Game):
-    def __init__(self, sub_watten_agent_player_A, sub_watten_agent_player_B=None):
+    def __init__(self, sub_watten_agent_player_A, sub_watten_agent_player_B):
         self.trueboard = total_watten.WorldTotalWatten()
         self.players = {1: 0, -1: 1}  # player NUMBER 1 is [0] and player NUMBER -1 is [1]
         self.players_inv = {0: 1, 1: -1}
@@ -103,7 +104,7 @@ class TotalWattenGame(Game):
         return ""
 
     def clone(self):
-        cloned_game = TotalWattenGame()
+        cloned_game = TotalWattenGame(self.sub_watten_agent_player_A, self.sub_watten_agent_player_B)
         cloned_game.trueboard = self.trueboard.deepcopy()
         return cloned_game
 
