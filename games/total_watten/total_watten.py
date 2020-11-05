@@ -1,6 +1,7 @@
 from loggers import stdout_logger
 import numpy as np
 from games.watten_sub_game.WattenSubGame import WattenSubGame
+from games.watten_sub_game.agent.SubWattenHumanAgent import SubWattenHumanAgent
 
 # allowed moves:
 # 0 -> make the best sub_watten choice (rank, suit or play card)
@@ -59,14 +60,6 @@ class WorldTotalWatten(object):
         self.refresh()
 
     def refresh(self):
-        # getting agent for sub_watten
-    #    self.env_selector = es.EnvironmentSelector.
-    #    self.agent = self.env_selector.get_agent("sub_watten_agent_train_default")
-    #    self.agent.set_exploration_enabled(False)
-
-        # loading best model for sub_watten agent
-     #   self.agent.load("../../watten_sub_game/training/gen3/best.h5")
-
         # create a sub_watten game
         self.sub_watten_game = WattenSubGame()
 
@@ -555,17 +548,28 @@ class WorldTotalWatten(object):
 
         observation = np.zeros((149,))
 
-        # set sub_watten game to current state
-        self.sub_watten_game.trueboard.init_world_to_state(self.current_player, self.distributing_cards_player,
-                                                           self.player_A_hand, self.player_B_hand, self.played_cards,
-                                                           self.current_game_player_A_score,
-                                                           self.current_game_player_B_score, self.first_card_deck,
-                                                           self.last_card_deck, self.rank, self.suit)
+        # check if agent is human or not
+        if isinstance(agent, SubWattenHumanAgent):
+            arg = 0
+        else:
+            # set sub_watten game to current state
+            self.sub_watten_game.trueboard.init_world_to_state(self.current_player, self.distributing_cards_player,
+                                                               self.player_A_hand, self.player_B_hand, self.played_cards,
+                                                               self.current_game_player_A_score,
+                                                               self.current_game_player_B_score, self.first_card_deck,
+                                                               self.last_card_deck, self.rank, self.suit)
 
-        # observation value of sub_watten state
-        best_move_array, v = agent.predict(self.sub_watten_game, self.sub_watten_game.get_cur_player())
-        arg = np.rint(v*100).astype(int)
-        observation[arg] = 1
+            # observation value of sub_watten state
+            best_move_array, v = agent.predict(self.sub_watten_game, self.sub_watten_game.get_cur_player())
+            print(v)
+            if v >= 0:
+                observation[0] = 1
+            arg = np.abs(np.rint(v*100).astype(int))
+
+        if arg > 0:
+            observation[arg] = 1
+
+        print(arg)
 
         # points current hand current player
         index = 101  # 101
