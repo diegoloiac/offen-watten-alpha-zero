@@ -140,6 +140,8 @@ class WorldTotalWatten(object):
 
         self._set_initial_game_prize()
 
+        self.sub_watten_moves_series = []
+
         for card in self.player_A_hand:
             if card in self.deck:
                 raise InconsistentStateError("Card %d cannot be in deck." % card)
@@ -280,6 +282,8 @@ class WorldTotalWatten(object):
 
             # index of the move in sub_watten
             move = np.argmax(best_move_array)
+
+            self.sub_watten_moves_series.append(move)
 
             # rank is between 33 and 42
             if 33 <= move < 42:
@@ -648,6 +652,7 @@ class WorldTotalWatten(object):
 
         self.LOG.info(f"{self.starting_state}")
         self.LOG.info(f"{self.moves_series}")
+        self.LOG.info(f"{self.sub_watten_moves_series}")
 
     def _str_cards(self, cards):
         str_cards = ""
@@ -684,6 +689,7 @@ class WorldTotalWatten(object):
 
         new_world.starting_state = self.starting_state
         new_world.moves_series = self.moves_series.copy()
+        new_world.sub_watten_moves_series = self.sub_watten_moves_series.copy()
         return new_world
 
     def init_world_to_state(self, current_player, distributing_cards_player, player_A_score, player_B_score,

@@ -4,7 +4,7 @@ from unittest import TestCase
 from games.total_watten.total_watten import WorldTotalWatten
 
 
-class TestWorldCompleteGameWatten(TestCase):
+class TestNoErrorWorldTotalWatten(TestCase):
 
     def test_game_no_raise_player_A_starts(self):
         world = WorldTotalWatten()

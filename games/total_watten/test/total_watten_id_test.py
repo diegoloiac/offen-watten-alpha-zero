@@ -5,7 +5,7 @@ from games.total_watten.total_watten import WorldTotalWatten
 import numpy as np
 
 
-class TestWorldCompleteGameTotalWatten(TestCase):
+class TestIdTotalWatten(TestCase):
 
     def test_observe(self):
         world = WorldTotalWatten()
