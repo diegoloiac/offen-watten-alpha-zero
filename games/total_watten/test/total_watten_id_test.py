@@ -2,10 +2,20 @@ from logging import DEBUG
 from unittest import TestCase
 from games.total_watten.total_watten import WorldTotalWatten
 
+import EnvironmentSelector as es
+
 import numpy as np
 
 
 class TestIdTotalWatten(TestCase):
+
+    @classmethod
+    def setUpClass(self):
+        print('setting up test fixture')
+        env = es.EnvironmentSelector()
+        self.agent = env.get_agent('sub_watten_agent_train_default')
+        self.agent.set_exploration_enabled(False)
+        self.agent.load("../../watten_sub_game/training/gen3/best.h5")
 
     def test_observe(self):
         world = WorldTotalWatten()
@@ -30,8 +40,8 @@ class TestIdTotalWatten(TestCase):
                              0, 1, 1, 1, 1, 0, 0, 0, 0, 0,  # 140
                              0, 0, 0, 0, 0, 0, 0, 1] # 148
 
-        observation_player_A = world.observe(1)
-        observation_player_B = world.observe(-1)
+        observation_player_A = world.observe(1, self.agent)
+        observation_player_B = world.observe(-1, self.agent)
         #testing last part observation is correct
         np.testing.assert_array_equal(observation_player_A[101:149], np.array(expected_player_A).reshape((48, 1)))
         np.testing.assert_array_equal(observation_player_B[101:149], np.array(expected_player_B).reshape((48, 1)))

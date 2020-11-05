@@ -2,9 +2,18 @@ from logging import DEBUG
 from unittest import TestCase
 from games.total_watten.TotalWattenGame import TotalWattenGame
 from games.total_watten.total_watten import WorldTotalWatten
+import EnvironmentSelector as es
 
 
 class TestWorldCompleteGameWatten(TestCase):
+
+    @classmethod
+    def setUpClass(self):
+        print('setting up test fixture')
+        env = es.EnvironmentSelector()
+        self.agent = env.get_agent('sub_watten_agent_train_default')
+        self.agent.set_exploration_enabled(False)
+        self.agent.load("../../watten_sub_game/training/gen3/best.h5")
 
     # Forse non ha senso perchè non posso scegliere la mossa
     def no_test_game_no_raise_player_A_starts(self):
@@ -290,7 +299,7 @@ class TestWorldCompleteGameWatten(TestCase):
         #  16, 34, 46, 47, 39, 44, 16, 30, 18, 46, 48, 21, 46, 47, 39, 43, 24,
         #  26, 14, 22, 29, 6, 5, 7]
 
-        game = TotalWattenGame()
+        game = TotalWattenGame(self.agent, self.agent)
         world = WorldTotalWatten()
         world.init_world_to_state(1, -1, 0, 0, [25, 9, 1, 32, 14], [5, 13, 7, 10, 20], [], 0, 0, 2, False, False, None, 16, 28, None, None)
         game.trueboard = world

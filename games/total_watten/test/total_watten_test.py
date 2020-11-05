@@ -2,6 +2,8 @@ from logging import DEBUG
 from unittest import TestCase
 import numpy as np
 
+import EnvironmentSelector as es
+
 import games.total_watten.total_watten as total_watten
 from games.total_watten.total_watten import WorldTotalWatten
 from games.total_watten.total_watten import InconsistentStateError
@@ -10,6 +12,14 @@ from games.total_watten.total_watten import InvalidActionError
 
 
 class TestWorldTotalWatten(TestCase):
+
+    @classmethod
+    def setUpClass(self):
+        print('setting up test fixture')
+        env = es.EnvironmentSelector()
+        self.agent = env.get_agent('sub_watten_agent_train_default')
+        self.agent.set_exploration_enabled(False)
+        self.agent.load("../../watten_sub_game/training/gen3/best.h5")
 
     def test_refresh(self):
         world = WorldTotalWatten()
@@ -441,9 +451,11 @@ class TestWorldTotalWatten(TestCase):
     def test_act_unknown_move(self):
         world = WorldTotalWatten()
 
-        self.assertRaises(InvalidActionError, world.act, 5)
+        with self.assertRaises(InvalidActionError):
+            world.act(5, self.agent)
 
     def test_act_fold(self):
+
         world = WorldTotalWatten()
 
         world.player_A_score = 4
@@ -455,7 +467,7 @@ class TestWorldTotalWatten(TestCase):
         world.distributing_cards_player = -1
         world.is_last_move_raise = True
 
-        result, next_player = world.act(total_watten.moves["fold_hand"])
+        result, next_player = world.act(total_watten.moves["fold_hand"], self.agent)
 
         self.assertEqual("end", result)
         self.assertEqual(7 + 2, world.player_B_score)
@@ -476,7 +488,7 @@ class TestWorldTotalWatten(TestCase):
         world.is_last_move_raise = True
         world.is_last_hand_raise_valid = False
 
-        result, next_player = world.act(total_watten.moves["fold_hand_and_show_valid_raise"])
+        result, next_player = world.act(total_watten.moves["fold_hand_and_show_valid_raise"], self.agent)
 
         self.assertEqual("end", result)
         self.assertEqual(7, world.player_B_score)
@@ -493,7 +505,7 @@ class TestWorldTotalWatten(TestCase):
         world.is_last_move_raise = False
         world.is_last_move_accepted_raise = False
 
-        result, next_player = world.act(1)
+        result, next_player = world.act(1, self.agent)
 
         self.assertEqual(result, "continue")
         self.assertEqual(next_player, 1)
@@ -509,7 +521,7 @@ class TestWorldTotalWatten(TestCase):
         world.is_last_move_accepted_raise = False
         world.is_last_move_raise = True
 
-        result, next_player = world.act(3)
+        result, next_player = world.act(3, self.agent)
 
         self.assertEqual(result, "continue")
         self.assertEqual(next_player, -1)
@@ -952,7 +964,7 @@ class TestWorldTotalWatten(TestCase):
 
         world.current_game_prize = 15
 
-        result = world.observe(1)
+        result = world.observe(1, self.agent)
 
         print(result)
 
@@ -961,7 +973,7 @@ class TestWorldTotalWatten(TestCase):
 
         watten.display()
 
-
+# non serve più
     def test_agent_returns_prediction(self):
         world = WorldTotalWatten()
 
@@ -982,7 +994,7 @@ class TestWorldTotalWatten(TestCase):
         world.is_last_move_accepted_raise = True
         world.is_last_move_raise = False
 
-        result, next_player = world.act(0)
+        result, next_player = world.act(0, self.agent)
 
         self.assertEqual(result, "continue")
         self.assertEqual(next_player, -1)
@@ -994,7 +1006,7 @@ class TestWorldTotalWatten(TestCase):
         world = WorldTotalWatten()
 
         world.current_player = -1
-        result, next_player = world.act(0)
+        result, next_player = world.act(0, self.agent)
 
         self.assertEqual(result, "continue")
         self.assertEqual(next_player, 1)
@@ -1010,7 +1022,7 @@ class TestWorldTotalWatten(TestCase):
         world.is_last_move_accepted_raise = True
         world.is_last_move_raise = False
 
-        result, next_player = world.act(0)
+        result, next_player = world.act(0, self.agent)
 
         self.assertEqual(result, "continue")
         self.assertEqual(next_player, -1)
@@ -1024,7 +1036,7 @@ class TestWorldTotalWatten(TestCase):
         world.current_player = -1
         world.rank = 3
 
-        result, next_player = world.act(0)
+        result, next_player = world.act(0, self.agent)
 
         self.assertEqual(result, "continue")
         self.assertEqual(next_player, 1)
@@ -1039,7 +1051,7 @@ class TestWorldTotalWatten(TestCase):
         world.rank = 3
         world.suit = 1
 
-        result, next_player = world.act(0)
+        result, next_player = world.act(0, self.agent)
 
         self.assertEqual(result, "continue")
         self.assertEqual(next_player, -1)
@@ -1053,7 +1065,7 @@ class TestWorldTotalWatten(TestCase):
         world.rank = 3
         world.suit = 1
 
-        result, next_player = world.act(0)
+        result, next_player = world.act(0, self.agent)
 
         self.assertEqual(result, "continue")
         self.assertEqual(next_player, 1)

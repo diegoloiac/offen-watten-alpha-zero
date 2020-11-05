@@ -2,9 +2,18 @@ from logging import DEBUG
 from unittest import TestCase
 
 from games.total_watten.total_watten import WorldTotalWatten
+import EnvironmentSelector as es
 
 
 class TestNoErrorWorldTotalWatten(TestCase):
+
+    @classmethod
+    def setUpClass(self):
+        print('setting up test fixture')
+        env = es.EnvironmentSelector()
+        self.agent = env.get_agent('sub_watten_agent_train_default')
+        self.agent.set_exploration_enabled(False)
+        self.agent.load("../../watten_sub_game/training/gen3/best.h5")
 
     def test_game_no_raise_player_A_starts(self):
         world = WorldTotalWatten()
@@ -18,16 +27,16 @@ class TestNoErrorWorldTotalWatten(TestCase):
         ######## MOVE ########
         valid_moves = world.get_valid_moves()
 
-        outcome, next_player = world.act(0) # rank
-        outcome, next_player = world.act(0) # suit
-        outcome, next_player = world.act(0) # card
-        outcome, next_player = world.act(1) # raise
-        outcome, next_player = world.act(3) # accepted raise
-        outcome, next_player = world.act(0) # card --
-        outcome, next_player = world.act(0) # card
-        outcome, next_player = world.act(1) # raise
-        outcome, next_player = world.act(3) # accepted raise
-        outcome, next_player = world.act(0) # card --
-        outcome, next_player = world.act(0) # card
-        outcome, next_player = world.act(0) # card
+        outcome, next_player = world.act(0, self.agent) # rank
+        outcome, next_player = world.act(0, self.agent) # suit
+        outcome, next_player = world.act(0, self.agent) # card
+        outcome, next_player = world.act(1, self.agent) # raise
+        outcome, next_player = world.act(3, self.agent) # accepted raise
+        outcome, next_player = world.act(0, self.agent) # card --
+        outcome, next_player = world.act(1, self.agent) # raise
+        outcome, next_player = world.act(3, self.agent) # accepted raise
+        outcome, next_player = world.act(0, self.agent) # card --
+        outcome, next_player = world.act(0, self.agent) # card
+        outcome, next_player = world.act(0, self.agent) # card
+        outcome, next_player = world.act(0, self.agent) # card
         world.get_valid_moves()
