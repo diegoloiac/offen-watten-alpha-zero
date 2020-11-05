@@ -1,8 +1,6 @@
-import numpy as np
-from EnvironmentSelector import EnvironmentSelector
-from games.watten_sub_game.WattenSubGame import WattenSubGame
-
 from loggers import stdout_logger
+import numpy as np
+from games.watten_sub_game.WattenSubGame import WattenSubGame
 
 # allowed moves:
 # 0 -> make the best sub_watten choice (rank, suit or play card)
@@ -62,12 +60,12 @@ class WorldTotalWatten(object):
 
     def refresh(self):
         # getting agent for sub_watten
-        self.env_selector = EnvironmentSelector()
-        self.agent = self.env_selector.get_agent("sub_watten_agent_train_default")
-        self.agent.set_exploration_enabled(False)
+    #    self.env_selector = es.EnvironmentSelector.
+    #    self.agent = self.env_selector.get_agent("sub_watten_agent_train_default")
+    #    self.agent.set_exploration_enabled(False)
 
         # loading best model for sub_watten agent
-        self.agent.load("../../watten_sub_game/training/gen3/best.h5")
+     #   self.agent.load("../../watten_sub_game/training/gen3/best.h5")
 
         # create a sub_watten game
         self.sub_watten_game = WattenSubGame()
@@ -216,7 +214,7 @@ class WorldTotalWatten(object):
     # - continue, a player made a move that didn't bring the current game to an end
     # - current_player_won
     # the next player can be either 1 or -1
-    def act(self, action):
+    def act(self, action, agent):
         num_played_cards = len(self.played_cards)
         if action not in self.get_valid_moves():
             raise InvalidActionError("Action %d cannot be played" % action)
@@ -278,7 +276,7 @@ class WorldTotalWatten(object):
                                                                self.current_game_player_B_score, self.first_card_deck,
                                                                self.last_card_deck, self.rank, self.suit)
 
-            best_move_array, v = self.agent.predict(self.sub_watten_game, self.sub_watten_game.get_cur_player())
+            best_move_array, v = agent.predict(self.sub_watten_game, self.sub_watten_game.get_cur_player())
 
             # index of the move in sub_watten
             move = np.argmax(best_move_array)
@@ -551,7 +549,7 @@ class WorldTotalWatten(object):
     # - last move accepted raise (1)
     # - last hand raise valid (1)
     # - current prize (13)
-    def observe(self, player):
+    def observe(self, player, agent):
         if player not in [1, -1]:
             raise InvalidInputError("Player should be either 1 or -1. Input is %d." % player)
 
@@ -565,7 +563,7 @@ class WorldTotalWatten(object):
                                                            self.last_card_deck, self.rank, self.suit)
 
         # observation value of sub_watten state
-        best_move_array, v = self.agent.predict(self.sub_watten_game, self.sub_watten_game.get_cur_player())
+        best_move_array, v = agent.predict(self.sub_watten_game, self.sub_watten_game.get_cur_player())
         arg = np.rint(v*100).astype(int)
         observation[arg] = 1
 

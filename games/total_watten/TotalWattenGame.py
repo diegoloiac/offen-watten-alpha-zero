@@ -11,10 +11,12 @@ from core.interfaces.Game import Game
 
 
 class TotalWattenGame(Game):
-    def __init__(self):
+    def __init__(self, sub_watten_agent_player_A, sub_watten_agent_player_B=None):
         self.trueboard = total_watten.WorldTotalWatten()
         self.players = {1: 0, -1: 1}  # player NUMBER 1 is [0] and player NUMBER -1 is [1]
         self.players_inv = {0: 1, 1: -1}
+        self.sub_watten_agent_player_A = sub_watten_agent_player_A
+        self.sub_watten_agent_player_B = sub_watten_agent_player_B
 
     def reset(self):
         self.trueboard = total_watten.WorldTotalWatten()
@@ -34,7 +36,12 @@ class TotalWattenGame(Game):
 
     def make_move(self, action):
         current_player = self.trueboard.current_player
-        game_status, next_player = self.trueboard.act(action)
+
+        if current_player == 1:
+            game_status, next_player = self.trueboard.act(action, self.sub_watten_agent_player_A)
+        else:
+            game_status, next_player = self.trueboard.act(action, self.sub_watten_agent_player_B)
+
         if game_status == "end" and self.trueboard.is_game_end():
             if self.trueboard.winning_player is None:
                 raise Exception("Winning player cannot be None if game is ended")
@@ -77,7 +84,12 @@ class TotalWattenGame(Game):
         if player not in [0, 1]:
             print("WARNING: %d not in [0, 1]" % player)
         player_in = self.players_inv[player]  # 1 if player == 0 else -1
-        observation = self.trueboard.observe(player_in)
+
+        if player_in == 1:
+            observation = self.trueboard.observe(player_in, self.sub_watten_agent_player_A)
+        else:
+            observation = self.trueboard.observe(player_in, self.sub_watten_agent_player_B)
+
         return observation
 
     def get_observation_str(self, observation):
