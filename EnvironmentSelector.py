@@ -114,7 +114,9 @@ class EnvironmentSelector():
             EnvironmentSelector.GAME_DURAK_DEFAULT: DurakGame(),
             EnvironmentSelector.GAME_WATTEN_DEFAULT: WattenGame(),
             EnvironmentSelector.GAME_SUB_WATTEN_DEFAULT: WattenSubGame(),
-            EnvironmentSelector.GAME_TOTAL_WATTEN_DEFAULT: TotalWattenGame(),
+            EnvironmentSelector.GAME_TOTAL_WATTEN_DEFAULT: TotalWattenGame(
+                self.sub_watten_non_human_agent_for_total_watten(),
+                self.sub_watten_non_human_agent_for_total_watten()),
         }
 
         self.agent_builder_mapping = {
@@ -476,7 +478,7 @@ class EnvironmentSelector():
 
         agent_nnet = AgentNNet(nnet)
 
-        if agent_profile == EnvironmentSelector.SUB_WATTEN_AGENT_TRAIN:
+        if agent_profile == EnvironmentSelector.TOTAL_WATTEN_AGENT_TRAIN:
             print("Configuring build_total_watten_train_agent...")
             return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=100,
                              max_predict_time=10, num_threads=1)
@@ -491,3 +493,21 @@ class EnvironmentSelector():
             return AgentRandom()
         elif agent_profile == EnvironmentSelector.TOTAL_WATTEN_AGENT_HUMAN:
             return TotalWattenHumanAgent(game)
+
+    def sub_watten_non_human_agent_for_total_watten(self):
+
+        game = WattenSubGame()
+
+        x, y = game.get_observation_size()
+        nnet = SubWattenNNet(x, y, 1, game.get_action_size())
+
+        agent_nnet = AgentNNet(nnet)
+
+        agent = AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=100,
+                          max_predict_time=10, num_threads=1)
+        agent.set_exploration_enabled(False)
+
+        # load here best sub_watten model
+        agent.load("../../watten_sub_game/training/gen3/best.h5")
+
+        return agent
