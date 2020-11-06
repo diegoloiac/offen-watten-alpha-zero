@@ -318,6 +318,19 @@ class TestWorldCompleteGameWatten(TestCase):
         moves = game.get_valid_moves_no_zeros()
         self.assertEqual(moves, [0, 1])
 
+    def test_clone(self):
+        game = TotalWattenGame(self.agent, self.agent)
+        world = WorldTotalWatten()
+        world.init_world_to_state(1, -1, 0, 0, [25, 9, 1, 32, 14], [5, 13, 7, 10, 20], [], 0, 0, 2, False, False, None, 16, 28, None, None)
+        game.trueboard = world
+
+        clone_game = game.clone()
+
+        obs_str = game.get_observation_str(game.get_cur_player())
+        clone_obs_str = clone_game.get_observation_str(game.get_cur_player())
+
+        self.assertEqual(obs_str, clone_obs_str)
+
 
     # probabilmente non serve
     def _compare_worlds(self, world1, world2):

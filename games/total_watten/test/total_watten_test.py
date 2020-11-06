@@ -973,20 +973,6 @@ class TestWorldTotalWatten(TestCase):
 
         watten.display()
 
-# non serve più
-    def test_agent_returns_prediction(self):
-        world = WorldTotalWatten()
-
-        p_values, v = world.agent.predict(world.sub_watten_game, world.get_player())
-
-        print('Observation value')
-        print(v)
-        print('p-values')
-        print(p_values)
-        print(np.argmax(p_values))
-
-        self.assertEqual(len(p_values), 46)
-
     def test_best_move_declares_rank_1(self):
         world = WorldTotalWatten()
 
@@ -1071,3 +1057,15 @@ class TestWorldTotalWatten(TestCase):
         self.assertEqual(next_player, 1)
         self.assertEqual(len(world.player_A_hand), 5)
         self.assertEqual(len(world.player_B_hand), 4)
+
+    def test_observe_after_raise(self):
+        world = WorldTotalWatten()
+        world.rank = 3
+        world.suit = 1
+
+        world.current_player = 1
+        result, next_player = world.act(0, self.agent)
+
+        result, next_player = world.act(1, self.agent)
+
+        world.observe(next_player, self.agent)
