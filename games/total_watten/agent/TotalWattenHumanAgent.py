@@ -17,7 +17,7 @@ class TotalWattenHumanAgent(Agent):
         all_moves = self.game.get_valid_moves(game_player)
 
         game.get_display_str()
-        print("\nPossible moves are: {0}\n".format([x for x in range(50) if all_moves[x]]))
+        print("\nPossible moves are: {0}\n".format([x for x in range(5) if all_moves[x]]))
 
         print("Please, input the index of the move.")
         while True:
