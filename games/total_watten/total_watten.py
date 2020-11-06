@@ -319,8 +319,8 @@ class WorldTotalWatten(object):
                         return self._hand_is_done_after_card_is_played_common()
 
                     last_played_card = self._get_last_played_card()
-                    self.played_cards.append(action)
-                    current_played_card = action
+                    self.played_cards.append(move)
+                    current_played_card = move
                     current_player_wins = not self.compare_cards(last_played_card, current_played_card)
                     next_player_move = self._assign_points_move(current_player_wins)
 
@@ -552,8 +552,12 @@ class WorldTotalWatten(object):
         if isinstance(agent, SubWattenHumanAgent):
             arg = 0
         else:
+            if self.is_last_move_raise:
+                sub_game_current_player = self.current_player*-1
+            else:
+                sub_game_current_player = self.current_player
             # set sub_watten game to current state
-            self.sub_watten_game.trueboard.init_world_to_state(self.current_player, self.distributing_cards_player,
+            self.sub_watten_game.trueboard.init_world_to_state(sub_game_current_player, self.distributing_cards_player,
                                                                self.player_A_hand, self.player_B_hand, self.played_cards,
                                                                self.current_game_player_A_score,
                                                                self.current_game_player_B_score, self.first_card_deck,
@@ -650,11 +654,11 @@ class WorldTotalWatten(object):
                       f"\nPlayer -1 hand: {self._str_cards(self.player_B_hand)} - {self.player_B_hand}"
                       f"\nRank: |{self.rank} - {rank_names[self.rank]}|, Suit: |{self.suit} - {suit_names[self.suit]}|"
                       f"\nPlayed cards: {self._str_cards(self.played_cards)}"
-                      f"\n{self.distributing_cards_player}, {self.is_last_hand_raise_valid}, {self.first_card_deck}, {self.last_card_deck}")
+                      f"\nDist: {self.distributing_cards_player}, lhrv: {self.is_last_hand_raise_valid}, first card: {self.first_card_deck}, last card: {self.last_card_deck}")
 
-        self.LOG.info(f"{self.starting_state}")
-        self.LOG.info(f"{self.moves_series}")
-        self.LOG.info(f"{self.sub_watten_moves_series}")
+        self.LOG.info(f"Starting state: {self.starting_state}")
+        self.LOG.info(f"Moves series: {self.moves_series}")
+        self.LOG.info(f"SubWatten moves series: {self.sub_watten_moves_series}")
 
     def _str_cards(self, cards):
         str_cards = ""
@@ -688,6 +692,9 @@ class WorldTotalWatten(object):
         new_world.suit = self.suit
         new_world.is_last_hand_raise_valid = self.is_last_hand_raise_valid
         new_world.winning_player = self.winning_player
+        new_world.sub_watten_game = self.sub_watten_game.clone()
+        new_world.moves = self.moves.copy()
+
 
         new_world.starting_state = self.starting_state
         new_world.moves_series = self.moves_series.copy()
