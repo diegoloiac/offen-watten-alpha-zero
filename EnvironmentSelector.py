@@ -508,6 +508,11 @@ class EnvironmentSelector():
         agent.set_exploration_enabled(False)
 
         # load here best sub_watten model
-        agent.load("../../watten_sub_game/training/gen3/best.h5")
+        try:
+            agent.load("games/watten_sub_game/training/gen3/best.h5")
+        except OSError:
+            print("File not found with games/watten_sub_game/training/gen3/best.h5")
+            print("Maybe you are creating an agent for test purposes. I'll try to load the model from a different path")
+            agent.load("../../watten_sub_game/training/gen3/best.h5")
 
         return agent
