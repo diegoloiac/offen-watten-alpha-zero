@@ -269,7 +269,12 @@ class WorldTotalWatten(object):
                                                                self.current_game_player_B_score, self.first_card_deck,
                                                                self.last_card_deck, self.rank, self.suit)
 
+            # get predictions from nnet or human
             best_move_array, v = agent.predict(self.sub_watten_game, self.sub_watten_game.get_cur_player())
+
+            # mask invalid moves
+            valid_moves = self.sub_watten_game.get_valid_moves(self.sub_watten_game.get_cur_player())
+            best_move_array = best_move_array*valid_moves
 
             # index of the move in sub_watten
             move = np.argmax(best_move_array)
@@ -552,6 +557,8 @@ class WorldTotalWatten(object):
         if isinstance(agent, SubWattenHumanAgent):
             arg = 0
         else:
+            # When last move is a raise, in the sub_game the player moving should
+            # be the one that played
             if self.is_last_move_raise:
                 sub_game_current_player = self.current_player*-1
             else:
@@ -563,17 +570,17 @@ class WorldTotalWatten(object):
                                                                self.current_game_player_B_score, self.first_card_deck,
                                                                self.last_card_deck, self.rank, self.suit)
 
+            observing_player = self.sub_watten_game.players[self.current_player]
+
             # observation value of sub_watten state
-            best_move_array, v = agent.predict(self.sub_watten_game, self.sub_watten_game.get_cur_player())
-            print(v)
+            best_move_array, v = agent.predict(self.sub_watten_game, observing_player)
+
             if v >= 0:
                 observation[0] = 1
             arg = np.abs(np.rint(v*100).astype(int))
 
         if arg > 0:
             observation[arg] = 1
-
-        print(arg)
 
         # points current hand current player
         index = 101  # 101
