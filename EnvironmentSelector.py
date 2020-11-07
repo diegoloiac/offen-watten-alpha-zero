@@ -503,16 +503,14 @@ class EnvironmentSelector():
 
         agent_nnet = AgentNNet(nnet)
 
-        agent = AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=100,
-                          max_predict_time=10, num_threads=1)
-        agent.set_exploration_enabled(False)
+        print('Building sub_watten non human agent for total_watten')
 
         # load here best sub_watten model
         try:
-            agent.load("games/watten_sub_game/training/gen3/best.h5")
+            agent_nnet.load("games/watten_sub_game/training/gen3/best.h5")
         except OSError:
             print("File not found with games/watten_sub_game/training/gen3/best.h5")
             print("Maybe you are creating an agent for test purposes. I'll try to load the model from a different path")
-            agent.load("../../watten_sub_game/training/gen3/best.h5")
+            agent_nnet.load("../../watten_sub_game/training/gen3/best.h5")
 
-        return agent
+        return agent_nnet
