@@ -11,9 +11,7 @@ class TestWorldCompleteGameWatten(TestCase):
     def setUpClass(self):
         print('setting up test fixture')
         env = es.EnvironmentSelector()
-        self.agent = env.get_agent('sub_watten_agent_train_default')
-        self.agent.set_exploration_enabled(False)
-        self.agent.load("../../watten_sub_game/training/gen3/best.h5")
+        self.agent = env.sub_watten_non_human_agent_for_total_watten()
 
     # Forse non ha senso perchè non posso scegliere la mossa
     def no_test_game_no_raise_player_A_starts(self):
@@ -326,8 +324,12 @@ class TestWorldCompleteGameWatten(TestCase):
 
         clone_game = game.clone()
 
-        obs_str = game.get_observation_str(game.get_cur_player())
-        clone_obs_str = clone_game.get_observation_str(game.get_cur_player())
+        obs_game = game.get_observation(game.get_cur_player())
+
+        obs_clone_game = clone_game.get_observation(clone_game.get_cur_player())
+
+        obs_str = game.get_observation_str(obs_game)
+        clone_obs_str = clone_game.get_observation_str(obs_clone_game)
 
         self.assertEqual(obs_str, clone_obs_str)
 

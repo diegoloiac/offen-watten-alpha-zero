@@ -10,9 +10,7 @@ class TestWorldWatten(TestCase):
     def setUpClass(self):
         print('setting up test fixture')
         env = es.EnvironmentSelector()
-        self.agent = env.get_agent('sub_watten_agent_train_default')
-        self.agent.set_exploration_enabled(False)
-        self.agent.load("../../watten_sub_game/training/gen3/best.h5")
+        self.agent = env.sub_watten_non_human_agent_for_total_watten()
 
     def test_get_cur_player(self):
         watten_game = TotalWattenGame(self.agent, self.agent)
