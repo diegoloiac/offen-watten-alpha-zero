@@ -30,20 +30,20 @@ class TestIdTotalWatten(TestCase):
                              0, 0, 0, 0, 0, 0, 0, 1, 1, 0,  # 120
                              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 130
                              0, 0, 1, 1, 1, 0, 0, 0, 0, 0,  # 140
-                             0, 0, 0, 0, 0, 0, 0, 1] # 148
+                             0, 0, 0, 0, 0, 0, 0, 1, 0, 0]  # 150
 
         expected_player_B = [0, 1, 1, 0, 1, 0, 0, 0, 0, 0,  # 110
                              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 120
                              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 130
                              0, 1, 1, 1, 1, 0, 0, 0, 0, 0,  # 140
-                             0, 0, 0, 0, 0, 0, 0, 1] # 148
+                             0, 0, 0, 0, 0, 0, 0, 1, 0, 0]  # 150
 
         observation_player_A = world.observe(1, self.agent)
         observation_player_B = world.observe(-1, self.agent)
         #testing last part observation is correct
-        np.testing.assert_array_equal(observation_player_A[101:149], np.array(expected_player_A).reshape((48, 1)))
-        np.testing.assert_array_equal(observation_player_B[101:149], np.array(expected_player_B).reshape((48, 1)))
+        np.testing.assert_array_equal(observation_player_A[101:151], np.array(expected_player_A).reshape((50, 1)))
+        np.testing.assert_array_equal(observation_player_B[101:151], np.array(expected_player_B).reshape((50, 1)))
 
-        #testing obs_v representation contains one 1 and all the other are 0
-        self.assertEqual(np.count_nonzero(observation_player_A[0:101]), 1)
-        self.assertEqual(np.count_nonzero(observation_player_B[0:101]), 1)
+        # testing obs_v representation contains one 1 and all the other are 0 + the bit for the sign
+        self.assertTrue(3 > np.count_nonzero(observation_player_A[0:101]) > 0)
+        self.assertTrue(3 > np.count_nonzero(observation_player_B[0:101]) > 0)

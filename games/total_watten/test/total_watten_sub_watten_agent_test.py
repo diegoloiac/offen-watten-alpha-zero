@@ -4,6 +4,7 @@ from games.watten_sub_game.WattenSubGame import WattenSubGame
 from games.watten_sub_game.nnet.SubWattenNNet import SubWattenNNet
 from core.agents.AgentNNet import AgentNNet
 
+
 class SubWattenAgentTest(unittest.TestCase):
 
     def test_cloned_prediction(self):
@@ -13,11 +14,7 @@ class SubWattenAgentTest(unittest.TestCase):
 
         sub_watten_game = WattenSubGame()
 
-        print(sub_watten_game.get_display_str())
-
         clone_sub_watten_game = sub_watten_game.clone()
-
-        print(clone_sub_watten_game.get_display_str())
 
         pi_values, v = agent.predict(sub_watten_game, sub_watten_game.get_cur_player())
 
@@ -42,13 +39,8 @@ class SubWattenAgentTest(unittest.TestCase):
 
         clone_pi_values, clone_v = agent_nnet.predict(clone_sub_watten_game, clone_sub_watten_game.get_cur_player())
 
-        print(v)
-        print(pi_values)
-
         self.assertEqual(pi_values.all(), clone_pi_values.all())
         self.assertEqual(v, clone_v)
-
-
 
 
 if __name__ == '__main__':

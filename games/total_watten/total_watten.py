@@ -547,11 +547,13 @@ class WorldTotalWatten(object):
     # - last move accepted raise (1)
     # - last hand raise valid (1)
     # - current prize (13)
+    # - isRankNone (1)
+    # - isSuitNone (1)
     def observe(self, player, agent):
         if player not in [1, -1]:
             raise InvalidInputError("Player should be either 1 or -1. Input is %d." % player)
 
-        observation = np.zeros((149,))
+        observation = np.zeros((151,))
 
         # check if agent is human or not
         if isinstance(agent, SubWattenHumanAgent):
@@ -624,9 +626,17 @@ class WorldTotalWatten(object):
         if self.current_game_prize - 3 >= 0:
             observation[index + self.current_game_prize - 3] = 1
 
-        # total size = 136 + 13 = 149
+        index += 13  # 149
+        if self.rank is not None:
+            observation[index] = 1
 
-        observation = observation.reshape((149, 1))
+        index += 1  # 150
+        if self.suit is not None:
+            observation[index] = 1
+
+        # total size = 150 + 1 = 151
+
+        observation = observation.reshape((151, 1))
         return observation
 
     # def observation_str_raw(self, observe):

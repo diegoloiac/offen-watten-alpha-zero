@@ -33,7 +33,7 @@ class TotalWattenGame(Game):
         return 5
 
     def get_observation_size(self):
-        return 149, 1
+        return 151, 1
 
     def make_move(self, action):
         current_player = self.trueboard.current_player
