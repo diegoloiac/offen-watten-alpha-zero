@@ -13,8 +13,8 @@ class TotalWattenHumanAgent(Agent):
 
     def predict(self, game: Game, game_player):
 
-        valid = self.game.get_valid_moves(game_player)
-        all_moves = self.game.get_valid_moves(game_player)
+        valid = game.get_valid_moves(game_player)
+        all_moves = game.get_valid_moves(game_player)
 
         game.get_display_str()
         print("\nPossible moves are: {0}\n".format([x for x in range(5) if all_moves[x]]))
