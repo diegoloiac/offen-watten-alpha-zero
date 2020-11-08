@@ -63,6 +63,21 @@ if __name__ == "__main__":
     agent_profile = env_selector.get_profile(options.agent_profile_new)
     game = env_selector.get_game(agent_profile.game)
 
+    # When playing total watten with humans the def of game has to be changed
+    # to inject a sub_watten human agent for the right player
+    if options.agent_profile_new == env_selector.TOTAL_WATTEN_AGENT_HUMAN.agent_profile\
+            and options.agent_profile_old == env_selector.TOTAL_WATTEN_AGENT_HUMAN.agent_profile:
+        # get_game for human_vs_human
+        game = env_selector.get_game(env_selector.GAME_TOTAL_WATTEN_H_VS_H)
+
+    elif options.agent_profile_new == env_selector.TOTAL_WATTEN_AGENT_HUMAN.agent_profile:
+        # get_game for human_vs_non_human
+        game = env_selector.get_game(env_selector.GAME_TOTAL_WATTEN_H_VS_NH)
+
+    elif options.agent_profile_old == env_selector.TOTAL_WATTEN_AGENT_HUMAN.agent_profile:
+        # get_game for non_human_vs_human
+        game = env_selector.get_game(env_selector.GAME_TOTAL_WATTEN_NH_VS_H)
+
     agents = [agent_first, agent_second]
 
     if options.agent_new_path:
