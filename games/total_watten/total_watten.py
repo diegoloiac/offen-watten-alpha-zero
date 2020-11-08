@@ -272,6 +272,9 @@ class WorldTotalWatten(object):
             # get predictions from nnet or human
             best_move_array, v = agent.predict(self.sub_watten_game, self.sub_watten_game.get_cur_player())
 
+            if type(best_move_array) == list:
+                best_move_array = np.array(best_move_array, dtype=float)
+
             # mask invalid moves
             valid_moves = self.sub_watten_game.get_valid_moves(self.sub_watten_game.get_cur_player())
             best_move_array = best_move_array*valid_moves
