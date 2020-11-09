@@ -60,6 +60,15 @@ class World():
 
             episode_exp.append([observation, cur_player, actions_prob])
 
+            # if using NNet agent need to mask the invalid moves
+            # mask it anyway so that the class doesn't depend on AgentNNet
+            if type(actions_prob) == list:
+                actions_prob = np.array(actions_prob, dtype=float)
+
+            # mask invalid moves
+            valid_moves = game.get_valid_moves(cur_player)
+            actions_prob = actions_prob*valid_moves
+
             if not allow_exploration:
                 bestA = np.argmax(actions_prob)
                 actions_prob = [0] * len(actions_prob)
