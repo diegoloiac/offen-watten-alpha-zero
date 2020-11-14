@@ -5,7 +5,7 @@ import copy
 sys.path.append('..')
 sys.path.append('watten_sub_game')
 
-import games.watten_sub_game.watten_sub as watten_sub
+import games.sub_watten.sub_watten as watten_sub
 import numpy as np
 
 from core.interfaces.Game import Game

@@ -1,7 +1,7 @@
 import unittest
 import EnvironmentSelector as es
-from games.watten_sub_game.WattenSubGame import WattenSubGame
-from games.watten_sub_game.nnet.SubWattenNNet import SubWattenNNet
+from games.sub_watten.SubWattenGame import WattenSubGame
+from games.sub_watten.nnet.SubWattenNNet import SubWattenNNet
 from core.agents.AgentNNet import AgentNNet
 
 

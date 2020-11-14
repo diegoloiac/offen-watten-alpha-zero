@@ -1,5 +1,5 @@
 from unittest import TestCase
-from games.watten_sub_game.WattenSubGame import WattenSubGame
+from games.sub_watten.SubWattenGame import WattenSubGame
 
 
 class TestWorldSubWatten(TestCase):

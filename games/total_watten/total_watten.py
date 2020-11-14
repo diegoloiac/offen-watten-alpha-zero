@@ -1,7 +1,7 @@
 from loggers import stdout_logger
 import numpy as np
-from games.watten_sub_game.WattenSubGame import WattenSubGame
-from games.watten_sub_game.agent.SubWattenHumanAgent import SubWattenHumanAgent
+from games.sub_watten.SubWattenGame import WattenSubGame
+from games.sub_watten.agent.SubWattenHumanAgent import SubWattenHumanAgent
 
 # allowed moves:
 # 0 -> make the best sub_watten choice (rank, suit or play card)

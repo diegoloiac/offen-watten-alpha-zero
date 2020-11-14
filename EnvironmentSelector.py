@@ -18,9 +18,9 @@ from games.watten.nnet.WattenNNet4x512 import WattenNNet4x512
 from games.watten.nnet.WattenNNetFirstLayerBig import WattenNNetFirstLayerBig
 # from games.watten.agent.DurakHumanAgent import DurakHumanAgent
 
-from games.watten_sub_game.WattenSubGame import WattenSubGame
-from games.watten_sub_game.nnet.SubWattenNNet import SubWattenNNet
-from games.watten_sub_game.agent.SubWattenHumanAgent import SubWattenHumanAgent
+from games.sub_watten.SubWattenGame import WattenSubGame
+from games.sub_watten.nnet.SubWattenNNet import SubWattenNNet
+from games.sub_watten.agent.SubWattenHumanAgent import SubWattenHumanAgent
 
 from games.total_watten.TotalWattenGame import TotalWattenGame
 from games.total_watten.nnet.TotalWattenNNet import TotalWattenNNet

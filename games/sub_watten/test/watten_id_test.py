@@ -1,10 +1,10 @@
 from logging import DEBUG
 from unittest import TestCase
-import games.watten_sub_game.watten_sub as watten
-from games.watten_sub_game.watten_sub import WorldSubWatten
-from games.watten_sub_game.watten_sub import InconsistentStateError
-from games.watten_sub_game.watten_sub import CardParsingError
-from games.watten_sub_game.watten_sub import InvalidActionError
+import games.sub_watten.sub_watten as watten
+from games.sub_watten.sub_watten import WorldSubWatten
+from games.sub_watten.sub_watten import InconsistentStateError
+from games.sub_watten.sub_watten import CardParsingError
+from games.sub_watten.sub_watten import InvalidActionError
 import numpy as np
 
 
