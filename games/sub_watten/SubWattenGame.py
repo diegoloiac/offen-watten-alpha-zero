@@ -32,7 +32,7 @@ class WattenSubGame(Game):
         return 46
 
     def get_observation_size(self):
-        return 182, 1
+        return 221, 1
 
     def make_move(self, action):
         current_player = self.trueboard.current_player

@@ -420,11 +420,14 @@ class WorldSubWatten(object):
     # - played cards (list of 33)
     # - points current hand current player (max 2)
     # - points current hand opponent player (max 2)
-    def observe(self, player):
+    # - possible opponent card (opponent cards, deck cards, last card if not distributing) (list of 33)
+    # - number of cards the opponent has (max 5)
+    # - flag for symmetry (1)
+    def observe(self, player, opponent_cards_known=True):
         if player not in [1, -1]:
             raise InvalidInputError("Player should be either 1 or -1. Input is %d." % player)
 
-        observation = np.zeros((182,))
+        observation = np.zeros((221,))
 
         # first card deck
         observation[self.first_card_deck] = 1
@@ -472,9 +475,29 @@ class WorldSubWatten(object):
         if points_current_hand_opponent != 0:
             observation[index + points_current_hand_opponent - 1] = 1
 
-        # total size = 180 + 2 = 182
+        # possible opponent cards
+        index += 2  # 182
+        possible_opponent_cards = self.player_B_hand.copy() if player == 1 else self.player_A_hand.copy()
+        if player != self.distributing_cards_player:
+            possible_opponent_cards.append(self.last_card_deck)
+        possible_opponent_cards.extend(self.deck)
+        for card in possible_opponent_cards:
+            observation[index + card] = 1
 
-        observation = observation.reshape((182, 1))
+        # number of cards of the opponent
+        index += 33  # 215
+        number_of_opponent_cards = len(self.player_B_hand) if player == 1 else len(self.player_A_hand)
+        if number_of_opponent_cards != 0:
+            observation[index + number_of_opponent_cards - 1] = 1
+
+        # flag for symmetry
+        index += 5  # 220
+        if opponent_cards_known:
+            observation[index] = 1
+
+        # total size = 220 + 1 = 221
+
+        observation = observation.reshape((221, 1))
         return observation
 
     def _get_last_played_card(self):

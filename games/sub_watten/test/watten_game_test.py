@@ -22,7 +22,7 @@ class TestWorldSubWatten(TestCase):
 
     def test_get_observation_size(self):
         watten_game = WattenSubGame()
-        self.assertEqual(watten_game.get_observation_size(), (182, 1))
+        self.assertEqual(watten_game.get_observation_size(), (221, 1))
 
     def test_make_move(self):
         watten_game = WattenSubGame()
