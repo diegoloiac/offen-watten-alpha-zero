@@ -22,6 +22,9 @@ from games.sub_watten.SubWattenGame import WattenSubGame
 from games.sub_watten.nnet.SubWattenNNet import SubWattenNNet
 from games.sub_watten.agent.SubWattenHumanAgent import SubWattenHumanAgent
 
+from games.asymmetric_sub_watten.AsymmetricSubWattenGame import AsymmetricSubWattenGame
+from games.asymmetric_sub_watten.nnet.AsymmetricSubWattenNNet import AsymmetricSubWattenNNet
+
 from games.total_watten.TotalWattenGame import TotalWattenGame
 from games.total_watten.nnet.TotalWattenNNet import TotalWattenNNet
 from games.total_watten.agent.TotalWattenHumanAgent import TotalWattenHumanAgent
@@ -47,6 +50,10 @@ class EnvironmentSelector():
     GAME_WATTEN_DEFAULT = "watten_environment_default"
 
     GAME_SUB_WATTEN_DEFAULT = "sub_watten_environment_default"
+
+    GAME_ASYMMETRIC_SUB_WATTEN_DEFAULT = "asymmetric_sub_watten_environment_default"
+
+    GAME_ASYMMETRIC_SUB_WATTEN_EVALUATE = "asymmetric_sub_watten_environment_evaluate"
 
     GAME_TOTAL_WATTEN_DEFAULT = "total_watten_environment_default"
 
@@ -108,6 +115,13 @@ class EnvironmentSelector():
     SUB_WATTEN_AGENT_RANDOM = AgentProfile(GAME_SUB_WATTEN_DEFAULT, "sub_watten_agent_random")
     SUB_WATTEN_AGENT_HUMAN = AgentProfile(GAME_SUB_WATTEN_DEFAULT, "sub_watten_agent_human")
 
+    ASYMMETRIC_SUB_WATTEN_AGENT_TRAIN = AgentProfile(GAME_ASYMMETRIC_SUB_WATTEN_DEFAULT,
+                                                     "asymmetric_sub_watten_agent_train_default")
+    ASYMMETRIC_SUB_WATTEN_AGENT_EVALUATE = AgentProfile(GAME_ASYMMETRIC_SUB_WATTEN_EVALUATE,
+                                                        "asymmetric_sub_watten_agent_evaluate")
+    ASYMMETRIC_SUB_WATTEN_AGENT_RANDOM = AgentProfile(GAME_ASYMMETRIC_SUB_WATTEN_EVALUATE,
+                                                      "asymmetric_sub_watten_agent_random")
+
     TOTAL_WATTEN_AGENT_TRAIN = AgentProfile(GAME_TOTAL_WATTEN_DEFAULT, "total_watten_agent_train_default")
     TOTAL_WATTEN_AGENT_EVALUATE = AgentProfile(GAME_TOTAL_WATTEN_DEFAULT, "total_watten_agent_evaluate")
     TOTAL_WATTEN_AGENT_RANDOM = AgentProfile(GAME_TOTAL_WATTEN_DEFAULT, "total_watten_agent_random")
@@ -122,6 +136,8 @@ class EnvironmentSelector():
             EnvironmentSelector.GAME_DURAK_DEFAULT: DurakGame(),
             EnvironmentSelector.GAME_WATTEN_DEFAULT: WattenGame(),
             EnvironmentSelector.GAME_SUB_WATTEN_DEFAULT: WattenSubGame(),
+            EnvironmentSelector.GAME_ASYMMETRIC_SUB_WATTEN_DEFAULT: AsymmetricSubWattenGame(),
+            EnvironmentSelector.GAME_ASYMMETRIC_SUB_WATTEN_EVALUATE: WattenSubGame(False),
             EnvironmentSelector.GAME_TOTAL_WATTEN_DEFAULT: TotalWattenGame(
                 self.sub_watten_non_human_agent_for_total_watten(),
                 self.sub_watten_non_human_agent_for_total_watten()
@@ -178,6 +194,10 @@ class EnvironmentSelector():
             EnvironmentSelector.SUB_WATTEN_AGENT_RANDOM: self.build_sub_watten_agent,
             EnvironmentSelector.SUB_WATTEN_AGENT_HUMAN: self.build_sub_watten_agent,
 
+            EnvironmentSelector.ASYMMETRIC_SUB_WATTEN_AGENT_TRAIN: self.build_asymmetric_sub_watten_train_agent,
+            EnvironmentSelector.ASYMMETRIC_SUB_WATTEN_AGENT_EVALUATE: self.build_asymmetric_sub_watten_evaluate_agent,
+            EnvironmentSelector.ASYMMETRIC_SUB_WATTEN_AGENT_RANDOM: self.build_asymmetric_sub_watten_agent,
+
             EnvironmentSelector.TOTAL_WATTEN_AGENT_TRAIN: self.build_total_watten_train_agent,
             EnvironmentSelector.TOTAL_WATTEN_AGENT_EVALUATE: self.build_total_watten_evaluate_agent,
             EnvironmentSelector.TOTAL_WATTEN_AGENT_RANDOM: self.build_total_watten_agent,
@@ -222,6 +242,10 @@ class EnvironmentSelector():
             EnvironmentSelector.SUB_WATTEN_AGENT_EVALUATE,
             EnvironmentSelector.SUB_WATTEN_AGENT_RANDOM,
             EnvironmentSelector.SUB_WATTEN_AGENT_HUMAN,
+
+            EnvironmentSelector.ASYMMETRIC_SUB_WATTEN_AGENT_TRAIN,
+            EnvironmentSelector.ASYMMETRIC_SUB_WATTEN_AGENT_EVALUATE,
+            EnvironmentSelector.ASYMMETRIC_SUB_WATTEN_AGENT_RANDOM,
 
             EnvironmentSelector.TOTAL_WATTEN_AGENT_TRAIN,
             EnvironmentSelector.TOTAL_WATTEN_AGENT_RANDOM,
@@ -493,7 +517,6 @@ class EnvironmentSelector():
 
         return agent_nnet
 
-
     def build_sub_watten_agent(self, agent_profile, native_multi_gpu_enabled=False):
 
         game = self.game_mapping[agent_profile.game]
@@ -502,6 +525,38 @@ class EnvironmentSelector():
             return AgentRandom()
         elif agent_profile == EnvironmentSelector.SUB_WATTEN_AGENT_HUMAN:
             return SubWattenHumanAgent(game)
+
+        return None
+
+    def build_asymmetric_sub_watten_train_agent(self, agent_profile):
+        game = self.game_mapping[agent_profile.game]
+
+        x, y = game.get_observation_size()
+        nnet = AsymmetricSubWattenNNet(x, y, 1, game.get_action_size())
+
+        agent_nnet = AgentNNet(nnet)
+
+        if agent_profile == EnvironmentSelector.ASYMMETRIC_SUB_WATTEN_AGENT_TRAIN:
+            print("Configuring build_asymmetric_sub_watten_train_agent...")
+            return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=100,
+                             max_predict_time=10, num_threads=1)
+
+        return None
+
+    def build_asymmetric_sub_watten_evaluate_agent(self, agent_profile, native_multi_gpu_enabled=False):
+        game = self.game_mapping[agent_profile.game]
+
+        x, y = game.get_observation_size()
+        nnet = AsymmetricSubWattenNNet(x, y, 1, game.get_action_size())
+
+        agent_nnet = AgentNNet(nnet)
+
+        return agent_nnet
+
+    def build_asymmetric_sub_watten_agent(self, agent_profile, native_multi_gpu_enabled=False):
+
+        if agent_profile == EnvironmentSelector.ASYMMETRIC_SUB_WATTEN_AGENT_RANDOM:
+            return AgentRandom()
 
         return None
 
