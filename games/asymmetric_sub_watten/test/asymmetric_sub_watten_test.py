@@ -644,3 +644,9 @@ class TestWorldAsymmetricSubWatten(TestCase):
         world = WorldAsymmetricSubWatten()
 
         world.display()
+
+    def test_card_distribution(self):
+        world = WorldAsymmetricSubWatten()
+
+        self.assertEqual(len(world.deck), 0)
+        self.assertEqual(len(world.player_B_hand), 26)
