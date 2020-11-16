@@ -11,7 +11,7 @@ from keras.optimizers import *
 from keras.utils import multi_gpu_model
 
 
-class SubWattenNNet(NNet):
+class AsymmetricSubWattenNNet(NNet):
 
     def build_model(self):
         print(f"Build model with x {self.observation_size_x}, y {self.observation_size_y}, "
@@ -52,4 +52,4 @@ class SubWattenNNet(NNet):
         return model, _multi_gpu_model
 
     def clone(self):
-        return SubWattenNNet(self.observation_size_x, self.observation_size_y, 1, self.action_size, self.multi_gpu)
+        return AsymmetricSubWattenNNet(self.observation_size_x, self.observation_size_y, 1, self.action_size, self.multi_gpu)
