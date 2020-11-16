@@ -3,7 +3,7 @@ import sys
 import copy
 
 sys.path.append('..')
-sys.path.append('watten_sub_game')
+sys.path.append('sub_watten')
 
 import games.sub_watten.sub_watten as watten_sub
 import numpy as np
