@@ -33,7 +33,7 @@ class SubWattenAgentTest(unittest.TestCase):
 
         agent_nnet = AgentNNet(nnet)
 
-        agent_nnet.load("../../watten_sub_game/training/gen3/best.h5")
+        agent_nnet.load("../../sub_watten/training/best.h5")
 
         pi_values, v = agent_nnet.predict(sub_watten_game, sub_watten_game.get_cur_player())
 

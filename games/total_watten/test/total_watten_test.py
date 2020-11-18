@@ -1067,3 +1067,7 @@ class TestWorldTotalWatten(TestCase):
         result, next_player = world.act(1, self.agent)
 
         world.observe(next_player, self.agent)
+
+    def test_float_to_bit_observe_conversion(self):
+        world = WorldTotalWatten()
+        world.observe(1, self.agent)

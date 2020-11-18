@@ -30,7 +30,7 @@ class TestWorldWatten(TestCase):
 
     def test_get_observation_size(self):
         watten_game = TotalWattenGame(self.agent, self.agent)
-        self.assertEqual(watten_game.get_observation_size(), (151, 1))
+        self.assertEqual(watten_game.get_observation_size(), (82, 1))
 
     def test_make_move(self):
         watten_game = TotalWattenGame(self.agent, self.agent)

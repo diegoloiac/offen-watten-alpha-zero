@@ -1,5 +1,6 @@
 from loggers import stdout_logger
 import numpy as np
+import struct
 from games.sub_watten.SubWattenGame import WattenSubGame
 from games.sub_watten.agent.SubWattenHumanAgent import SubWattenHumanAgent
 
@@ -41,6 +42,13 @@ def human_readable_card(card_id):
     else:
         return '{} of {}'.format(rank_names[r], suit_names[s])
 
+
+# get binary repr of float32
+def float32_bit_pattern(value):
+    return sum(b << 8*i for i,b in enumerate(struct.pack('f', value)))
+
+def int_to_binary(value, bits):
+    return bin(value).replace('0b', '').rjust(bits, '0')
 
 # rules:
 # first pick a rank (from 7, 8, 9...)
@@ -556,11 +564,11 @@ class WorldTotalWatten(object):
         if player not in [1, -1]:
             raise InvalidInputError("Player should be either 1 or -1. Input is %d." % player)
 
-        observation = np.zeros((151,))
+        observation = np.zeros((82,))
 
         # check if agent is human or not
         if isinstance(agent, SubWattenHumanAgent):
-            arg = 0
+            v = 0
         else:
             # When last move is a raise, in the sub_game the player moving should
             # be the one that played
@@ -580,66 +588,64 @@ class WorldTotalWatten(object):
             # observation value of sub_watten state
             best_move_array, v = agent.predict(self.sub_watten_game, observing_player)
 
-            if v >= 0:
-                observation[0] = 1
-            arg = np.abs(np.rint(v*100).astype(int))
+        v_bin_string = int_to_binary(float32_bit_pattern(v), 32)
 
-        if arg > 0:
-            observation[arg] = 1
+        for i in range(32):
+            observation[i] = int(v_bin_string[i])
 
         # points current hand current player
-        index = 101  # 101
+        index = 32  # 32
         points_current_hand_current = self.current_game_player_A_score if player == 1 else self.current_game_player_B_score
         if points_current_hand_current != 0:
             observation[index + points_current_hand_current - 1] = 1
 
         # points current hand opponent player
-        index += 2  # 103
+        index += 2  # 34
         points_current_hand_opponent = self.current_game_player_B_score if player == 1 else self.current_game_player_A_score
         if points_current_hand_opponent != 0:
             observation[index + points_current_hand_opponent - 1] = 1
 
         # points game current player
-        index += 2  # 105
+        index += 2  # 36
         points_game_current = self.player_A_score if player == 1 else self.player_B_score
         if points_game_current != 0:
             observation[index + points_game_current - 1] = 1
 
         # points game opponent player
-        index += 14  # 119
+        index += 14  # 50
         points_game_opponent = self.player_B_score if player == 1 else self.player_A_score
         if points_game_opponent != 0:
             observation[index + points_game_opponent - 1] = 1
 
-        index += 14  # 133
+        index += 14  # 64
         if self.is_last_move_raise:
             observation[index] = 1
 
-        index += 1  # 134
+        index += 1  # 65
         if self.is_last_move_accepted_raise:
             observation[index] = 1
 
-        index += 1  # 135
+        index += 1  # 66
         if self.is_last_hand_raise_valid is None:
             observation[index] = 0
         else:
             observation[index] = 1
 
-        index += 1  # 136
+        index += 1  # 67
         if self.current_game_prize - 3 >= 0:
             observation[index + self.current_game_prize - 3] = 1
 
-        index += 13  # 149
+        index += 13  # 80
         if self.rank is not None:
             observation[index] = 1
 
-        index += 1  # 150
+        index += 1  # 81
         if self.suit is not None:
             observation[index] = 1
 
-        # total size = 150 + 1 = 151
+        # total size = 81 + 1 = 82
 
-        observation = observation.reshape((151, 1))
+        observation = observation.reshape((82, 1))
         return observation
 
     # def observation_str_raw(self, observe):
