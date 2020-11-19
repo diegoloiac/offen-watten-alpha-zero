@@ -492,9 +492,9 @@ class WorldAsymmetricSubWatten(object):
             observation[index + number_of_opponent_cards - 1] = 1
 
         # flag for symmetry
-        # only B knows the 5 cards of the opponent (in mcts)
+        # A has 5 cards
         index += 5  # 220
-        if player == -1:
+        if player == 1:
             observation[index] = 1
 
         # total size = 220 + 1 = 221

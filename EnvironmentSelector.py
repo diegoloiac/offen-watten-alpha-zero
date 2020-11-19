@@ -137,7 +137,7 @@ class EnvironmentSelector():
             EnvironmentSelector.GAME_WATTEN_DEFAULT: WattenGame(),
             EnvironmentSelector.GAME_SUB_WATTEN_DEFAULT: WattenSubGame(),
             EnvironmentSelector.GAME_ASYMMETRIC_SUB_WATTEN_DEFAULT: AsymmetricSubWattenGame(),
-            EnvironmentSelector.GAME_ASYMMETRIC_SUB_WATTEN_EVALUATE: WattenSubGame(False),
+            EnvironmentSelector.GAME_ASYMMETRIC_SUB_WATTEN_EVALUATE: WattenSubGame(),
             EnvironmentSelector.GAME_TOTAL_WATTEN_DEFAULT: TotalWattenGame(
                 self.sub_watten_non_human_agent_for_total_watten(),
                 self.sub_watten_non_human_agent_for_total_watten()
@@ -528,7 +528,7 @@ class EnvironmentSelector():
 
         return None
 
-    def build_asymmetric_sub_watten_train_agent(self, agent_profile):
+    def build_asymmetric_sub_watten_train_agent(self, agent_profile, native_multi_gpu_enabled=False):
         game = self.game_mapping[agent_profile.game]
 
         x, y = game.get_observation_size()

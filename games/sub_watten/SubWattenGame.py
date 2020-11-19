@@ -13,11 +13,11 @@ from core.interfaces.Game import Game
 from loggers import stdout_logger
 
 class WattenSubGame(Game):
-    def __init__(self, opponent_cards_known=True):
+    def __init__(self, trained_with_five_cards=True):
         self.trueboard = watten_sub.WorldSubWatten()
         self.players = {1: 0, -1: 1}  # player NUMBER 1 is [0] and player NUMBER -1 is [1]
         self.players_inv = {0: 1, 1: -1}
-        self.opponent_cards_known = opponent_cards_known
+        self.trained_with_five_cards = trained_with_five_cards
 
     def reset(self):
         self.trueboard = watten_sub.WorldSubWatten()
@@ -80,7 +80,7 @@ class WattenSubGame(Game):
         if player not in [0, 1]:
             print("WARNING: %d not in [0, 1]" % player)
         player_in = self.players_inv[player]  # 1 if player == 0 else -1
-        observation = self.trueboard.observe(player_in, self.opponent_cards_known)
+        observation = self.trueboard.observe(player_in, self.trained_with_five_cards)
         return observation
 
     def get_observation_str(self, observation):

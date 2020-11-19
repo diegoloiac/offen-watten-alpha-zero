@@ -423,7 +423,7 @@ class WorldSubWatten(object):
     # - possible opponent card (opponent cards, deck cards, last card if not distributing) (list of 33)
     # - number of cards the opponent has (max 5)
     # - flag for symmetry (1)
-    def observe(self, player, opponent_cards_known=True):
+    def observe(self, player, trained_with_five_cards=True):
         if player not in [1, -1]:
             raise InvalidInputError("Player should be either 1 or -1. Input is %d." % player)
 
@@ -492,7 +492,7 @@ class WorldSubWatten(object):
 
         # flag for symmetry
         index += 5  # 220
-        if opponent_cards_known:
+        if trained_with_five_cards:
             observation[index] = 1
 
         # total size = 220 + 1 = 221
