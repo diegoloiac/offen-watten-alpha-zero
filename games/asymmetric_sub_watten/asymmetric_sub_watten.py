@@ -98,8 +98,8 @@ class WorldAsymmetricSubWatten(object):
         # give cards to players
         self.player_A_hand += self.deck[-5:]
         self.deck = self.deck[:-5]
-        self.player_B_hand += self.deck[-26:]
-        self.deck = self.deck[:-26]
+        self.player_B_hand += self.deck[-10:]
+        self.deck = self.deck[:-10]
 
         # init board
         self.played_cards = []
@@ -487,7 +487,7 @@ class WorldAsymmetricSubWatten(object):
         # number of cards of the opponent
         # -21 for player B to mask the asymmetric situation
         index += 33  # 215
-        number_of_opponent_cards = (len(self.player_B_hand) - 21) if player == 1 else len(self.player_A_hand)
+        number_of_opponent_cards = (len(self.player_B_hand) - 5) if player == 1 else len(self.player_A_hand)
         if number_of_opponent_cards != 0:
             observation[index + number_of_opponent_cards - 1] = 1
 
