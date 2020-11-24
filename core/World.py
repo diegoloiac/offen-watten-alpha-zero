@@ -3,6 +3,8 @@ from tqdm import *
 import itertools
 import logging
 
+from games.asymmetric_sub_watten.AsymmetricSubWattenGame import AsymmetricSubWattenGame
+
 
 # TODO test games with checkers, when preferans, when update comments in Game
 from games.watten.watten import InconsistentStateError
@@ -111,7 +113,7 @@ class World():
 
         # if verbose:
         #     print("\n\nFinal observation on step %d.\n%s\n" % (
-        #         episodeStep, game.get_display_str()))
+        #        loop_range, game.get_display_str()))
 
         for idx, [cur_observation, cur_player, cur_pi] in enumerate(episode_exp):
             augmented_exp.append((cur_observation, cur_pi, game_results[cur_player]))
@@ -157,6 +159,12 @@ class World():
         agents = []
         for idx in range(game.get_players_num()):
             agents.append(agent.clone())
+            agents[idx].name += str(idx)
+
+        # add randomness to player with more cards in asymmetric_sub_watten
+        if type(game) == AsymmetricSubWattenGame:
+            print(agent.exp_rate)
+            agents[1].exp_rate = 7
 
         games_experience, _ = self.execute_games(agents, game, num_games,
                                                  max_game_steps_n=max_game_steps_n, allow_exploration=allow_exploration,
