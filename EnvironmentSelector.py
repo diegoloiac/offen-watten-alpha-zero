@@ -248,6 +248,7 @@ class EnvironmentSelector():
             EnvironmentSelector.ASYMMETRIC_SUB_WATTEN_AGENT_RANDOM,
 
             EnvironmentSelector.TOTAL_WATTEN_AGENT_TRAIN,
+            EnvironmentSelector.TOTAL_WATTEN_AGENT_EVALUATE,
             EnvironmentSelector.TOTAL_WATTEN_AGENT_RANDOM,
             EnvironmentSelector.TOTAL_WATTEN_AGENT_HUMAN,
         ]
