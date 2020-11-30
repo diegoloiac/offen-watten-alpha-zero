@@ -20,6 +20,7 @@ from games.watten.nnet.WattenNNetFirstLayerBig import WattenNNetFirstLayerBig
 
 from games.sub_watten.SubWattenGame import WattenSubGame
 from games.sub_watten.nnet.SubWattenNNet import SubWattenNNet
+from games.sub_watten.agent.SubWattenBaggingModel import SubWattenBaggingModel
 from games.sub_watten.agent.SubWattenHumanAgent import SubWattenHumanAgent
 
 from games.asymmetric_sub_watten.AsymmetricSubWattenGame import AsymmetricSubWattenGame
@@ -29,15 +30,11 @@ from games.total_watten.TotalWattenGame import TotalWattenGame
 from games.total_watten.nnet.TotalWattenNNet import TotalWattenNNet
 from games.total_watten.agent.TotalWattenHumanAgent import TotalWattenHumanAgent
 
-from core.nnet.NNet import NNet
-
 from core.agents.AgentNNet import AgentNNet
 from core.agents.AgentMCTS import AgentMCTS
 from core.agents.AgentRandom import AgentRandom
 
 import os
-
-import GPUtil
 
 
 class EnvironmentSelector():
@@ -112,6 +109,7 @@ class EnvironmentSelector():
 
     SUB_WATTEN_AGENT_TRAIN = AgentProfile(GAME_SUB_WATTEN_DEFAULT, "sub_watten_agent_train_default")
     SUB_WATTEN_AGENT_EVALUATE = AgentProfile(GAME_SUB_WATTEN_DEFAULT, "sub_watten_agent_evaluate")
+    SUB_WATTEN_AGENT_BAGGING = AgentProfile(GAME_SUB_WATTEN_DEFAULT, "sub_watten_agent_bagging")
     SUB_WATTEN_AGENT_RANDOM = AgentProfile(GAME_SUB_WATTEN_DEFAULT, "sub_watten_agent_random")
     SUB_WATTEN_AGENT_HUMAN = AgentProfile(GAME_SUB_WATTEN_DEFAULT, "sub_watten_agent_human")
 
@@ -191,6 +189,7 @@ class EnvironmentSelector():
 
             EnvironmentSelector.SUB_WATTEN_AGENT_TRAIN: self.build_sub_watten_train_agent,
             EnvironmentSelector.SUB_WATTEN_AGENT_EVALUATE: self.build_sub_watten_evaluate_agent,
+            EnvironmentSelector.SUB_WATTEN_AGENT_BAGGING: self.build_sub_watten_agent,
             EnvironmentSelector.SUB_WATTEN_AGENT_RANDOM: self.build_sub_watten_agent,
             EnvironmentSelector.SUB_WATTEN_AGENT_HUMAN: self.build_sub_watten_agent,
 
@@ -240,6 +239,7 @@ class EnvironmentSelector():
 
             EnvironmentSelector.SUB_WATTEN_AGENT_TRAIN,
             EnvironmentSelector.SUB_WATTEN_AGENT_EVALUATE,
+            EnvironmentSelector.SUB_WATTEN_AGENT_BAGGING,
             EnvironmentSelector.SUB_WATTEN_AGENT_RANDOM,
             EnvironmentSelector.SUB_WATTEN_AGENT_HUMAN,
 
@@ -525,6 +525,8 @@ class EnvironmentSelector():
             return AgentRandom()
         elif agent_profile == EnvironmentSelector.SUB_WATTEN_AGENT_HUMAN:
             return SubWattenHumanAgent(game)
+        elif agent_profile == EnvironmentSelector.SUB_WATTEN_AGENT_BAGGING:
+            return SubWattenBaggingModel(game)
 
         return None
 
@@ -570,7 +572,7 @@ class EnvironmentSelector():
 
         if agent_profile == EnvironmentSelector.TOTAL_WATTEN_AGENT_TRAIN:
             print("Configuring build_total_watten_train_agent...")
-            return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=100,
+            return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=50,
                              max_predict_time=10, num_threads=1)
 
         return None
