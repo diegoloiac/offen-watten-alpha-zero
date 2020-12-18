@@ -1,8 +1,12 @@
 import shutil
+import argparse
 
 from alpha_zero_trainer import execute_command_synch
 
 if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+
     execute_command_synch('python alpha_zero_trainer.py --agent "asymmetric_sub_watten_agent_train_default"'
                           '--agent_path "games/asymmetric_sub_watten/training/v2/best.h5" '
                           '--memory_path "games/asymmetric_sub_watten/training/v2/memory.pkl" '

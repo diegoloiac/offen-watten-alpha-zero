@@ -20,6 +20,7 @@ from games.watten.nnet.WattenNNetFirstLayerBig import WattenNNetFirstLayerBig
 
 from games.sub_watten.SubWattenGame import WattenSubGame
 from games.sub_watten.nnet.SubWattenNNet import SubWattenNNet
+from games.sub_watten.nnet.SubWattenSimplerNNet import SubWattenSimplerNNet
 from games.sub_watten.agent.SubWattenBaggingModel import SubWattenBaggingModel
 from games.sub_watten.agent.SubWattenHumanAgent import SubWattenHumanAgent
 
@@ -108,7 +109,9 @@ class EnvironmentSelector():
     WATTEN_AGENT_NNET = AgentProfile(GAME_WATTEN_DEFAULT, "watten_agent_nnet")
 
     SUB_WATTEN_AGENT_TRAIN = AgentProfile(GAME_SUB_WATTEN_DEFAULT, "sub_watten_agent_train_default")
+    SUB_WATTEN_AGENT_TRAIN_SIMPLE = AgentProfile(GAME_SUB_WATTEN_DEFAULT, "sub_watten_agent_train_simple")
     SUB_WATTEN_AGENT_EVALUATE = AgentProfile(GAME_SUB_WATTEN_DEFAULT, "sub_watten_agent_evaluate")
+    SUB_WATTEN_AGENT_EVALUATE_SIMPLE = AgentProfile(GAME_SUB_WATTEN_DEFAULT, "sub_watten_agent_evaluate_simple")
     SUB_WATTEN_AGENT_BAGGING = AgentProfile(GAME_SUB_WATTEN_DEFAULT, "sub_watten_agent_bagging")
     SUB_WATTEN_AGENT_RANDOM = AgentProfile(GAME_SUB_WATTEN_DEFAULT, "sub_watten_agent_random")
     SUB_WATTEN_AGENT_HUMAN = AgentProfile(GAME_SUB_WATTEN_DEFAULT, "sub_watten_agent_human")
@@ -188,7 +191,9 @@ class EnvironmentSelector():
             EnvironmentSelector.WATTEN_AGENT_NNET: self.build_watten_train_4_512_agent,
 
             EnvironmentSelector.SUB_WATTEN_AGENT_TRAIN: self.build_sub_watten_train_agent,
+            EnvironmentSelector.SUB_WATTEN_AGENT_TRAIN_SIMPLE: self.build_sub_watten_train_agent,
             EnvironmentSelector.SUB_WATTEN_AGENT_EVALUATE: self.build_sub_watten_evaluate_agent,
+            EnvironmentSelector.SUB_WATTEN_AGENT_EVALUATE_SIMPLE: self.build_sub_watten_evaluate_agent,
             EnvironmentSelector.SUB_WATTEN_AGENT_BAGGING: self.build_sub_watten_agent,
             EnvironmentSelector.SUB_WATTEN_AGENT_RANDOM: self.build_sub_watten_agent,
             EnvironmentSelector.SUB_WATTEN_AGENT_HUMAN: self.build_sub_watten_agent,
@@ -238,7 +243,9 @@ class EnvironmentSelector():
             EnvironmentSelector.WATTEN_AGENT_NNET,
 
             EnvironmentSelector.SUB_WATTEN_AGENT_TRAIN,
+            EnvironmentSelector.SUB_WATTEN_AGENT_TRAIN_SIMPLE,
             EnvironmentSelector.SUB_WATTEN_AGENT_EVALUATE,
+            EnvironmentSelector.SUB_WATTEN_AGENT_EVALUATE_SIMPLE,
             EnvironmentSelector.SUB_WATTEN_AGENT_BAGGING,
             EnvironmentSelector.SUB_WATTEN_AGENT_RANDOM,
             EnvironmentSelector.SUB_WATTEN_AGENT_HUMAN,
@@ -497,11 +504,16 @@ class EnvironmentSelector():
         game = self.game_mapping[agent_profile.game]
 
         x, y = game.get_observation_size()
-        nnet = SubWattenNNet(x, y, 1, game.get_action_size())
+
+        if agent_profile == EnvironmentSelector.SUB_WATTEN_AGENT_TRAIN:
+            nnet = SubWattenNNet(x, y, 1, game.get_action_size())
+        elif agent_profile == EnvironmentSelector.SUB_WATTEN_AGENT_TRAIN_SIMPLE:
+            nnet = SubWattenSimplerNNet(x, y, 1, game.get_action_size())
 
         agent_nnet = AgentNNet(nnet)
 
-        if agent_profile == EnvironmentSelector.SUB_WATTEN_AGENT_TRAIN:
+        if agent_profile == EnvironmentSelector.SUB_WATTEN_AGENT_TRAIN or \
+                agent_profile == EnvironmentSelector.SUB_WATTEN_AGENT_TRAIN_SIMPLE:
             print("Configuring build_sub_watten_train_agent...")
             return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=100,
                              max_predict_time=10, num_threads=1)
@@ -512,7 +524,10 @@ class EnvironmentSelector():
         game = self.game_mapping[agent_profile.game]
 
         x, y = game.get_observation_size()
-        nnet = SubWattenNNet(x, y, 1, game.get_action_size())
+        if agent_profile == EnvironmentSelector.SUB_WATTEN_AGENT_EVALUATE:
+            nnet = SubWattenNNet(x, y, 1, game.get_action_size())
+        elif agent_profile == EnvironmentSelector.SUB_WATTEN_AGENT_EVALUATE_SIMPLE:
+            nnet = SubWattenSimplerNNet(x, y, 1, game.get_action_size())
 
         agent_nnet = AgentNNet(nnet)
 
@@ -610,11 +625,11 @@ class EnvironmentSelector():
 
         # load here best sub_watten model
         try:
-            agent_nnet.load("games/sub_watten/training/best.h5")
+            agent_nnet.load("games/sub_watten/training/default_nn/best.h5")
         except OSError:
             print("File not found with games/sub_watten/training/best.h5")
             print("Maybe you are creating an agent for test purposes. I'll try to load the model from a different path")
-            agent_nnet.load("../../sub_watten/training/best.h5")
+            agent_nnet.load("../../sub_watten/training/default_nn/best.h5")
 
         return agent_nnet
 
