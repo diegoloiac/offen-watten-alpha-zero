@@ -1,6 +1,9 @@
 .idea/
+
 **.h5
 **.pyc
 **.pkl
 **.pb
+**.csv
 WATTENUTILS.md
+
