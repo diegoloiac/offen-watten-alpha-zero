@@ -1,4 +1,18 @@
-# Alpha Zero by [ARVI Lab](http://ai.arvilab.com/).
+# Offenwatten AlphaZero
+
+This project is part of a thesis project of a Bachelor in Computer Science at the Free University of Bozen-Bolzano. It relies on the AlphaZero framework provided by [ARVI Lab](http://ai.arvilab.com/) of which is possible to read also [further down here](#Arvi) and on the work previously done by Fabrizio Micheloni [here](https://github.com/fmicheloni/offen-watten-alpha-zero).
+
+The aim of this project has been to try an AlphaZero approach to [Watten](https://en.wikipedia.org/wiki/Watten_(card_game)), an incomplete information card game. The rules of the game together with its neural networks have been implemented in folder [games](https://github.com/Chavelanda/offen-watten-alpha-zero/tree/master/games).
+
+In order to have a successful training the game has been divided in two parts: a sub game and a total game.  The sub game represents just a single hand of the game while the total game implements the dynamics of the whole game relying on an agent that already learned the sub game.
+
+The asymmetric sub Watten was developed to check whether a different approach (with one player stronger than the other) could provide some improvement of the learning.
+
+Strictly connected to this project there are a [Mobile App](https://github.com/Chavelanda/watten_app) to play Watten against the models trained in this project and a [Server Application](https://github.com/Chavelanda/watten_server) that hosts the models and serves the mobile app computing the best action for the requested model.
+
+
+
+# Alpha Zero by [ARVI Lab](http://ai.arvilab.com/). {#Arvi}
 
 Train an AI to play any game with Python interface using either Alpha Go or Alpha Go Zero training process. 
 The main goal of the project is to maximize training efficiency using regular machines and GPUs. The features of the project:
@@ -308,7 +322,7 @@ Make your remote machines available to direct ssh communication without keys. Ch
 
 ssh <ip_to_worker_machine>
 
-```  
+```
 
 ### 2. Setting up NFS on a master machine
 
