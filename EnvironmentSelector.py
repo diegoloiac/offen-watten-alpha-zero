@@ -31,6 +31,10 @@ from games.total_watten.TotalWattenGame import TotalWattenGame
 from games.total_watten.nnet.TotalWattenNNet import TotalWattenNNet
 from games.total_watten.agent.TotalWattenHumanAgent import TotalWattenHumanAgent
 
+from games.hand_watten.HandWattenGame import HandWattenGame
+from games.hand_watten.nnet.HandWattenNNet import HandWattenNNet
+from games.hand_watten.agent.HandWattenHumanAgent import HandWattenHumanAgent
+
 from core.agents.AgentNNet import AgentNNet
 from core.agents.AgentMCTS import AgentMCTS
 from core.agents.AgentRandom import AgentRandom
@@ -60,6 +64,8 @@ class EnvironmentSelector():
     GAME_TOTAL_WATTEN_H_VS_NH = "total_watten_environment_h_vs_nh"
 
     GAME_TOTAL_WATTEN_NH_VS_H = "total_watten_environment_nh_vs_h"
+
+    GAME_HAND_WATTEN = "hand_watten_environment_default"
 
     class AgentProfile():
         def __init__(self, game, agent_profile):
@@ -128,6 +134,11 @@ class EnvironmentSelector():
     TOTAL_WATTEN_AGENT_RANDOM = AgentProfile(GAME_TOTAL_WATTEN_DEFAULT, "total_watten_agent_random")
     TOTAL_WATTEN_AGENT_HUMAN = AgentProfile(GAME_TOTAL_WATTEN_DEFAULT, "total_watten_agent_human")
 
+    HAND_WATTEN_TRAIN = AgentProfile(GAME_HAND_WATTEN, "hand_watten_train_default")
+    HAND_WATTEN_EVALUATE = AgentProfile(GAME_HAND_WATTEN, "hand_watten_evaluate")
+    HAND_WATTEN_RANDOM = AgentProfile(GAME_HAND_WATTEN, "hand_watten_random")
+    HAND_WATTEN_HUMAN = AgentProfile(GAME_HAND_WATTEN, "hand_watten_human")
+
     def __init__(self):
         super().__init__()
 
@@ -154,21 +165,11 @@ class EnvironmentSelector():
             EnvironmentSelector.GAME_TOTAL_WATTEN_NH_VS_H: TotalWattenGame(
                 self.sub_watten_non_human_agent_for_total_watten(),
                 self.sub_watten_human_agent_for_total_watten()
-            )
+            ),
+            EnvironmentSelector.GAME_HAND_WATTEN: HandWattenGame()
         }
 
         self.agent_builder_mapping = {
-            # EnvironmentSelector.CHECKERS_AGENT_ALPHA_BETA: self.build_basic_checkers_agent,
-            # EnvironmentSelector.CHECKERS_AGENT_RANDOM: self.build_basic_checkers_agent,
-            # EnvironmentSelector.CHECKERS_AGENT_HUMAN: self.build_basic_checkers_agent,
-            #
-            # EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_DEFAULT: self.build_native_checkers_rcnn_agent,
-            # EnvironmentSelector.CHECKERS_AGENT_TEST_AGENT_RCNN_DEFAULT: self.build_native_checkers_rcnn_agent,
-            #
-            # EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_TPU: self.build_tpu_checkers_agent,
-            #
-            # EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_DISTRIBUTED: self.build_horovod_checkers_agent,
-            # EnvironmentSelector.CHECKERS_AGENT_TEST_AGENT_RCNN_DISTRIBUTED: self.build_horovod_checkers_agent,
 
             EnvironmentSelector.TICTACTOE_AGENT_TRAIN: self.build_tictactoe_train_agent,
             EnvironmentSelector.TICTACTOE_AGENT_RANDOM: self.build_tictactoe_agent,
@@ -206,21 +207,14 @@ class EnvironmentSelector():
             EnvironmentSelector.TOTAL_WATTEN_AGENT_EVALUATE: self.build_total_watten_evaluate_agent,
             EnvironmentSelector.TOTAL_WATTEN_AGENT_RANDOM: self.build_total_watten_agent,
             EnvironmentSelector.TOTAL_WATTEN_AGENT_HUMAN: self.build_total_watten_agent,
+
+            EnvironmentSelector.HAND_WATTEN_TRAIN: self.build_hand_watten_train_agent,
+            EnvironmentSelector.HAND_WATTEN_EVALUATE: self.build_hand_watten_evaluate_agent,
+            EnvironmentSelector.HAND_WATTEN_RANDOM: self.build_hand_watten_agent,
+            EnvironmentSelector.HAND_WATTEN_HUMAN: self.build_hand_watten_agent,
         }
 
         self.agent_profiles = [
-            # EnvironmentSelector.CHECKERS_AGENT_ALPHA_BETA,
-            # EnvironmentSelector.CHECKERS_AGENT_RANDOM,
-            # EnvironmentSelector.CHECKERS_AGENT_HUMAN,
-            #
-            # EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_DEFAULT,
-            # EnvironmentSelector.CHECKERS_AGENT_TEST_AGENT_RCNN_DEFAULT,
-            #
-            # EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_TPU,
-            #
-            # EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_DISTRIBUTED,
-            # EnvironmentSelector.CHECKERS_AGENT_TEST_AGENT_RCNN_DISTRIBUTED,
-
             EnvironmentSelector.TICTACTOE_AGENT_TRAIN,
             EnvironmentSelector.TICTACTOE_AGENT_RANDOM,
             EnvironmentSelector.TICTACTOE_AGENT_HUMAN,
@@ -258,6 +252,11 @@ class EnvironmentSelector():
             EnvironmentSelector.TOTAL_WATTEN_AGENT_EVALUATE,
             EnvironmentSelector.TOTAL_WATTEN_AGENT_RANDOM,
             EnvironmentSelector.TOTAL_WATTEN_AGENT_HUMAN,
+
+            EnvironmentSelector.HAND_WATTEN_TRAIN,
+            EnvironmentSelector.HAND_WATTEN_EVALUATE,
+            EnvironmentSelector.HAND_WATTEN_RANDOM,
+            EnvironmentSelector.HAND_WATTEN_HUMAN,
         ]
 
     def get_profile(self, agent_profile_str):
@@ -285,79 +284,6 @@ class EnvironmentSelector():
         print("Error: could not find a game with profile: ", game_profile)
 
         return None
-
-    # def build_basic_checkers_agent(self, agent_profile, native_multi_gpu_enabled=False):
-    #     game = self.game_mapping[agent_profile.game]
-    #
-    #     if agent_profile == EnvironmentSelector.CHECKERS_AGENT_ALPHA_BETA:
-    #         return CheckersAgentAlphaBeta()
-    #     elif agent_profile == EnvironmentSelector.CHECKERS_AGENT_RANDOM:
-    #         return AgentRandom()
-    #     elif agent_profile == EnvironmentSelector.CHECKERS_AGENT_HUMAN:
-    #         return CheckersHumanAgent(game)
-    #     return None
-
-    # def build_native_checkers_rcnn_agent(self, agent_profile, native_multi_gpu_enabled=False):
-    #     game = self.game_mapping[agent_profile.game]
-    #
-    #     if not native_multi_gpu_enabled:
-    #         nnet = CheckersResNNet(game.get_observation_size()[0], game.get_observation_size()[1],
-    #                                game.get_observation_size()[2], game.get_action_size())
-    #     else:
-    #         nnet = CheckersResNNet(game.get_observation_size()[0], game.get_observation_size()[1],
-    #                                game.get_observation_size()[2], game.get_action_size(),
-    #                                multi_gpu=True, multi_gpu_n=len(GPUtil.getGPUs()))
-    #
-    #     agent_nnet = AgentNNet(nnet)
-    #
-    #     if agent_profile == EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_DEFAULT:
-    #         return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_INIT, numMCTSSims=1500,
-    #                          max_predict_time=3, num_threads=1)
-    #     elif agent_profile == EnvironmentSelector.CHECKERS_AGENT_TEST_AGENT_RCNN_DEFAULT:
-    #         return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.NO_EXPLORATION, numMCTSSims=1500,
-    #                          max_predict_time=10, num_threads=2, verbose=True)
-    #     else:
-    #         return None
-
-    # def build_tpu_checkers_agent(self, agent_profile, native_multi_gpu_enabled=False):
-    #     from games.checkers.nnet.CheckersResNNetTPU import CheckersResNNetTPU
-    #
-    #     assert not native_multi_gpu_enabled, "ERROR: TPU NNet does not support native multi-gpu mode!"
-    #
-    #     game = self.game_mapping[agent_profile.game]
-    #
-    #     nnet = CheckersResNNetTPU(game.get_observation_size()[0], game.get_observation_size()[1],
-    #                               game.get_observation_size()[2], game.get_action_size())
-    #
-    #     agent_nnet = AgentNNet(nnet)
-    #
-    #     if agent_profile == EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_TPU:
-    #         return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_INIT, numMCTSSims=200,
-    #                          max_predict_time=None, verbose=False, num_threads=1)
-    #     else:
-    #         return None
-
-    # def build_horovod_checkers_agent(self, agent_profile, native_multi_gpu_enabled=False):
-    #     from games.checkers.nnet.CheckersResNNetDistributed import CheckersResNNetDistributed
-    #
-    #     assert not native_multi_gpu_enabled, "ERROR: Horovod NNet does not support native multi-gpu mode!"
-    #
-    #     game = self.game_mapping[agent_profile.game]
-    #
-    #     nnet = CheckersResNNetDistributed(game.get_observation_size()[0], game.get_observation_size()[1],
-    #                                       game.get_observation_size()[2], game.get_action_size(),
-    #                                       horovod_distributed=True)
-    #
-    #     agent_nnet = AgentNNet(nnet)
-    #
-    #     if agent_profile == EnvironmentSelector.CHECKERS_AGENT_TRAIN_RCNN_DISTRIBUTED:
-    #         return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_INIT, numMCTSSims=1500,
-    #                          max_predict_time=5)
-    #     elif agent_profile == EnvironmentSelector.CHECKERS_AGENT_TEST_AGENT_RCNN_DISTRIBUTED:
-    #         return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.NO_EXPLORATION, numMCTSSims=1500,
-    #                          max_predict_time=10)
-    #     else:
-    #         return None
 
     def build_tictactoe_train_agent(self, agent_profile, native_multi_gpu_enabled=False):
 
@@ -638,3 +564,35 @@ class EnvironmentSelector():
         game = WattenSubGame()
 
         return SubWattenHumanAgent(game)
+
+    def build_hand_watten_train_agent(self, agent_profile, native_multi_gpu_enabled=False):
+        game = self.game_mapping[agent_profile.game]
+
+        x, y = game.get_observation_size()
+        nnet = HandWattenNNet(x, y, 1, game.get_action_size())
+
+        agent_nnet = AgentNNet(nnet)
+
+        if agent_profile == EnvironmentSelector.HAND_WATTEN_TRAIN:
+            print("Configuring build_hand_watten_train_agent...")
+            return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=30,
+                             max_predict_time=10, num_threads=1)
+
+        return None
+
+    def build_hand_watten_evaluate_agent(self, agent_profile, native_multi_gpu_enabled=False):
+        game = self.game_mapping[agent_profile.game]
+
+        x, y = game.get_observation_size()
+        nnet = HandWattenNNet(x, y, 1, game.get_action_size())
+
+        agent_nnet = AgentNNet(nnet)
+
+        return agent_nnet
+
+    def build_hand_watten_agent(self, agent_profile, native_multi_gpu_enabled=False):
+
+        if agent_profile == EnvironmentSelector.HAND_WATTEN_RANDOM:
+            return AgentRandom()
+        if agent_profile == EnvironmentSelector.HAND_WATTEN_HUMAN:
+            return HandWattenHumanAgent(self.game_mapping[agent_profile.game])
