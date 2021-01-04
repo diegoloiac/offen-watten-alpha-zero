@@ -549,7 +549,7 @@ class WorldTotalWatten(object):
 
     # should return a unique id with the state of the game
     # the needed info are:
-    # - observation value of current sub_watten state (101)
+    # - observation value of current sub_watten state (32)
     # - points current hand current player (max 2)
     # - points current hand opponent player (max 2)
     # - points game current player (max 14)

@@ -6,6 +6,30 @@ import csv
 from EnvironmentSelector import EnvironmentSelector
 from core.World import World
 
+
+# Print iterations progress
+def print_progress_bar(iteration, total, prefix='', suffix='', decimals=1, length=100, fill='█', print_end="\r"):
+    """
+    Call in a loop to create terminal progress bar
+    @params:
+        iteration   - Required  : current iteration (Int)
+        total       - Required  : total iterations (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : positive number of decimals in percent complete (Int)
+        length      - Optional  : character length of bar (Int)
+        fill        - Optional  : bar fill character (Str)
+        printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
+    """
+    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+    filled_length = int(length * iteration // total)
+    bar = fill * filled_length + '-' * (length - filled_length)
+    print('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix), end=print_end)
+    # Print New Line on Complete
+    if iteration == total:
+        print()
+
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
@@ -53,15 +77,25 @@ if __name__ == '__main__':
 
     row_list = []
 
-    for model in model_files:
+    print_progress_bar(0, len(model_files), prefix='Progress:', suffix='Complete')
+    for idx, model in enumerate(model_files):
         model_path = str(options.folder) + "/" + model
         print(model_path)
         agent.load(model_path)
 
-        sess_arena_examples, games_results = world.execute_games(agents, game, options.games_num)
+        result = 0
+        games_won = 0
 
-        row = [model, options.games_num, games_results[0]]
+        for i in range(options.games_num):
+            _, game_result = world.execute_game(agents, game)
+            result += game_result[0]
+            if game_result[0] > 0:
+                games_won += 1
+
+        row = [model, options.games_num, result, games_won]
         row_list.append(row)
+
+        print_progress_bar(idx + 1, len(model_files), prefix='Progress:', suffix='Complete')
 
     csv_path = options.folder + '/' + 'eval_results.csv'
 
