@@ -2,7 +2,6 @@
 # from games.checkers.nnet.CheckersResNNet import CheckersResNNet
 # from games.checkers.agent.AgentAlphaBeta import CheckersAgentAlphaBeta
 # from games.checkers.agent.CheckersHumanAgent import CheckersHumanAgent
-
 from games.tictactoe.TicTacToeGame import TicTacToeGame
 from games.tictactoe.nnet.TicTacToeNNet import TicTacToeNNet
 from games.tictactoe.agent.TicTacToeHumanAgent import TicTacToeHumanAgent
@@ -33,6 +32,9 @@ from games.total_watten.agent.TotalWattenHumanAgent import TotalWattenHumanAgent
 
 from games.hand_watten.HandWattenGame import HandWattenGame
 from games.hand_watten.nnet.HandWattenNNet import HandWattenNNet
+from games.hand_watten.nnet.EasyEasyNNet import EasyEasyNNet
+from games.hand_watten.nnet.MediumMediumNNet import MediumMediumNNet
+from games.hand_watten.nnet.CNNWatten import CNNWatten
 from games.hand_watten.agent.HandWattenHumanAgent import HandWattenHumanAgent
 
 from core.agents.AgentNNet import AgentNNet
@@ -66,6 +68,8 @@ class EnvironmentSelector():
     GAME_TOTAL_WATTEN_NH_VS_H = "total_watten_environment_nh_vs_h"
 
     GAME_HAND_WATTEN = "hand_watten_environment_default"
+
+    GAME_HAND_WATTEN_CNN = "hand_watten_environment_cnn"
 
     class AgentProfile():
         def __init__(self, game, agent_profile):
@@ -134,10 +138,20 @@ class EnvironmentSelector():
     TOTAL_WATTEN_AGENT_RANDOM = AgentProfile(GAME_TOTAL_WATTEN_DEFAULT, "total_watten_agent_random")
     TOTAL_WATTEN_AGENT_HUMAN = AgentProfile(GAME_TOTAL_WATTEN_DEFAULT, "total_watten_agent_human")
 
-    HAND_WATTEN_TRAIN = AgentProfile(GAME_HAND_WATTEN, "hand_watten_train_default")
-    HAND_WATTEN_EVALUATE = AgentProfile(GAME_HAND_WATTEN, "hand_watten_evaluate")
     HAND_WATTEN_RANDOM = AgentProfile(GAME_HAND_WATTEN, "hand_watten_random")
     HAND_WATTEN_HUMAN = AgentProfile(GAME_HAND_WATTEN, "hand_watten_human")
+
+    HAND_WATTEN_TRAIN = AgentProfile(GAME_HAND_WATTEN, "hand_watten_train_default")
+    HAND_WATTEN_EVALUATE = AgentProfile(GAME_HAND_WATTEN, "hand_watten_evaluate")
+
+    HAND_WATTEN_TRAIN_S_S = AgentProfile(GAME_HAND_WATTEN, "hand_watten_train_s_s")
+    HAND_WATTEN_EVALUATE_S_S = AgentProfile(GAME_HAND_WATTEN, "hand_watten_evaluate_s_s")
+
+    HAND_WATTEN_TRAIN_M_M = AgentProfile(GAME_HAND_WATTEN, "hand_watten_train_m_m")
+    HAND_WATTEN_EVALUATE_M_M = AgentProfile(GAME_HAND_WATTEN, "hand_watten_evaluate_m_m")
+
+    HAND_WATTEN_TRAIN_CNN = AgentProfile(GAME_HAND_WATTEN_CNN, "hand_watten_train_cnn")
+    HAND_WATTEN_EVALUATE_CNN = AgentProfile(GAME_HAND_WATTEN_CNN, "hand_watten_evaluate_cnn")
 
     def __init__(self):
         super().__init__()
@@ -150,23 +164,24 @@ class EnvironmentSelector():
             EnvironmentSelector.GAME_SUB_WATTEN_DEFAULT: WattenSubGame(),
             EnvironmentSelector.GAME_ASYMMETRIC_SUB_WATTEN_DEFAULT: AsymmetricSubWattenGame(),
             EnvironmentSelector.GAME_ASYMMETRIC_SUB_WATTEN_EVALUATE: WattenSubGame(),
-            EnvironmentSelector.GAME_TOTAL_WATTEN_DEFAULT: TotalWattenGame(
-                self.sub_watten_non_human_agent_for_total_watten(),
-                self.sub_watten_non_human_agent_for_total_watten()
-            ),
-            EnvironmentSelector.GAME_TOTAL_WATTEN_H_VS_H: TotalWattenGame(
-                self.sub_watten_human_agent_for_total_watten(),
-                self.sub_watten_human_agent_for_total_watten()
-            ),
-            EnvironmentSelector.GAME_TOTAL_WATTEN_H_VS_NH: TotalWattenGame(
-                self.sub_watten_human_agent_for_total_watten(),
-                self.sub_watten_non_human_agent_for_total_watten()
-            ),
-            EnvironmentSelector.GAME_TOTAL_WATTEN_NH_VS_H: TotalWattenGame(
-                self.sub_watten_non_human_agent_for_total_watten(),
-                self.sub_watten_human_agent_for_total_watten()
-            ),
-            EnvironmentSelector.GAME_HAND_WATTEN: HandWattenGame()
+          #  EnvironmentSelector.GAME_TOTAL_WATTEN_DEFAULT: TotalWattenGame(
+          #      self.sub_watten_non_human_agent_for_total_watten(),
+          #      self.sub_watten_non_human_agent_for_total_watten()
+          #  ),
+          #  EnvironmentSelector.GAME_TOTAL_WATTEN_H_VS_H: TotalWattenGame(
+          #      self.sub_watten_human_agent_for_total_watten(),
+          #      self.sub_watten_human_agent_for_total_watten()
+          #  ),
+          #  EnvironmentSelector.GAME_TOTAL_WATTEN_H_VS_NH: TotalWattenGame(
+          #      self.sub_watten_human_agent_for_total_watten(),
+          #      self.sub_watten_non_human_agent_for_total_watten()
+          #  ),
+          #  EnvironmentSelector.GAME_TOTAL_WATTEN_NH_VS_H: TotalWattenGame(
+          #      self.sub_watten_non_human_agent_for_total_watten(),
+          #      self.sub_watten_human_agent_for_total_watten()
+          #  ),
+            EnvironmentSelector.GAME_HAND_WATTEN: HandWattenGame(),
+            EnvironmentSelector.GAME_HAND_WATTEN_CNN: HandWattenGame(cnn=True)
         }
 
         self.agent_builder_mapping = {
@@ -209,7 +224,13 @@ class EnvironmentSelector():
             EnvironmentSelector.TOTAL_WATTEN_AGENT_HUMAN: self.build_total_watten_agent,
 
             EnvironmentSelector.HAND_WATTEN_TRAIN: self.build_hand_watten_train_agent,
+            EnvironmentSelector.HAND_WATTEN_TRAIN_S_S: self.build_hand_watten_train_agent,
+            EnvironmentSelector.HAND_WATTEN_TRAIN_M_M: self.build_hand_watten_train_agent,
+            EnvironmentSelector.HAND_WATTEN_TRAIN_CNN: self.build_hand_watten_train_agent,
             EnvironmentSelector.HAND_WATTEN_EVALUATE: self.build_hand_watten_evaluate_agent,
+            EnvironmentSelector.HAND_WATTEN_EVALUATE_S_S: self.build_hand_watten_evaluate_agent,
+            EnvironmentSelector.HAND_WATTEN_EVALUATE_M_M: self.build_hand_watten_evaluate_agent,
+            EnvironmentSelector.HAND_WATTEN_EVALUATE_CNN: self.build_hand_watten_evaluate_agent,
             EnvironmentSelector.HAND_WATTEN_RANDOM: self.build_hand_watten_agent,
             EnvironmentSelector.HAND_WATTEN_HUMAN: self.build_hand_watten_agent,
         }
@@ -254,7 +275,13 @@ class EnvironmentSelector():
             EnvironmentSelector.TOTAL_WATTEN_AGENT_HUMAN,
 
             EnvironmentSelector.HAND_WATTEN_TRAIN,
+            EnvironmentSelector.HAND_WATTEN_TRAIN_S_S,
+            EnvironmentSelector.HAND_WATTEN_TRAIN_M_M,
+            EnvironmentSelector.HAND_WATTEN_TRAIN_CNN,
             EnvironmentSelector.HAND_WATTEN_EVALUATE,
+            EnvironmentSelector.HAND_WATTEN_EVALUATE_M_M,
+            EnvironmentSelector.HAND_WATTEN_EVALUATE_S_S,
+            EnvironmentSelector.HAND_WATTEN_EVALUATE_CNN,
             EnvironmentSelector.HAND_WATTEN_RANDOM,
             EnvironmentSelector.HAND_WATTEN_HUMAN,
         ]
@@ -568,13 +595,33 @@ class EnvironmentSelector():
     def build_hand_watten_train_agent(self, agent_profile, native_multi_gpu_enabled=False):
         game = self.game_mapping[agent_profile.game]
 
-        x, y = game.get_observation_size()
-        nnet = HandWattenNNet(x, y, 1, game.get_action_size())
-
-        agent_nnet = AgentNNet(nnet)
-
         if agent_profile == EnvironmentSelector.HAND_WATTEN_TRAIN:
+            x, y = game.get_observation_size()
+            nnet = HandWattenNNet(x, y, 1, game.get_action_size())
+            agent_nnet = AgentNNet(nnet)
+
             print("Configuring build_hand_watten_train_agent...")
+            return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=30,
+                             max_predict_time=10, num_threads=1)
+        elif agent_profile == EnvironmentSelector.HAND_WATTEN_TRAIN_S_S:
+            x, y = game.get_observation_size()
+            nnet = EasyEasyNNet(x, y, 1, game.get_action_size())
+            agent_nnet = AgentNNet(nnet)
+            print("Configuring build_hand_watten_s_s...")
+            return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=30,
+                             max_predict_time=10, num_threads=1)
+        elif agent_profile == EnvironmentSelector.HAND_WATTEN_TRAIN_M_M:
+            x, y = game.get_observation_size()
+            nnet = MediumMediumNNet(x, y, 1, game.get_action_size())
+            agent_nnet = AgentNNet(nnet)
+            print("Configuring build_hand_watten_m_m...")
+            return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=30,
+                             max_predict_time=10, num_threads=1)
+        elif agent_profile == EnvironmentSelector.HAND_WATTEN_TRAIN_CNN:
+            x, y, z = game.get_observation_size()
+            nnet = CNNWatten(x, y, z, game.get_action_size())
+            agent_nnet = AgentNNet(nnet)
+            print("Configuring build hand watten CNN....")
             return AgentMCTS(agent_nnet, exp_rate=AgentMCTS.EXPLORATION_RATE_MEDIUM, numMCTSSims=30,
                              max_predict_time=10, num_threads=1)
 
@@ -583,10 +630,24 @@ class EnvironmentSelector():
     def build_hand_watten_evaluate_agent(self, agent_profile, native_multi_gpu_enabled=False):
         game = self.game_mapping[agent_profile.game]
 
-        x, y = game.get_observation_size()
-        nnet = HandWattenNNet(x, y, 1, game.get_action_size())
+        agent_nnet = None
 
-        agent_nnet = AgentNNet(nnet)
+        if agent_profile == EnvironmentSelector.HAND_WATTEN_EVALUATE:
+            x, y = game.get_observation_size()
+            nnet = HandWattenNNet(x, y, 1, game.get_action_size())
+            agent_nnet = AgentNNet(nnet)
+        elif agent_profile == EnvironmentSelector.HAND_WATTEN_EVALUATE_M_M:
+            x, y = game.get_observation_size()
+            nnet = MediumMediumNNet(x, y, 1, game.get_action_size())
+            agent_nnet = AgentNNet(nnet)
+        elif agent_profile == EnvironmentSelector.HAND_WATTEN_EVALUATE_S_S:
+            x, y = game.get_observation_size()
+            nnet = EasyEasyNNet(x, y, 1, game.get_action_size())
+            agent_nnet = AgentNNet(nnet)
+        elif agent_profile == EnvironmentSelector.HAND_WATTEN_EVALUATE_CNN:
+            x, y, z = game.get_observation_size()
+            nnet = CNNWatten(x, y, z, game.get_action_size())
+            agent_nnet = AgentNNet(nnet)
 
         return agent_nnet
 
