@@ -548,7 +548,7 @@ class WorldHandWatten(object):
         if player not in [1, -1]:
             raise InvalidInputError("Player should be either 1 or -1. Input is %d." % player)
 
-        observation = np.zeros((236,))
+        observation = np.zeros((198,))
 
         # first card deck
         observation[self.first_card_deck] = 1
@@ -615,26 +615,11 @@ class WorldHandWatten(object):
             observation[index + self.current_game_prize - 3] = 1
 
 
-        # possible opponent cards
-        index += 13  # 198
-        possible_opponent_cards = self.player_B_hand.copy() if player == 1 else self.player_A_hand.copy()
-        if player != self.distributing_cards_player:
-            possible_opponent_cards.append(self.last_card_deck)
-        possible_opponent_cards.extend(self.deck)
-        for card in possible_opponent_cards:
-            observation[index + card] = 1
 
 
-        # number of cards of the opponent
-        index += 33  # 231
-        number_of_opponent_cards = len(self.player_B_hand) if player == 1 else len(self.player_A_hand)
-        if number_of_opponent_cards != 0:
-            observation[index + number_of_opponent_cards - 1] = 1
+        # total size = 185 + 13 = 198
 
-
-        # total size = 231 + 5 = 236
-
-        observation = observation.reshape((236, 1))
+        observation = observation.reshape((198, 1))
         return observation
 
     # def observation_str_raw(self, observe):
