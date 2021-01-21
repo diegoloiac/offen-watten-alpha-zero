@@ -122,7 +122,9 @@ def generate_self_play(agent_profile, agent_path, temp_dir, iteration_memory_pat
     # call trainer script
     # use temp dir to save all temp models and fuse them into iteration memory path
 
-    clean_dir(temp_dir)
+    if temp_dir is not None:
+        clean_dir(temp_dir)
+
     if os.path.isfile(iteration_memory_path):
         os.remove(iteration_memory_path)
 
@@ -387,7 +389,7 @@ if __name__ == "__main__":
         else:
             agent.save(cur_agent_path)
     else:
-        agent.save(cur_agent_path)
+        agent.load(cur_agent_path)
 
     # main Alpha Zero loop
 
