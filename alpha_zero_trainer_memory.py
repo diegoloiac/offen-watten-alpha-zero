@@ -1,6 +1,7 @@
 import argparse
 import os
 import subprocess
+from pathlib import Path
 
 from EnvironmentSelector import EnvironmentSelector
 from alpha_zero_trainer import fuse_memory, train
@@ -120,7 +121,9 @@ if __name__ == "__main__":
     memories = []
 
     if options.memory_path is not None:
-        memories.append(options.memory_path)
+        paths = sorted(Path(options.memory_path).iterdir(), key=os.path.getmtime)
+        for p in paths:
+            memories.append(str(p))
 
     for i in loop_range:
         memory = memory_dir + '/%d.pkl' % i
@@ -145,7 +148,7 @@ if __name__ == "__main__":
                     des_mem.extend(deserialize(file))
                     # fuse_memory(train_memory_file, file, train_memory_file)
             elif n_memory > 0:
-                for file in memories[n_memory:]:
+                for file in memories[-n_memory:]:
                     print('Deserializing memory from %s' % file)
                     des_mem.extend(deserialize(file))
                     # fuse_memory(train_memory_file, file, train_memory_file)
