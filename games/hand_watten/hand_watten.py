@@ -158,17 +158,17 @@ class WorldHandWatten(object):
             self.LOG.debug(f"Valid moves for player [{self.current_player}] are {valid_moves}")
             return valid_moves
 
-        # player that has not given cards declare the rank
+        # player that has not given cards declare the rank and can't raise
         if self.rank is None:
-            augmented_valid_moves = self._augment_valid_moves(self.moves["pick_rank"])
-            self.LOG.debug(f"Valid moves for player [{self.current_player}] are {augmented_valid_moves}")
-            return augmented_valid_moves
+            valid_moves = [self.moves["pick_rank"]]
+            self.LOG.debug(f"Valid moves for player [{self.current_player}] are {valid_moves}")
+            return valid_moves
 
         # player that has given cards declare the suit. If weli was chosen as rank, then suit is irrelevant
         if self.suit is None:
-            augmented_valid_moves = self._augment_valid_moves(self.moves["pick_suit"])
-            self.LOG.debug(f"Valid moves for player [{self.current_player}] are {augmented_valid_moves}")
-            return augmented_valid_moves
+            valid_moves = [self.moves["pick_suit"]]
+            self.LOG.debug(f"Valid moves for player [{self.current_player}] are {valid_moves}")
+            return valid_moves
 
         # list to be returned
         valid_moves = []
