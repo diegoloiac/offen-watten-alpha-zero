@@ -219,10 +219,8 @@ class WorldHandWatten(object):
     def _augment_valid_moves(self, moves):
         valid_moves = []
         valid_moves.extend(moves)
-        # a player can raise only if the last move was not a raise
-        # and if the opponent last move was not an accepted raise (in order to force the game to continue)
-        if (not self.is_last_move_raise) and (not self.is_last_move_accepted_raise) and \
-                (self.is_last_hand_raise_valid is None) and (self.current_game_prize < 15):
+        # a player can always raise when it makes sense to
+        if (self.is_last_hand_raise_valid is None) and (self.current_game_prize < 15):
             valid_moves.append(self.moves["raise_points"])
         return valid_moves
 
