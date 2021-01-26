@@ -112,6 +112,9 @@ class WorldHandWatten(object):
         self.is_last_move_raise = False
         self.is_last_move_accepted_raise = False
 
+        # needed when many consecutive raise are done to continue with the right player
+        self.started_raising = None
+
         # raise in last hand implies some specific rules. see act method
         self.is_last_hand_raise_valid = None
 
@@ -153,20 +156,21 @@ class WorldHandWatten(object):
         # if the last move was a raise then the player can fold or accept it
         if self.is_last_move_raise and not self.is_last_move_accepted_raise:
             valid_moves = [moves["fold_hand"], moves["accept_raise"]]
+            augmented_valid_moves = self._augment_valid_moves(valid_moves)
             if self.is_last_hand_raise_valid is not None:
                 valid_moves.append(moves["fold_hand_and_show_valid_raise"])
-            self.LOG.debug(f"Valid moves for player [{self.current_player}] are {valid_moves}")
-            return valid_moves
+            self.LOG.debug(f"Valid moves for player [{self.current_player}] are {augmented_valid_moves}")
+            return augmented_valid_moves
 
         # player that has not given cards declare the rank and can't raise
         if self.rank is None:
-            valid_moves = [self.moves["pick_rank"]]
+            valid_moves = self.moves["pick_rank"]
             self.LOG.debug(f"Valid moves for player [{self.current_player}] are {valid_moves}")
             return valid_moves
 
         # player that has given cards declare the suit. If weli was chosen as rank, then suit is irrelevant
         if self.suit is None:
-            valid_moves = [self.moves["pick_suit"]]
+            valid_moves = self.moves["pick_suit"]
             self.LOG.debug(f"Valid moves for player [{self.current_player}] are {valid_moves}")
             return valid_moves
 
@@ -220,6 +224,7 @@ class WorldHandWatten(object):
         valid_moves = []
         valid_moves.extend(moves)
         # a player can always raise when it makes sense to
+        # !!COMMENTED TO LEARN FIRST HOW TO PLAY CARDS!!
         if (self.is_last_hand_raise_valid is None) and (self.current_game_prize < 15):
             valid_moves.append(self.moves["raise_points"])
         return valid_moves
@@ -246,10 +251,14 @@ class WorldHandWatten(object):
         self.moves_series.append(action)
 
         if action == moves["raise_points"]:
-            if self.is_last_move_raise or self.is_last_move_accepted_raise or self.is_last_hand_raise_valid is not None:
-                raise InvalidActionError("Cannot raise if the previous move was a raise")
+            if self.is_last_hand_raise_valid is not None:
+                raise InvalidActionError("Cannot raise if the previous move was a last hand raise")
             self.LOG.debug(f"{self.current_player} raised points")
+            if not self.is_last_move_raise:
+                self.started_raising = self.current_player
+
             self.is_last_move_raise = True
+            self.is_last_move_accepted_raise = False
             if num_played_cards >= 8:
                 self.is_last_hand_raise_valid = self._last_hand_raise_valid()
             self.current_game_prize += 1
@@ -261,7 +270,7 @@ class WorldHandWatten(object):
             self.LOG.debug(f"{self.current_player} accepted raise")
             self.is_last_move_accepted_raise = True
             self.is_last_move_raise = False
-            return self._act_continue_move()
+            return self._act_continue_move(self.started_raising)
 
         # if a player folds, then the prize is given to the opponent
         if action == moves["fold_hand"] or action == moves["fold_hand_and_show_valid_raise"]:
@@ -345,9 +354,13 @@ class WorldHandWatten(object):
             self.winning_player = -1
         return "end", self.current_player
 
-    def _act_continue_move(self):
-        self.current_player = self.current_player * -1
-        return "continue", self.current_player
+    def _act_continue_move(self, next_player=None):
+        if next_player is None:
+            self.current_player = self.current_player * -1
+            return "continue", self.current_player
+        else:
+            self.current_player = next_player
+            return "continue", self.current_player
 
     def _remove_card_from_hand(self, action, player):
         if player == 1:
@@ -679,6 +692,7 @@ class WorldHandWatten(object):
         new_world.current_game_prize = self.current_game_prize
         new_world.is_last_move_raise = self.is_last_move_raise
         new_world.is_last_move_accepted_raise = self.is_last_move_accepted_raise
+        new_world.started_raising = self.started_raising
         new_world.first_card_deck = self.first_card_deck
         new_world.last_card_deck = self.last_card_deck
         new_world.rank = self.rank
