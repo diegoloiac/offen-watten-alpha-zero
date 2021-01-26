@@ -267,6 +267,8 @@ class WorldHandWatten(object):
         if action == moves["accept_raise"]:
             if self.is_last_move_raise is False or self.is_last_move_accepted_raise:
                 raise InvalidActionError("Cannot accept raise if the previous move was not a raise")
+            if self.started_raising is None:
+                raise InconsistentStateError("Started raising can't be None in an accepting raise situation")
             self.LOG.debug(f"{self.current_player} accepted raise")
             self.is_last_move_accepted_raise = True
             self.is_last_move_raise = False
@@ -707,7 +709,7 @@ class WorldHandWatten(object):
     def init_world_to_state(self, current_player, distributing_cards_player,
                             player_A_hand, player_B_hand, played_cards, current_game_player_A_score,
                             current_game_player_B_score, current_game_prize, is_last_move_raise,
-                            is_last_move_accepted_raise, is_last_hand_raise_valid, first_card_deck, last_card_deck, rank, suit):
+                            is_last_move_accepted_raise, is_last_hand_raise_valid, first_card_deck, last_card_deck, rank, suit, started_raising):
 
         self.current_player = current_player
         self.distributing_cards_player = distributing_cards_player
@@ -724,6 +726,7 @@ class WorldHandWatten(object):
         self.last_card_deck = last_card_deck
         self.rank = rank
         self.suit = suit
+        self.started_raising = started_raising
 
 
 class Error(Exception):

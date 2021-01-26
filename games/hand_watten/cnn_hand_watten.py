@@ -124,6 +124,7 @@ class CNNHandWatten(WorldHandWatten):
         new_world.current_game_prize = self.current_game_prize
         new_world.is_last_move_raise = self.is_last_move_raise
         new_world.is_last_move_accepted_raise = self.is_last_move_accepted_raise
+        new_world.started_raising = self.started_raising
         new_world.first_card_deck = self.first_card_deck
         new_world.last_card_deck = self.last_card_deck
         new_world.rank = self.rank
