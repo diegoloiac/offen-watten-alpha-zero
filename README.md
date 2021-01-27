@@ -4,9 +4,7 @@ This project is part of a thesis project of a Bachelor in Computer Science at th
 
 The aim of this project has been to try an AlphaZero approach to [Watten](https://en.wikipedia.org/wiki/Watten_(card_game)), an incomplete information card game. The rules of the game together with its neural networks have been implemented in folder [games](https://github.com/Chavelanda/offen-watten-alpha-zero/tree/master/games).
 
-In order to have a successful training the game has been divided in two parts: a sub game and a total game.  The sub game represents just a single hand of the game while the total game implements the dynamics of the whole game relying on an agent that already learned the sub game.
-
-The asymmetric sub Watten was developed to check whether a different approach (with one player stronger than the other) could provide some improvement of the learning.
+The final game representation consists in one hand and is called hand_watten. Two different models have been trained with this game implementation: a model built on a Feed Forward Neural Network and a model built on a Convolutional Neural Network.
 
 Strictly connected to this project there are a [Mobile App](https://github.com/Chavelanda/watten_app) to play Watten against the models trained in this project and a [Server Application](https://github.com/Chavelanda/watten_server) that hosts the models and serves the mobile app computing the best action for the requested model.
 
