@@ -1,3 +1,5 @@
+from keras.utils import multi_gpu_model
+
 from core.nnet.NNet import NNet
 
 from keras.models import *
@@ -35,7 +37,12 @@ class CNNWatten(NNet):
 
         model.summary()
 
-        _multi_gpu_model = None
+        if self.multi_gpu:
+            _multi_gpu_model = multi_gpu_model(model, gpus=self.multi_gpu_n)
+            _multi_gpu_model.compile(loss=['categorical_crossentropy', 'mean_squared_error'],
+                                     optimizer=Adam(learning_rate))
+        else:
+            _multi_gpu_model = None
 
         model.compile(loss=['categorical_crossentropy', 'mean_squared_error'], optimizer=Adam(learning_rate))
 
