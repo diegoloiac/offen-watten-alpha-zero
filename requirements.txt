@@ -1,8 +1,39 @@
-git+https://github.com/dpallot/simple-websocket-server.git
-tqdm
-termcolor
-h5py
-keras
-gputil
-ujson
-tensorflow
+absl-py==0.10.0
+astor==0.8.1
+certifi==2020.12.5
+click==7.1.2
+Flask==1.1.2
+Flask-SQLAlchemy @ file:///tmp/build/80754af9/flask-sqlalchemy_1596836624296/work
+gast==0.2.2
+google-pasta==0.2.0
+GPUtil==1.4.0
+grpcio==1.32.0
+h5py==2.10.0
+importlib-metadata==2.0.0
+itsdangerous==1.1.0
+Jinja2==2.11.2
+joblib @ file:///tmp/build/80754af9/joblib_1607970656719/work
+Keras==2.3.1
+Keras-Applications==1.0.8
+Keras-Preprocessing==1.1.2
+Markdown==3.3.1
+MarkupSafe==1.1.1
+numpy==1.18.5
+opt-einsum==3.3.0
+protobuf==3.13.0
+PyYAML==5.3.1
+scipy==1.5.2
+SimpleWebSocketServer @ git+https://github.com/dpallot/simple-websocket-server.git@a6ddef766a4f5fa655c9072107fccc28ecf2b3e3
+six==1.15.0
+SQLAlchemy @ file:///C:/ci/sqlalchemy_1608243821728/work
+tensorboard==1.15.0
+tensorflow==1.15.4
+tensorflow-estimator==1.15.1
+tensorflow-gpu==1.15.4
+termcolor==1.1.0
+tqdm==4.50.2
+ujson==4.0.1
+Werkzeug==1.0.1
+wincertstore==0.2
+wrapt==1.12.1
+zipp==3.3.1
