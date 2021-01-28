@@ -2,8 +2,6 @@ absl-py==0.10.0
 astor==0.8.1
 certifi==2020.12.5
 click==7.1.2
-Flask==1.1.2
-Flask-SQLAlchemy @ file:///tmp/build/80754af9/flask-sqlalchemy_1596836624296/work
 gast==0.2.2
 google-pasta==0.2.0
 GPUtil==1.4.0
@@ -24,8 +22,7 @@ protobuf==3.13.0
 PyYAML==5.3.1
 scipy==1.5.2
 SimpleWebSocketServer @ git+https://github.com/dpallot/simple-websocket-server.git@a6ddef766a4f5fa655c9072107fccc28ecf2b3e3
-six==1.15.0
-SQLAlchemy @ file:///C:/ci/sqlalchemy_1608243821728/work
+six==1.15.
 tensorboard==1.15.0
 tensorflow==1.15.4
 tensorflow-estimator==1.15.1
