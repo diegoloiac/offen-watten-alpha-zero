@@ -521,7 +521,7 @@ class WorldSubWatten(object):
                       f"\nPlayer -1 hand: {self._str_cards(self.player_B_hand)} - {self.player_B_hand}"
                       f"\nRank: |{self.rank} - {rank_names[self.rank]}|, Suit: |{self.suit} - {suit_names[self.suit]}|"
                       f"\nPlayed cards: {self._str_cards(self.played_cards)}"
-                      f"\n{self.distributing_cards_player}, {self.first_card_deck}, {self.last_card_deck}")
+                      f"\n{self.distributing_cards_player}, {human_readable_card(self.first_card_deck)}, {human_readable_card(self.last_card_deck)}")
 
         self.LOG.info(f"{self.starting_state}")
         self.LOG.info(f"{self.moves_series}")

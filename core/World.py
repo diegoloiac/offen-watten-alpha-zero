@@ -51,6 +51,7 @@ class World():
             # if show_every_turn:
             #     print("\n", game.get_display_str())
 
+            # Get right observation for current player if hand_watten_cnn
             observation = game.get_observation(cur_player)
 
             cur_turn_agent = agents[cur_player]
@@ -148,7 +149,7 @@ class World():
 
         if verbose:
             for idx, agent in enumerate(agents):
-                print("--- %s: %d ---" % (agent.get_name(), games_results[idx]))
+                print("--- %s: %f ---" % (agent.get_name(), games_results[idx]))
 
         return games_experience, games_results
 

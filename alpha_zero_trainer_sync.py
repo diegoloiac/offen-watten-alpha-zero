@@ -151,7 +151,7 @@ if __name__ == "__main__":
         else:
             agent.save(cur_agent_path)
     else:
-        agent.save(cur_agent_path)
+        agent.load(cur_agent_path)
 
     # main Alpha Zero loop
 
