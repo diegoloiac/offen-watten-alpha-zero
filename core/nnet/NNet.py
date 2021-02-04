@@ -13,6 +13,13 @@ class NNet(ABC):
         self.observation_size_z = observation_size_z
         self.action_size = action_size
 
+        devices = tf.config.list_physical_devices('GPU')
+        print(devices)
+
+        if len(devices) > 0:
+            tf.config.set_soft_device_placement(True)
+            tf.debugging.set_log_device_placement(True)
+
         self.model = self.build_model()
         self.graph_model = tf.function(self.model)
 
