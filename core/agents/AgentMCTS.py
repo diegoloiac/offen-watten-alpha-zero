@@ -1,21 +1,13 @@
-import sys
-
-sys.path.append('..')
-
-import numpy as np
 import math
 import numpy as np
+import time
+from concurrent.futures import ThreadPoolExecutor
+from threading import Lock
+from collections import defaultdict
 
 from core.interfaces.Agent import Agent
-from core.interfaces.Game import Game
 
 EPS = 1e-8
-
-import time
-
-from concurrent.futures import ThreadPoolExecutor
-from threading import Thread, Lock
-from collections import defaultdict
 
 
 class AgentMCTS(Agent):

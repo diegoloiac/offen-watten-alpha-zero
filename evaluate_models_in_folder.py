@@ -3,7 +3,7 @@ from os import listdir
 from os.path import isfile, join
 import csv
 
-from EnvironmentSelector import EnvironmentSelector
+from core.EnvironmentSelector import EnvironmentSelector
 from core.World import World
 
 

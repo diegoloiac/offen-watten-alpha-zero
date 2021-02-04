@@ -1,30 +1,30 @@
-from abc import ABC, abstractclassmethod
+from abc import ABC,  abstractmethod
 
 
 class Game(ABC):
     """
     This class specifies the base Game class. To define your own game, subclass
-    this class and implement the functions below. 
-    
+    this class and implement the functions below.
+
     This class supports games with >0 players.
     This class supports rewards in range [-1, 1]
     This class assumes that DRAW result is -1 (loss for both players)
     This class supports player indexes from 0, 1, 2 etc
-    
+
     see checkers/CheckersGame.py for an example implementation
     """
 
     def __init__(self):
         pass
 
-    @abstractclassmethod
+    @abstractmethod
     def reset(self):
         """
             Resets game to the initial state
         """
         pass
 
-    @abstractclassmethod
+    @abstractmethod
     def get_cur_player(self):
         """
         Returns:
@@ -32,7 +32,7 @@ class Game(ABC):
         """
         pass
 
-    @abstractclassmethod
+    @abstractmethod
     def get_players_num(self):
         """
         Returns:
@@ -40,7 +40,7 @@ class Game(ABC):
         """
         pass
 
-    @abstractclassmethod
+    @abstractmethod
     def get_action_size(self):
         """
         Returns:
@@ -48,7 +48,7 @@ class Game(ABC):
         """
         pass
 
-    @abstractclassmethod
+    @abstractmethod
     def get_observation_size(self):
         """
         Returns:
@@ -56,7 +56,7 @@ class Game(ABC):
         """
         pass
 
-    @abstractclassmethod
+    @abstractmethod
     def make_move(self, action):
         """
         Input:
@@ -68,7 +68,7 @@ class Game(ABC):
         """
         pass
 
-    @abstractclassmethod
+    @abstractmethod
     def get_valid_moves(self, player):
         """
         Input:
@@ -81,7 +81,7 @@ class Game(ABC):
         """
         pass
 
-    @abstractclassmethod
+    @abstractmethod
     def is_ended(self):
         """
         This method must return True if is_draw_situation returns True
@@ -90,7 +90,7 @@ class Game(ABC):
         """
         pass
 
-    @abstractclassmethod
+    @abstractmethod
     def is_draw(self):
         """
         Returns:
@@ -98,7 +98,7 @@ class Game(ABC):
         """
         pass
 
-    @abstractclassmethod
+    @abstractmethod
     def get_score(self, player):
         """
         Input:
@@ -109,7 +109,7 @@ class Game(ABC):
         """
         pass
 
-    @abstractclassmethod
+    @abstractmethod
     def get_observation(self, player):
         """
         Input:
@@ -120,7 +120,7 @@ class Game(ABC):
         """
         pass
 
-    @abstractclassmethod
+    @abstractmethod
     def get_observation_str(self, observation):
         """
         Input:
@@ -132,7 +132,7 @@ class Game(ABC):
         """
         pass
 
-    @abstractclassmethod
+    @abstractmethod
     def get_display_str(self):
         """
         Returns:
@@ -140,7 +140,7 @@ class Game(ABC):
         """
         pass
 
-    @abstractclassmethod
+    @abstractmethod
     def clone(self):
         """
         Returns:
@@ -148,10 +148,10 @@ class Game(ABC):
         """
         pass
 
-    @abstractclassmethod
+    @abstractmethod
     def reset_unknown_states(self, player):
         """
-        Resets unknown inner states of objects outside of observation of the player. 
+        Resets unknown inner states of objects outside of observation of the player.
         For example, in cards-based games this function might reshuffle current state of opponent deck
         """
         pass

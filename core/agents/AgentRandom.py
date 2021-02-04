@@ -1,14 +1,6 @@
-import sys
-
-sys.path.append('..')
-
-import numpy as np
-import math
 import numpy as np
 
 from core.interfaces.Agent import Agent
-from core.interfaces.Game import Game
-
 import random
 
 

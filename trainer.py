@@ -1,7 +1,7 @@
 import argparse
-from EnvironmentSelector import EnvironmentSelector
+from core.EnvironmentSelector import EnvironmentSelector
 
-from core.utils.utils import serialize, deserialize
+from core.utils.utils import deserialize
 
 import sys
 
@@ -11,13 +11,10 @@ def throw_error(message):
     sys.exit(1)
 
 
-def train(agent_profile, agent_path, out_agent_path,
-          memory_path=None, game_memory=None,
-          train_distributed=False, train_distributed_native=False,
-          epochs=1):
+def train(agent_profile, agent_path, out_agent_path, memory_path=None, game_memory=None, epochs=1):
     env_selector = EnvironmentSelector()
 
-    agent = env_selector.get_agent(agent_profile, native_multi_gpu_enabled=train_distributed_native)
+    agent = env_selector.get_agent(agent_profile)
 
     if agent_path:
         agent.load(agent_path)
@@ -39,14 +36,6 @@ def train(agent_profile, agent_path, out_agent_path,
 
     print("Training finished!")
 
-    if train_distributed:
-        import horovod.tensorflow as hvd
-        if hvd.rank() == 0:
-            # save only on the main server
-            agent.save(out_agent_path)
-    else:
-        agent.save(out_agent_path)
-
     print("Model saved!")
 
 
@@ -62,14 +51,6 @@ if __name__ == "__main__":
 
     parser.add_argument("--agent_path", dest="agent_path",
                         help="Path to the agent's model.")
-
-    parser.add_argument('--train_distributed', dest='train_distributed', action='store_true',
-                        help="Train NN in cluster specified by hosts option")
-    parser.set_defaults(train_distributed=False)
-
-    parser.add_argument('--train_distributed_native', dest='train_distributed_native', action='store_true',
-                        help="Enable native distributed training on main machine")
-    parser.set_defaults(train_distributed_native=False)
 
     parser.add_argument("--epochs", dest="epochs", type=int,
                         default=1,
@@ -88,6 +69,4 @@ if __name__ == "__main__":
 
     train(options.agent_profile, options.agent_path,
           options.out_agent_path, memory_path=options.memory_path,
-          train_distributed=options.train_distributed,
-          train_distributed_native=options.train_distributed_native,
           epochs=options.epochs)

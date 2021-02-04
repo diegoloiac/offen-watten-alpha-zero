@@ -1,16 +1,12 @@
 import numpy as np
-from tqdm import *
 import itertools
 import logging
+from tqdm import tqdm
 
-from games.asymmetric_sub_watten.AsymmetricSubWattenGame import AsymmetricSubWattenGame
-
-
-# TODO test games with checkers, when preferans, when update comments in Game
-from games.watten.watten import InconsistentStateError
+from versions.asymmetric_sub_watten.AsymmetricSubWattenGame import AsymmetricSubWattenGame
 
 
-class World():
+class World:
     """
     An World class where any agents can be play and generate experience
     """

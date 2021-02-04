@@ -4,7 +4,7 @@ from os.path import isfile, join
 import csv
 import re
 
-from EnvironmentSelector import EnvironmentSelector
+from core.EnvironmentSelector import EnvironmentSelector
 from core.World import World
 
 
@@ -112,8 +112,6 @@ if __name__ == '__main__':
 
         result = 0
         games_won = 0
-
-
 
         for i in range(options.games_num):
             _, game_result = world.execute_game(agents, game)

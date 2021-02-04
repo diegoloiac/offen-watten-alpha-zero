@@ -1,15 +1,6 @@
-import sys
-
-sys.path.append('..')
-
 import numpy as np
 
 from core.interfaces.Agent import Agent
-
-from multiprocessing import connection, Pipe
-from threading import Thread
-
-# import operator
 
 
 class AgentNNet(Agent):

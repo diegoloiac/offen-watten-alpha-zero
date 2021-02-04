@@ -1,16 +1,14 @@
 import argparse
-from EnvironmentSelector import EnvironmentSelector
-from core.utils.utils import serialize, deserialize
-from core.World import World
-
-import sys
 from collections import deque
+
+from core.EnvironmentSelector import EnvironmentSelector
+from core.utils.utils import serialize
+from core.World import World
 
 
 def generate_self_play(opt_agent_profile, agent_path, games_num,
                        experience_path, max_steps,
-                       verbose, debug, exploration_decay_steps,
-                       optimize_for_inference=False, self_play_examples_deque=deque([])):
+                       verbose, debug, exploration_decay_steps, self_play_examples_deque=deque([])):
     world = World()
 
     env_selector = EnvironmentSelector()
@@ -21,9 +19,6 @@ def generate_self_play(opt_agent_profile, agent_path, games_num,
 
     agent_profile = env_selector.get_profile(opt_agent_profile)
     game = env_selector.get_game(agent_profile.game)
-
-    if optimize_for_inference:
-        agent.disable_training_capability()
 
     self_play_examples = world.generate_self_play(agent, game, games_num,
                                                   max_game_steps_n=max_steps,
@@ -61,10 +56,6 @@ if __name__ == "__main__":
     parser.add_argument("--exploration_decay_steps", dest="exploration_decay_steps", type=int,
                         default=None,
                         help="Exploration decay in turns.")
-
-    parser.add_argument('--optimize_for_inference', dest='optimize_for_inference', action='store_true',
-                        help="Optimize for inference in self-play and evaluation phases")
-    parser.set_defaults(optimize_for_inference=False)
 
     parser.add_argument("--temp_path", dest="temp_path",
                         help="Path to the generated experience. Required.")

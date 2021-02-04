@@ -1,18 +1,14 @@
 import argparse
-from EnvironmentSelector import EnvironmentSelector
-from core.agents.AgentMCTS import AgentMCTS
-from core.utils.utils import serialize, deserialize
+
+from core.EnvironmentSelector import EnvironmentSelector
 from core.World import World
 
-from collections import deque
-
-import sys
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--agent_new", dest="agent_profile_new",
-                        help="Agent profile from EnvironmentSelector. Required.")
+                        help="Agent profile from EnvironmentSelector. Cannot be Random. Required.")
 
     parser.add_argument("--agent_old", dest="agent_profile_old",
                         help="Agent profile from EnvironmentSelector. Required.")
@@ -36,10 +32,6 @@ if __name__ == "__main__":
                         default=None,
                         help="Max steps in each game")
 
-    parser.add_argument('--optimize_for_inference', dest='optimize_for_inference', action='store_true',
-                        help="Optimize for inference in self-play and evaluation phases")
-    parser.set_defaults(optimize_for_inference=False)
-
     options = parser.parse_args()
 
     if not options.agent_profile_new:
@@ -54,11 +46,9 @@ if __name__ == "__main__":
     env_selector = EnvironmentSelector()
     agent_first = env_selector.get_agent(options.agent_profile_new)
     print("Pit with agent ", agent_first.name)
-    agent_first.set_exploration_enabled(False)
 
     agent_second = env_selector.get_agent(options.agent_profile_old)
     print("Pit with agent ", agent_second.name)
-    agent_second.set_exploration_enabled(False)
 
     agent_profile = env_selector.get_profile(options.agent_profile_new)
     game = env_selector.get_game(agent_profile.game)
@@ -82,13 +72,9 @@ if __name__ == "__main__":
 
     if options.agent_new_path:
         agent_first.load(options.agent_new_path)
-        if options.optimize_for_inference:
-            agent_first.disable_training_capability(temp_dir="temp", optimize=True)
 
     if options.agent_old_path:
         agent_second.load(options.agent_old_path)
-        if options.optimize_for_inference:
-            agent_second.disable_training_capability(temp_dir="temp", optimize=True)
 
     world = World()
 
