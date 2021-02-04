@@ -1,15 +1,16 @@
 import argparse
-from core.EnvironmentSelector import EnvironmentSelector
-
-from core.utils.utils import serialize, deserialize, execute_command_sync
-
+import time
+import logging
 from tqdm import tqdm
-
 import os
 import sys
 import glob
-
 import tensorflow as tf
+
+
+from core.EnvironmentSelector import EnvironmentSelector
+from core.utils.utils import serialize, deserialize, execute_command_sync
+
 
 OPERATION_SUCCESSFUL = 0
 
@@ -125,6 +126,9 @@ if __name__ == "__main__":
                         default=None,
                         help="Exploration decay in turns.")
 
+    log = logging.getLogger("TrainLogger")
+    start_time = time.time()
+
     options = parser.parse_args()
 
     if not options.agent_profile:
@@ -203,3 +207,10 @@ if __name__ == "__main__":
         agent.load(contestant_agent_path)
         agent.save(cur_agent_path)
         agent.save(options.workspace + '/model_updated_%d' % idx)
+
+    end_time = time.time()
+    log.warning(f'Start time: {start_time}')
+    log.warning(f'End time: {end_time}')
+    log.warning(f'Elapsed time: {end_time-start_time}')
+
+
