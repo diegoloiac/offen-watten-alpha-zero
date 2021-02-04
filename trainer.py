@@ -36,6 +36,8 @@ def train(agent_profile, agent_path, out_agent_path, memory_path=None, game_memo
 
     print("Training finished!")
 
+    agent.save(out_agent_path)
+
     print("Model saved!")
 
 
