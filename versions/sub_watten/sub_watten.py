@@ -568,6 +568,16 @@ class WorldSubWatten(object):
         self.last_card_deck = last_card_deck
         self.rank = rank
         self.suit = suit
+        # rebuild deck
+        self.deck = list(range(33))
+        for card in self.player_A_hand:
+            self.deck.remove(card)
+        for card in self.player_B_hand:
+            self.deck.remove(card)
+        for card in played_cards:
+            self.deck.remove(card)
+        self.deck.remove(first_card_deck)
+        self.deck.remove(last_card_deck)
 
 
 class Error(Exception):

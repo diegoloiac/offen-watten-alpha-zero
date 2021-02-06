@@ -726,6 +726,16 @@ class WorldHandWatten(object):
         self.rank = rank
         self.suit = suit
         self.started_raising = started_raising
+        # rebuild deck
+        self.deck = list(range(33))
+        for card in self.player_A_hand:
+            self.deck.remove(card)
+        for card in self.player_B_hand:
+            self.deck.remove(card)
+        for card in played_cards:
+            self.deck.remove(card)
+        self.deck.remove(first_card_deck)
+        self.deck.remove(last_card_deck)
 
 
 class Error(Exception):
