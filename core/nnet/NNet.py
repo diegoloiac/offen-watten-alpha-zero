@@ -32,11 +32,32 @@ class NNet(ABC):
         filepath = filepath if filepath.endswith(self.EXTENSION_KERAS) else filepath + self.EXTENSION_KERAS
         self.model.load_weights(filepath)
 
-    def train(self, input_boards, target_pis, target_vs, batch_size=2048, epochs=10, verbose=1):
+    def train(self, filenames, batch_size=2048, epochs=10, verbose=1):
+        print('Creating raw dataset')
+        raw_dataset = tf.data.TFRecordDataset(filenames, num_parallel_reads=tf.data.AUTOTUNE)
+
+        print('Parsing the dataset')
+        parsed_dataset = raw_dataset.map(self.parse_example, num_parallel_calls=tf.data.AUTOTUNE)
+        print(parsed_dataset)
+
         model = self.get_model()
 
-        print("Fit model with epochs %d and batch size %d" % (epochs, batch_size))
-        model.fit(x=input_boards, y=[target_pis, target_vs], batch_size=batch_size, epochs=epochs, verbose=verbose)
+        dataset_empty = False
+
+        while not dataset_empty:
+            batch = parsed_dataset.take(batch_size)
+            batch = batch.as_numpy_iterator()
+
+            nnet_input, nnet_output = zip(*batch)
+            nnet_input, nnet_output, length = self.parse_input_output(nnet_input, nnet_output, batch_size)
+
+            print("Fit model with epochs %d and batch size %d" % (epochs, batch_size))
+            model.fit(x=nnet_input, y=nnet_output, batch_size=batch_size, epochs=epochs, verbose=verbose)
+
+            parsed_dataset = parsed_dataset.skip(batch_size)
+
+            if length < batch_size:
+                dataset_empty = True
 
     def get_model(self):
         return self.model
@@ -61,4 +82,21 @@ class NNet(ABC):
 
     @abstractmethod
     def build_model(self):
+        pass
+
+    @abstractmethod
+    def parse_example(self, example):
+        """
+        Should provide a method to parse a tensorflow example.
+        It should have feature description and it should parse an example
+        in two elements: input of the nnet and output of the nnet.
+        """
+        pass
+
+    @abstractmethod
+    def parse_input_output(self, inp, out, batch_size):
+        """
+        If needed, it provides a method to further parse inputs and outputs of the nnet
+        to make them compatible with a model.fit with numpy arrays
+        """
         pass

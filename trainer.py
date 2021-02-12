@@ -19,20 +19,13 @@ def train(agent_profile, agent_path, out_agent_path, memory_path=None, game_memo
     if agent_path:
         agent.load(agent_path)
 
-    if not game_memory:
-        if not memory_path:
-            print("Error: You must specify either game memory or memory path!")
-            throw_error("Error: You must specify either game memory or memory path!")
-
-        print("deserializing memory from the memory model...")
-
-        game_memory = deserialize(memory_path)
-
-    print("%d steps loaded from memory" % len(game_memory))
+    if not memory_path:
+        print("Error: You must specify either game memory or memory path!")
+        throw_error("Error: You must specify either game memory or memory path!")
 
     print("Initiate training...")
 
-    agent.train(game_memory, epochs=epochs)
+    agent.train([memory_path], epochs=epochs)
 
     print("Training finished!")
 

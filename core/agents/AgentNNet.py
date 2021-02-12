@@ -32,16 +32,9 @@ class AgentNNet(Agent):
         print("Loading model", path_to_file)
         self.nnet.load(path_to_file)
 
-    def train(self, examples, batch_size=2048, epochs=10, verbose=1):
-        input_boards, target_pis, target_vs = list(zip(*examples))
+    def train(self, filenames, batch_size=2048, epochs=10, verbose=1):
 
-        input_boards = np.asarray(input_boards)
-        target_pis = np.asarray(target_pis)
-        target_vs = np.asarray(target_vs)
-
-        print(f"Training with input boards {input_boards.shape}")
-
-        self.nnet.train(input_boards, target_pis, target_vs, batch_size=batch_size, epochs=epochs, verbose=verbose)
+        self.nnet.train(filenames, batch_size=batch_size, epochs=epochs, verbose=verbose)
 
     def set_exploration_enabled(self, enabled):
         pass

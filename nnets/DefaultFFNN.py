@@ -1,5 +1,7 @@
 from core.nnet.NNet import NNet
 
+import numpy as np
+import tensorflow as tf
 from tensorflow.keras.layers import Dense, BatchNormalization, Activation, Dropout, Flatten, Reshape, Input
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
@@ -42,6 +44,39 @@ class DefaultFFNN(NNet):
         model.compile(loss=['categorical_crossentropy', 'mean_squared_error'], optimizer=Adam(learning_rate))
 
         return model
+
+    def parse_example(self, example):
+        feature_description = {
+            'observation': tf.io.FixedLenFeature([1, ], tf.string, default_value=''),
+            'pi': tf.io.FixedLenFeature([1, ], tf.string, default_value=''),
+            'game_result': tf.io.FixedLenFeature([1, ], tf.float32, default_value=0.0)
+        }
+
+        parsed_example = tf.io.parse_single_example(example, feature_description)
+
+        observation = tf.io.decode_raw(parsed_example['observation'], tf.float64, name='observation')
+        outputs = {'pi': tf.io.decode_raw(parsed_example['pi'], tf.float64), 'game_result': parsed_example['game_result']}
+
+        return observation, outputs
+
+    def parse_input_output(self, inp, out, batch_size):
+        inp = np.asarray(inp)
+        inp = inp.reshape((batch_size, self.observation_size_x, self.observation_size_y, self.observation_size_z))
+
+        pi = []
+        game_result = []
+        length = 0
+        for o in out:
+            length = length+1
+            pi.append(o['pi'])
+            game_result.append(o['game_result'])
+
+        pi = np.asarray(pi)
+        pi = pi.reshape(batch_size, self.action_size)
+
+        game_result = np.asarray(game_result)
+
+        return inp, [pi, game_result], length
 
     def clone(self):
         return DefaultFFNN(self.observation_size_x, self.observation_size_y, 1, self.action_size)
