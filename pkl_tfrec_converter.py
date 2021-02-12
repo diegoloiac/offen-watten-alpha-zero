@@ -61,21 +61,10 @@ if __name__ == '__main__':
     n_examples = len(observations)
     print(f'Number of examples: {n_examples}')
 
-    print('Converting observations and pi_s to byte string')
-
-    byte_observations = []
-    for i in range(len(observations)):
-        byte_observations.append(observations[i].tobytes())
-    byte_pi_s = []
-    for i in range(len(pi_s)):
-        byte_pi_s.append(pi_s[i].tobytes())
-
-    converted_examples = (byte_observations, byte_pi_s, game_results)
-
     tfrecord_path = path[:-3] + 'tfrecord'
 
-    print(f'Serializing and writing examples to {tfrecord_path}')
+    print(f'Converting, serializing and writing examples to {tfrecord_path}')
     with tf.io.TFRecordWriter(tfrecord_path) as writer:
         for i in range(n_examples):
-            example = serialize_example(byte_observations[i], byte_pi_s[i], game_results[i])
+            example = serialize_example(observations[i].tobytes(), pi_s[i].tobytes(), game_results[i])
             writer.write(example)

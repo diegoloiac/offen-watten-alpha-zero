@@ -3,6 +3,7 @@
 **.h5
 **.pyc
 **.pkl
+**.tfrecord
 **.pb
 **.csv
 **.iml
