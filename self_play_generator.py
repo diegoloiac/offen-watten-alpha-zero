@@ -1,9 +1,11 @@
 import argparse
 from collections import deque
+import tensorflow as tf
 
 from core.EnvironmentSelector import EnvironmentSelector
 from core.utils.utils import serialize
 from core.World import World
+from pkl_tfrec_converter import serialize_example
 
 
 def generate_self_play(opt_agent_profile, agent_path, games_num,
@@ -26,9 +28,15 @@ def generate_self_play(opt_agent_profile, agent_path, games_num,
                                                   show_every_turn=debug,
                                                   exploration_decay_steps=exploration_decay_steps)
 
+    # Write self_play_examples as tfrecord
     self_play_examples_deque += self_play_examples
+    n_examples = 0
+    with tf.io.TFRecordWriter(experience_path) as writer:
+        for example_tuple in self_play_examples_deque:
+            n_examples += 1
+            writer.write(serialize_example(example_tuple[0], example_tuple[1], example_tuple[2]))
 
-    serialize(self_play_examples_deque, experience_path)
+    print(f'Written {n_examples} examples to file {experience_path}')
 
 
 if __name__ == "__main__":

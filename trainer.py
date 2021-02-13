@@ -1,9 +1,8 @@
 import argparse
-from core.EnvironmentSelector import EnvironmentSelector
-
-from core.utils.utils import deserialize
-
 import sys
+from os import listdir
+
+from core.EnvironmentSelector import EnvironmentSelector
 
 
 def throw_error(message):
@@ -11,7 +10,7 @@ def throw_error(message):
     sys.exit(1)
 
 
-def train(agent_profile, agent_path, out_agent_path, memory_path=None, game_memory=None, epochs=1):
+def train(agent_profile, agent_path, out_agent_path, memory_folder=None, game_memory=None, epochs=1):
     env_selector = EnvironmentSelector()
 
     agent = env_selector.get_agent(agent_profile)
@@ -19,13 +18,13 @@ def train(agent_profile, agent_path, out_agent_path, memory_path=None, game_memo
     if agent_path:
         agent.load(agent_path)
 
-    if not memory_path:
-        print("Error: You must specify either game memory or memory path!")
-        throw_error("Error: You must specify either game memory or memory path!")
+    if not memory_folder:
+        print("Error: You must specify a memory folder in which you have all the tfrecord files!")
+        throw_error("Error: You must specify a memory folder in which you have all the tfrecord files!")
 
     print("Initiate training...")
 
-    agent.train([memory_path], epochs=epochs)
+    agent.train(listdir(memory_folder), epochs=epochs)
 
     print("Training finished!")
 
@@ -63,5 +62,5 @@ if __name__ == "__main__":
         parser.error('Out Agent model path must be selected')
 
     train(options.agent_profile, options.agent_path,
-          options.out_agent_path, memory_path=options.memory_path,
+          options.out_agent_path, memory_folder=options.memory_path,
           epochs=options.epochs)

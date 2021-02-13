@@ -1,4 +1,5 @@
 import argparse
+import shutil
 import time
 import logging
 from tqdm import tqdm
@@ -63,17 +64,6 @@ def generate_self_play(agent_profile, agent_path, temp_dir, iteration_memory_pat
 
     if code != OPERATION_SUCCESSFUL:
         throw_error("Could not perform self-play generation!")
-
-
-def fuse_memory(old_memory_path, new_memory_path, out_memory_path):
-    if os.path.isfile(old_memory_path) and os.path.isfile(new_memory_path):
-        try:
-            serialize(deserialize(new_memory_path) + deserialize(old_memory_path), out_memory_path)
-        except:
-            print("Could not deserialize new + old. Try reverse order")
-            serialize(deserialize(old_memory_path) + deserialize(new_memory_path), out_memory_path)
-    elif os.path.isfile(new_memory_path):
-        serialize(deserialize(new_memory_path), out_memory_path)
 
 
 def clean_dir(dir_path):
@@ -158,11 +148,10 @@ if __name__ == "__main__":
     if not cur_agent_path:
         cur_agent_path = options.workspace + '/best'
 
-    memory_path = options.workspace + '/memory.pkl'
+    memory_folder = options.workspace + '/memory'
     if options.memory_path is not None:
-        if memory_path != options.memory_path:
-            print("Synchronize memory in the target directory...")
-            fuse_memory(memory_path, options.memory_path, memory_path)
+        print("Synchronize memory in the target directory...")
+        shutil.copy(options.memory_path, memory_folder)
 
     # get Agent and Game instances by the profile
     env_selector = EnvironmentSelector()
@@ -193,16 +182,16 @@ if __name__ == "__main__":
 
         path_to_self_play_agent = cur_agent_path
 
+        self_play_memory = memory_folder + f'/memory_{idx}.tfrecord'
+
         generate_self_play(options.agent_profile, path_to_self_play_agent,
-                           temp_games_memory_dir, self_play_temp_memory_path,
+                           temp_games_memory_dir, self_play_memory,
                            options.games_num, options.verbose,
                            options.debug, options.max_steps, options.exploration_decay_steps)
 
-        fuse_memory(memory_path, self_play_temp_memory_path, memory_path)
-
         contestant_agent_path = temp_dir + '/temp_contestant.h5'
 
-        train(options.agent_profile, memory_path, cur_agent_path, contestant_agent_path, epochs=options.epochs)
+        train(options.agent_profile, memory_folder, cur_agent_path, contestant_agent_path, epochs=options.epochs)
 
         agent.load(contestant_agent_path)
         agent.save(cur_agent_path)
