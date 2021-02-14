@@ -24,7 +24,11 @@ def train(agent_profile, agent_path, out_agent_path, memory_folder=None, game_me
 
     print("Initiate training...")
 
-    agent.train(listdir(memory_folder), epochs=epochs)
+    paths = []
+    for file in listdir(memory_folder):
+        paths.append(memory_folder + '/' + file)
+
+    agent.train(paths, epochs=epochs)
 
     print("Training finished!")
 
