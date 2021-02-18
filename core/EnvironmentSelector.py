@@ -197,6 +197,7 @@ class EnvironmentSelector:
         nnet = CNN(x, y, z, game.get_action_size())
 
         agent = AgentNNet(nnet)
+        agent.name = 'evaluate_cnn'
 
         return agent
 
