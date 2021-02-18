@@ -56,9 +56,6 @@ class CNN(NNet):
         return observation, outputs
 
     def parse_input_output(self, inp, out, batch_size):
-        inp = np.asarray(inp)
-        inp = inp.reshape((batch_size, self.observation_size_x, self.observation_size_y, self.observation_size_z))
-
         pi = []
         game_result = []
         length = 0
@@ -68,7 +65,10 @@ class CNN(NNet):
             game_result.append(o['game_result'])
 
         pi = np.asarray(pi)
-        pi = pi.reshape(batch_size, self.action_size)
+        pi = pi.reshape(length, self.action_size)
+
+        inp = np.asarray(inp)
+        inp = inp.reshape((length, self.observation_size_x, self.observation_size_y, self.observation_size_z))
 
         game_result = np.asarray(game_result)
 

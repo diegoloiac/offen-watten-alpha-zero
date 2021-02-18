@@ -45,7 +45,7 @@ class NNet(ABC):
         dataset_empty = False
 
         while not dataset_empty:
-            batch = parsed_dataset.take(batch_size)
+            batch = parsed_dataset.take(50*batch_size)
             batch = batch.as_numpy_iterator()
 
             nnet_input, nnet_output = zip(*batch)
@@ -54,9 +54,9 @@ class NNet(ABC):
             print("Fit model with epochs %d and batch size %d" % (epochs, batch_size))
             model.fit(x=nnet_input, y=nnet_output, batch_size=batch_size, epochs=epochs, verbose=verbose)
 
-            parsed_dataset = parsed_dataset.skip(batch_size)
+            parsed_dataset = parsed_dataset.skip(50*batch_size)
 
-            if length < batch_size:
+            if length < 50*batch_size:
                 dataset_empty = True
 
     def get_model(self):
