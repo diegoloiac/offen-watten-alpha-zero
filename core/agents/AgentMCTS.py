@@ -289,14 +289,17 @@ class AgentMCTS(Agent):
 
             self.Ps[canonical_state_str], value = self.agent.predict(game, game_player)
 
+
             self.nnet_spent += time.time() - start_predict
 
             self.Ps[canonical_state_str] = self.Ps[canonical_state_str] * valid_actions  # masking invalid moves
-            self.Ps[canonical_state_str] /= np.sum(self.Ps[canonical_state_str])  # renormalize
+
+            if np.sum(self.Ps[canonical_state_str]) != 0:
+                self.Ps[canonical_state_str] /= np.sum(self.Ps[canonical_state_str])  # renormalize
 
             self.Ns[canonical_state_str] = 0
 
-            return False, value
+            return False, value.numpy()
 
         cur_best = -float('inf')
         best_act = -1

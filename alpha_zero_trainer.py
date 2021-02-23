@@ -149,6 +149,7 @@ if __name__ == "__main__":
         cur_agent_path = options.workspace + '/best'
 
     memory_folder = options.workspace + '/memory'
+    os.makedirs(memory_folder, exist_ok=True)
     if options.memory_path is not None:
         print("Synchronize memory in the target directory...")
         shutil.copy(options.memory_path, memory_folder)
@@ -165,7 +166,7 @@ if __name__ == "__main__":
     if not options.agent_path:
         if options.memory_path:
             print("Agent model was not detected. Perform initial training...")
-            train(options.agent_profile, options.memory_path, None, cur_agent_path, epochs=options.epochs)
+            train(options.agent_profile, memory_folder, None, cur_agent_path, epochs=options.epochs)
         else:
             agent.save(cur_agent_path)
     else:

@@ -225,8 +225,8 @@ class WorldHandWatten(object):
         valid_moves.extend(moves)
         # a player can always raise when it makes sense to
         # !!COMMENTED TO LEARN FIRST HOW TO PLAY CARDS!!
-        # if (self.is_last_hand_raise_valid is None) and (self.current_game_prize < 15):
-        #     valid_moves.append(self.moves["raise_points"])
+        if (self.is_last_hand_raise_valid is None) and (self.current_game_prize < 15):
+            valid_moves.append(self.moves["raise_points"])
         return valid_moves
 
     # make a single move and apply changes to inner state of the world
