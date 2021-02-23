@@ -69,7 +69,15 @@ class World:
                 cur_turn_agent.set_exploration_enabled(False)
 
             # Make cnn prediction if needed
-            if cur_turn_agent.name == 'evaluate_cnn':
+            if cur_player == 1 and cur_turn_agent.name == 'evaluate_cnn':
+                cnn_game.trueboard.init_world_to_state(game.trueboard.current_player, game.trueboard.distributing_cards_player,
+                                                       game.trueboard.player_A_hand, game.trueboard.player_B_hand,
+                                                       game.trueboard.played_cards, game.trueboard.current_game_player_A_score,
+                                                       game.trueboard.current_game_player_B_score, game.trueboard.current_game_prize,
+                                                       game.trueboard.is_last_move_raise, game.trueboard.is_last_move_accepted_raise,
+                                                       game.trueboard.is_last_hand_raise_valid, game.trueboard.first_card_deck,
+                                                       game.trueboard.last_card_deck, game.trueboard.rank,
+                                                       game.trueboard.suit, game.trueboard.started_raising)
                 actions_prob, observation_value = cur_turn_agent.predict(cnn_game, cur_player)
             else:
                 actions_prob, observation_value = cur_turn_agent.predict(game, cur_player)
@@ -94,8 +102,6 @@ class World:
 
             try:
                 _, cur_player = game.make_move(action)
-                if agents[1].name == 'evaluate_cnn':
-                    _, _ = cnn_game.make_move(action)
             except Exception as e:
                 print("ERROR")
                 print(game.trueboard.moves_series)
