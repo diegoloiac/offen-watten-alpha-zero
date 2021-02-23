@@ -146,9 +146,11 @@ class World:
                       verbose=False, show_every_turn=False, exploration_decay_steps=None):
         games_experience = []
         games_results = [0] * len(agents)
+        won = [0] * len(agents)
 
         for idx in range(len(agents)):
             games_results[idx] = 0
+            won[idx] = 0
 
         loop_range = range(num_games)
 
@@ -162,6 +164,10 @@ class World:
                                                               show_every_turn=show_every_turn,
                                                               exploration_decay_steps=exploration_decay_steps)
 
+            for idx, result in enumerate(game_results):
+                if result > 0:
+                    won[idx] += 1
+
             if len(game_experience) > 0:
                 games_experience.extend(game_experience)
 
@@ -170,7 +176,7 @@ class World:
 
         if verbose:
             for idx, agent in enumerate(agents):
-                print("--- %s: %f ---" % (agent.get_name(), games_results[idx]))
+                print(f"--- {agent.get_name()}: {games_results[idx]} ---  {won[idx]}")
 
         return games_experience, games_results
 
