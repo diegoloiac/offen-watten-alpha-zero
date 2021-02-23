@@ -4,6 +4,7 @@ import logging
 from tqdm import tqdm
 
 from versions.asymmetric_sub_watten.AsymmetricSubWattenGame import AsymmetricSubWattenGame
+from versions.hand_watten.HandWattenGame import HandWattenGame
 
 
 class World:
@@ -22,6 +23,19 @@ class World:
 
         if need_reset:
             game.reset()
+
+        # create cnn game if needed
+        cnn_game = None
+        if agents[1].name == 'evaluate_cnn':
+            cnn_game = HandWattenGame(cnn=True)
+            cnn_game.trueboard.init_world_to_state(game.trueboard.current_player, game.trueboard.distributing_cards_player,
+                                                   game.trueboard.player_A_hand, game.trueboard.player_B_hand,
+                                                   game.trueboard.played_cards, game.trueboard.current_game_player_A_score,
+                                                   game.trueboard.current_game_player_B_score, game.trueboard.current_game_prize,
+                                                   game.trueboard.is_last_move_raise, game.trueboard.is_last_move_accepted_raise,
+                                                   game.trueboard.is_last_hand_raise_valid, game.trueboard.first_card_deck,
+                                                   game.trueboard.last_card_deck, game.trueboard.rank,
+                                                   game.trueboard.suit, game.trueboard.started_raising)
 
         game_results = []
         for idx, agent in enumerate(agents):
@@ -47,7 +61,6 @@ class World:
             # if show_every_turn:
             #     print("\n", game.get_display_str())
 
-            # Get right observation for current player if hand_watten_cnn
             observation = game.get_observation(cur_player)
 
             cur_turn_agent = agents[cur_player]
@@ -55,7 +68,11 @@ class World:
             if exploration_decay_steps and episodeStep >= exploration_decay_steps:
                 cur_turn_agent.set_exploration_enabled(False)
 
-            actions_prob, observation_value = cur_turn_agent.predict(game, cur_player)
+            # Make cnn prediction if needed
+            if cur_turn_agent.name == 'evaluate_cnn':
+                actions_prob, observation_value = cur_turn_agent.predict(cnn_game, cur_player)
+            else:
+                actions_prob, observation_value = cur_turn_agent.predict(game, cur_player)
 
             episode_exp.append([observation, cur_player, actions_prob])
 
@@ -77,6 +94,8 @@ class World:
 
             try:
                 _, cur_player = game.make_move(action)
+                if agents[1].name == 'evaluate_cnn':
+                    _, _ = cnn_game.make_move(action)
             except Exception as e:
                 print("ERROR")
                 print(game.trueboard.moves_series)
