@@ -115,6 +115,9 @@ class WorldHandWatten(object):
         # needed when many consecutive raise are done to continue with the right player
         self.started_raising = None
 
+        # needed to understand whether a player can raise again
+        self.last_accepted_raise = None
+
         # raise in last hand implies some specific rules. see act method
         self.is_last_hand_raise_valid = None
 
@@ -225,7 +228,9 @@ class WorldHandWatten(object):
         valid_moves.extend(moves)
         # a player can always raise when it makes sense to
         # !!COMMENTED TO LEARN FIRST HOW TO PLAY CARDS!!
-        if (self.is_last_hand_raise_valid is None) and (self.current_game_prize < 15):
+        if (self.is_last_hand_raise_valid is None) and \
+                (self.is_last_move_raise or self.last_accepted_raise == self.current_player) and\
+                (self.current_game_prize < 15):
             valid_moves.append(self.moves["raise_points"])
         return valid_moves
 
@@ -271,6 +276,7 @@ class WorldHandWatten(object):
                 raise InconsistentStateError("Started raising can't be None in an accepting raise situation")
             self.LOG.debug(f"{self.current_player} accepted raise")
             self.is_last_move_accepted_raise = True
+            self.last_accepted_raise = self.current_player
             self.is_last_move_raise = False
             return self._act_continue_move(self.started_raising)
 
