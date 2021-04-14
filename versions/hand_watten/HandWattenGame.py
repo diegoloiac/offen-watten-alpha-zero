@@ -51,9 +51,11 @@ class HandWattenGame(Game):
             x = self.trueboard.current_game_prize*1.0/4
 
             if self.trueboard.winning_player == current_player:
-                return x/(math.sqrt(1+x**2)), self.players[next_player]
+                # return x/(math.sqrt(1+x**2)), self.players[next_player]
+                return 1
             else:
-                return -x/(math.sqrt(1+x**2)), self.players[next_player]
+                # return -x/(math.sqrt(1+x**2)), self.players[next_player]
+                return -1
         else:
             return 0.0, self.players[next_player]
 
@@ -80,9 +82,11 @@ class HandWattenGame(Game):
 
         if self.trueboard.is_game_end():
             if self.trueboard.winning_player == player_curr:
-                return x/(math.sqrt(1+x**2))
+                # return x/(math.sqrt(1+x**2))
+                return 1
             else:
-                return -x/(math.sqrt(1+x**2))
+                # return -x/(math.sqrt(1+x**2))
+                return -1
 
         raise Exception("Inconsistent score")
 
