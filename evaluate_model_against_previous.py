@@ -120,6 +120,7 @@ if __name__ == '__main__':
                 games_won += 1
 
         row = [model_numbers[idx], options.games_num, result, games_won]
+        print(row)
         row_list.append(row)
 
         print_progress_bar(idx + 1, len(model_files), prefix='Progress:', suffix='Complete', print_end="\n")

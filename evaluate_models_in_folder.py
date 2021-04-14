@@ -80,7 +80,6 @@ if __name__ == '__main__':
     print_progress_bar(0, len(model_files), prefix='Progress:', suffix='Complete')
     for idx, model in enumerate(model_files):
         model_path = str(options.folder) + "/" + model
-        print(model_path)
         agent.load(model_path)
 
         result = 0
@@ -93,6 +92,7 @@ if __name__ == '__main__':
                 games_won += 1
 
         row = [model, options.games_num, result, games_won]
+        print(row)
         row_list.append(row)
 
         print_progress_bar(idx + 1, len(model_files), prefix='Progress:', suffix='Complete')
