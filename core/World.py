@@ -12,8 +12,9 @@ class World:
     An World class where any agents can be play and generate experience
     """
 
-    def __init__(self):
+    def __init__(self, add_randomness=False):
         self.RESULT_DRAW = -1
+        self.add_randomness=add_randomness
 
     def execute_game(self, agents, game, max_game_steps_n=None, allow_exploration=False,
                      verbose=False, show_every_turn=False, exploration_decay_steps=None, need_reset=True):
@@ -120,6 +121,12 @@ class World:
                         actions_prob[46] = 0
                 else:
                     actions_prob[46:] = 0
+                    if self.add_randomness:
+                        choose_random = np.choice([False, True], p=[0.9, 0.1])
+                        if choose_random:
+                            action = np.random.choice(len(valid_moves), p=valid_moves)
+                            actions_prob = np.zeros(50)
+                            actions_prob[action] = 1
 
             if not allow_exploration:
                 bestA = np.argmax(actions_prob)
