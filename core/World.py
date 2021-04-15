@@ -93,6 +93,34 @@ class World:
             valid_moves = game.get_valid_moves(cur_player)
             actions_prob = actions_prob*valid_moves
 
+            # remove raising from output nn
+            if type(game) == HandWattenGame:
+                # last move was a raise
+                if valid_moves[46] == 1 and valid_moves[47] == 1 and valid_moves[48] == 1:
+                    # decide whether to fold or not fold
+                    if HandWattenGame.decide_about_accepting_raise(observation_value, game.geget_number_of_tricks_played):
+                        # player decided not to fold, deciding now whether to accept or raise
+                        if HandWattenGame.decide_about_raising(observation_value, game.get_number_of_tricks_played):
+                            actions_prob = np.zeros(50)
+                            actions_prob[46] = 1
+                        else:
+                            actions_prob = np.zeros(50)
+                            actions_prob[48] = 1
+                    else:
+                        actions_prob = np.zeros(50)
+                        actions_prob[47] = 1
+
+                # normal situation in which I can raise
+                elif valid_moves[46] == 1:
+                    # decide what to do
+                    if HandWattenGame.decide_about_raising(observation_value, game.get_number_of_tricks_played):
+                        actions_prob = np.zeros(50)
+                        actions_prob[46] = 1
+                    else:
+                        actions_prob[46] = 0
+                else:
+                    actions_prob[46:] = 0
+
             if not allow_exploration:
                 bestA = np.argmax(actions_prob)
                 actions_prob = [0] * len(actions_prob)
