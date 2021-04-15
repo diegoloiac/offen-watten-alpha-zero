@@ -146,3 +146,29 @@ class HandWattenGame(Game):
             'suit': suit,
             'rank': rank
         }
+
+    def get_number_of_tricks_played(self):
+        return self.trueboard.current_game_player_A_score + self.trueboard.current_game_player_B_score
+
+    # c_v ranges from -1 to 1, while the trick played range from 0 to 4
+    @staticmethod
+    def decide_about_raising(continuous_value, tricks_played, lower_range=0.1, upper_range=0.8):
+        # normalize continuous value in range 0 - 1
+        norm_cv = (continuous_value+1) / 2
+
+        # normalize tricks in range 0.2 - 1
+        norm_tricks = 0.2 + 0.8*tricks_played/4
+
+        probability = norm_tricks*norm_cv
+
+        # normalize probability in range lower-range - upper-range
+        norm_probability = lower_range + (upper_range-lower_range)*probability
+
+        coin = np.random.choice(2, p=[1-norm_probability, norm_probability])
+
+        return coin == 1
+
+    # returns true if player should accept raise, false otherwise
+    @staticmethod
+    def decide_about_accepting_raise(continuous_value, tricks_played):
+        return not HandWattenGame.decide_about_raising(-continuous_value, tricks_played, 0.02, 0.6)

@@ -743,24 +743,6 @@ class WorldHandWatten(object):
         self.deck.remove(first_card_deck)
         self.deck.remove(last_card_deck)
 
-    # c_v ranges from -1 to 1, while the trick played range from 0 to 4
-    @staticmethod
-    def decide_about_raising(continuous_value, tricks_played):
-        # normalize continuous value in range 0 - 1
-        norm_cv = (continuous_value+1) / 2
-
-        # normalize tricks in range 0.2 - 1
-        norm_tricks = 0.2 + 0.8*tricks_played/4
-
-        probability = norm_tricks*norm_cv
-
-        # normalize probability in range 0.1 - 0.8
-        norm_probability = 0.1 + 0.7*probability
-
-        coin = np.random.choice(2, p=[1-norm_probability, norm_probability])
-
-        return coin == 1
-
 
 class Error(Exception):
     """Base class for other exceptions"""
