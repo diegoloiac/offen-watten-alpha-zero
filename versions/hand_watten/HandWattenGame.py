@@ -52,10 +52,10 @@ class HandWattenGame(Game):
 
             if self.trueboard.winning_player == current_player:
                 # return x/(math.sqrt(1+x**2)), self.players[next_player]
-                return 1
+                return 1, self.players[next_player]
             else:
                 # return -x/(math.sqrt(1+x**2)), self.players[next_player]
-                return -1
+                return -1, self.players[next_player]
         else:
             return 0.0, self.players[next_player]
 
