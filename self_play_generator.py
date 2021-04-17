@@ -11,8 +11,8 @@ from pkl_tfrec_converter import serialize_example
 
 def generate_self_play(opt_agent_profile, agent_path, games_num,
                        experience_path, max_steps,
-                       verbose, debug, exploration_decay_steps, self_play_examples_deque=deque([])):
-    world = World()
+                       verbose, debug, exploration_decay_steps, self_play_examples_deque=deque([]), add_randomness=False):
+    world = World(add_randomness=add_randomness)
 
     env_selector = EnvironmentSelector()
 
@@ -59,6 +59,9 @@ if __name__ == "__main__":
     parser.add_argument('--debug', dest='debug', action='store_true', help="Show games per turn")
     parser.set_defaults(verbose=False)
 
+    parser.add_argument('--add_randomness', dest='add_randomness', action='store_true', help="Add randomness in card choice")
+    parser.set_defaults(add_randomness=False)
+
     parser.add_argument("--max_steps", dest="max_steps", type=int,
                         default=None,
                         help="Max steps in each game")
@@ -86,4 +89,4 @@ if __name__ == "__main__":
 
     generate_self_play(options.agent_profile, options.agent_path, options.games_num,
                        options.experience_path, options.max_steps,
-                       options.verbose, options.debug, options.exploration_decay_steps)
+                       options.verbose, options.debug, options.exploration_decay_steps, add_randomness=options.add_randomness)

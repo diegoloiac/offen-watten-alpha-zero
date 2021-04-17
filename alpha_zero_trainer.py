@@ -35,7 +35,7 @@ def train(agent_profile, memory_path, cur_agent_path, new_agent_path, epochs=1):
 
 
 def generate_self_play(agent_profile, agent_path, temp_dir, iteration_memory_path,
-                       games_num, verbose, debug, max_steps, exploration_decay_steps):
+                       games_num, verbose, debug, max_steps, exploration_decay_steps, add_randomness):
     # call trainer script
     # use temp dir to save all temp models and fuse them into iteration memory path
     if temp_dir is not None:
@@ -57,6 +57,8 @@ def generate_self_play(agent_profile, agent_path, temp_dir, iteration_memory_pat
         command += " --verbose"
     if debug:
         command += " --debug"
+    if add_randomness:
+        command += " --add_randomness"
 
     code = execute_command_sync(command)
 
@@ -107,6 +109,9 @@ if __name__ == "__main__":
 
     parser.add_argument('--debug', dest='debug', action='store_true', help="Show games per turn")
     parser.set_defaults(debug=False)
+
+    parser.add_argument('--add_randomness', dest='add_randomness', action='store_true', help="Add randomness in card choice")
+    parser.set_defaults(add_randomness=False)
 
     parser.add_argument("--max_steps", dest="max_steps", type=int,
                         default=None,
@@ -188,7 +193,7 @@ if __name__ == "__main__":
         generate_self_play(options.agent_profile, path_to_self_play_agent,
                            temp_games_memory_dir, self_play_memory,
                            options.games_num, options.verbose,
-                           options.debug, options.max_steps, options.exploration_decay_steps)
+                           options.debug, options.max_steps, options.exploration_decay_steps, options.add_randomness)
 
         contestant_agent_path = temp_dir + '/temp_contestant.h5'
 
