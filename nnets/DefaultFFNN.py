@@ -60,9 +60,6 @@ class DefaultFFNN(NNet):
         return observation, outputs
 
     def parse_input_output(self, inp, out, batch_size):
-        inp = np.asarray(inp)
-        inp = inp.reshape((batch_size, self.observation_size_x, self.observation_size_y, self.observation_size_z))
-
         pi = []
         game_result = []
         length = 0
@@ -71,12 +68,18 @@ class DefaultFFNN(NNet):
             pi.append(o['pi'])
             game_result.append(o['game_result'])
 
+        if length < batch_size:
+            batch_size = length
+
         pi = np.asarray(pi)
         pi = pi.reshape(batch_size, self.action_size)
 
         game_result = np.asarray(game_result)
 
-        return inp, [pi, game_result], length
+        inp = np.asarray(inp)
+        inp = inp.reshape((batch_size, self.observation_size_x, self.observation_size_y, self.observation_size_z))
+
+        return inp, [pi, game_result], length, batch_size
 
     def clone(self):
         return DefaultFFNN(self.observation_size_x, self.observation_size_y, 1, self.action_size)

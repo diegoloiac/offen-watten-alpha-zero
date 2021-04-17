@@ -49,7 +49,7 @@ class NNet(ABC):
             batch = batch.as_numpy_iterator()
 
             nnet_input, nnet_output = zip(*batch)
-            nnet_input, nnet_output, length = self.parse_input_output(nnet_input, nnet_output, batch_size)
+            nnet_input, nnet_output, length, batch_size = self.parse_input_output(nnet_input, nnet_output, batch_size)
 
             print("Fit model with epochs %d and batch size %d" % (epochs, batch_size))
             model.fit(x=nnet_input, y=nnet_output, batch_size=batch_size, epochs=epochs, verbose=verbose)
