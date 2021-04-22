@@ -698,6 +698,7 @@ class WorldHandWatten(object):
         new_world.is_last_move_raise = self.is_last_move_raise
         new_world.is_last_move_accepted_raise = self.is_last_move_accepted_raise
         new_world.started_raising = self.started_raising
+        new_world.last_accepted_raise = self.last_accepted_raise
         new_world.first_card_deck = self.first_card_deck
         new_world.last_card_deck = self.last_card_deck
         new_world.rank = self.rank
@@ -713,7 +714,7 @@ class WorldHandWatten(object):
                             player_A_hand, player_B_hand, played_cards, current_game_player_A_score,
                             current_game_player_B_score, current_game_prize, is_last_move_raise,
                             is_last_move_accepted_raise, is_last_hand_raise_valid, first_card_deck, last_card_deck,
-                            rank, suit, started_raising):
+                            rank, suit, started_raising, last_accepted_raise):
 
         self.current_player = current_player
         self.distributing_cards_player = distributing_cards_player
@@ -731,6 +732,7 @@ class WorldHandWatten(object):
         self.rank = rank
         self.suit = suit
         self.started_raising = started_raising
+        self.last_accepted_raise = last_accepted_raise
         # rebuild deck
         self.deck = list(range(33))
         for card in self.player_A_hand:
