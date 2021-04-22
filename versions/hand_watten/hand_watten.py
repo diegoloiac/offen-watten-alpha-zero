@@ -562,8 +562,7 @@ class WorldHandWatten(object):
     # - last move accepted raise (1)
     # - last move valid raise (1)
     # - current prize (13)
-    # - possible opponent card (opponent cards, deck cards, last card if not distributing) (list of 33)
-    # - number of cards the opponent has (max 5)
+    # total array length: 198
     def observe(self, player):
         if player not in [1, -1]:
             raise InvalidInputError("Player should be either 1 or -1. Input is %d." % player)
