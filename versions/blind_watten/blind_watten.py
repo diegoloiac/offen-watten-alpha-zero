@@ -43,6 +43,16 @@ def human_readable_card(card_id):
         return '{} of {}'.format(rank_names[r], suit_names[s])
 
 
+def str_cards(cards):
+    string_cards = ""
+    for idx, card in enumerate(cards):
+        string_cards += human_readable_card(card)
+        string_cards += ' ({})'.format(card)
+        if idx != len(cards) - 1:
+            string_cards += ", "
+    return string_cards
+
+
 class WorldBlindWatten:
 
     def __init__(self):
@@ -61,13 +71,13 @@ class WorldBlindWatten:
         self.hands = [[], [], [], []]
 
         # give cards to players
-        self.hands[0] += self.deck[-5:]
+        self.hands[0] = self.deck[-5:]
         self.deck = self.deck[:-5]
-        self.hands[1] += self.deck[-5:]
+        self.hands[1] = self.deck[-5:]
         self.deck = self.deck[:-5]
-        self.hands[2] += self.deck[-5:]
+        self.hands[2] = self.deck[-5:]
         self.deck = self.deck[:-5]
-        self.hands[3] += self.deck[-5:]
+        self.hands[3] = self.deck[-5:]
         self.deck = self.deck[:-5]
 
         # init board
@@ -121,9 +131,9 @@ class WorldBlindWatten:
 
         # list of actions taken in a game, used for debugging purposes
         self.moves_series = []
-        self.starting_state = f"\nSTARTING STATE\n{self.current_player}, {self.rank_declarer}, {self.suit_declarer} \n " \
-                              f"{self.hands}\n" \
-                              f" {self.played_cards}, {self.score_team_0}, {self.score_team_1}, {self.current_game_prize}\n " \
+        self.starting_state = f"\nSTARTING STATE\n{self.current_player}, {self.rank_declarer}, {self.suit_declarer}\n" \
+                              f"{self.hands}\n{self.played_cards}\n" \
+                              f"{self.score_team_0}, {self.score_team_1}, {self.current_game_prize}\n" \
                               f"{self.is_last_move_raise}, {self.is_last_move_accepted_raise}," \
                               f" {self.is_last_hand_raise_valid}, {self.first_card_deck}, {self.last_card_deck}," \
                               f" {self.rank}, {self.suit}"
@@ -556,7 +566,7 @@ class WorldBlindWatten:
     # - last move valid raise (1)
     # - current prize (13)
     # total array length: 198
-    def observe(self, player):
+    def observe(self, player: int):
         if not 0 <= player <= 3:
             raise InvalidInputError("Player should be either 0, 1, 2 or 3. Input is %d." % player)
 
@@ -572,8 +582,7 @@ class WorldBlindWatten:
 
         # cards in hand
         index += 33  # 66
-        hand = self.hands[player]
-        for card in hand:
+        for card in self.hands[player]:
             observation[index + card] = 1
 
         # picked rank
@@ -634,6 +643,93 @@ class WorldBlindWatten:
     def _get_first_played_card(self):
         num_cards_on_the_table = len(self.played_cards) % 4
         return self.played_cards[-num_cards_on_the_table]
+
+    def display(self):
+        str_raise = ""
+        if self.is_last_move_raise:
+            str_raise = "- RAISE"
+        if self.is_last_move_accepted_raise:
+            str_raise = "- ACCEPTED RAISE"
+
+        print(f"\n------------------------------------------------------------------"
+              f"\n--------- STATE OF THE GAME --------------------------------------"
+              f"\nCurrent player: |{self.current_player}| Current game prize: |{self.current_game_prize}| {str_raise}"
+              f"\nTeam 0 |{self.score_team_0}| - |{self.score_team_1}| Team 1"
+              f"\nRank: |{self.rank} - {rank_names[self.rank]}|, Suit: |{self.suit} - {suit_names[self.suit]}|"
+              f"\n----------HANDS OF THE PLAYERS-------------------------------------"
+              f"\nPlayer 0 hand: {str_cards(self.hands[0])} - {self.hands[0]}"
+              f"\nPlayer 1 hand: {str_cards(self.hands[1])} - {self.hands[1]}"
+              f"\nPlayer 2 hand: {str_cards(self.hands[2])} - {self.hands[2]}"
+              f"\nPlayer 3 hand: {str_cards(self.hands[3])} - {self.hands[3]}"
+              
+              f"\nPlayed cards: {str_cards(self.played_cards)}"
+              f"\nRank declarer: |{self.rank_declarer}| Suit Declarer: |{self.suit_declarer}|"
+              f"\nLast hand raise: |{self.is_last_hand_raise_valid}| "
+              f"First card: |{self.first_card_deck}| Last card: |{self.last_card_deck}|"
+              f"\n--------STARTING STATE--------------------------------------------"
+              f"\n{self.starting_state}"
+              f"\n{self.moves_series}")
+
+    def deepcopy(self):
+        new_world = WorldBlindWatten()
+        new_world.LOG = self.LOG
+        new_world.current_player = self.current_player
+        new_world.rank_declarer = self.rank_declarer
+        new_world.suit_declarer = self.suit_declarer
+        new_world.deck = self.deck.copy()
+        new_world.hands = self.hands.copy()
+        new_world.played_cards = self.played_cards.copy()
+        new_world.score_team_0 = self.score_team_0
+        new_world.score_team_1 = self.score_team_1
+        new_world.current_game_prize = self.current_game_prize
+        new_world.is_last_move_raise = self.is_last_move_raise
+        new_world.is_last_move_accepted_raise = self.is_last_move_accepted_raise
+        new_world.first_card_deck = self.first_card_deck
+        new_world.last_card_deck = self.last_card_deck
+        new_world.rank = self.rank
+        new_world.suit = self.suit
+        new_world.card_to_win = self.card_to_win
+        new_world.player_winning = self.player_winning
+        new_world.is_last_hand_raise_valid = self.is_last_hand_raise_valid
+        new_world.winning_team = self.winning_team
+
+        new_world.starting_state = self.starting_state
+        new_world.moves_series = self.moves_series.copy()
+        return new_world
+
+    def init_world_to_state(self, current_player, rank_declarer, suit_declarer,
+                            hands, played_cards, score_team_0, score_team_1,
+                            current_game_prize, is_last_move_raise,
+                            is_last_move_accepted_raise, is_last_hand_raise_valid, first_card_deck, last_card_deck,
+                            rank, suit, card_to_win, player_winning, last_accepted_raise):
+        self.current_player = current_player
+        self.rank_declarer = rank_declarer
+        self.suit_declarer = suit_declarer
+        self.hands = hands
+        self.played_cards = played_cards
+        self.score_team_0 = score_team_0
+        self.score_team_1 = score_team_1
+        self.current_game_prize = current_game_prize
+        self.is_last_move_raise = is_last_move_raise
+        self.is_last_move_accepted_raise = is_last_move_accepted_raise
+        self.is_last_hand_raise_valid = is_last_hand_raise_valid
+        self.first_card_deck = first_card_deck
+        self.last_card_deck = last_card_deck
+        self.rank = rank
+        self.suit = suit
+        self.card_to_win = card_to_win
+        self.player_winning = player_winning
+        self.last_accepted_raise = last_accepted_raise
+        # rebuild deck
+        self.deck = list(range(33))
+        for hand in self.hands:
+            for card in hand:
+                self.deck.remove(card)
+        for card in played_cards:
+            self.deck.remove(card)
+        self.deck.remove(first_card_deck)
+        self.deck.remove(last_card_deck)
+
 
 class Error(Exception):
     """Base class for other exceptions"""
