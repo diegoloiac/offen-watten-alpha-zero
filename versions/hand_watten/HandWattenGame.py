@@ -2,7 +2,6 @@ from __future__ import print_function
 import versions.hand_watten.hand_watten as hand_watten
 import versions.hand_watten.cnn_hand_watten as cnnwatten
 import numpy as np
-import math
 
 from core.interfaces.Game import Game
 
