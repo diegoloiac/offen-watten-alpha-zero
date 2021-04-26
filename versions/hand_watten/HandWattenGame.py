@@ -152,8 +152,8 @@ class HandWattenGame(Game):
     # c_v ranges from -1 to 1, while the trick played range from 0 to 4
     @staticmethod
     def decide_about_raising(continuous_value, tricks_played, lower_range=0.1, upper_range=0.8):
-        # normalize continuous value in range 0 - 1
-        norm_cv = (continuous_value+1) / 2
+        # normalize continuous value in range 0 - 1. The make to the power of 5
+        norm_cv = ((continuous_value+1) / 2)**5
 
         # normalize tricks in range 0.2 - 1
         norm_tricks = 0.2 + 0.8*tricks_played/4
