@@ -3,7 +3,9 @@ import itertools
 import logging
 from tqdm import tqdm
 
+from core.agents.HumanAgent import HumanAgent
 from versions.asymmetric_sub_watten.AsymmetricSubWattenGame import AsymmetricSubWattenGame
+from versions.blind_watten.BlindWattenGame import BlindWattenGame
 from versions.hand_watten.HandWattenGame import HandWattenGame
 
 
@@ -94,8 +96,9 @@ class World:
             valid_moves = game.get_valid_moves(cur_player)
             actions_prob = actions_prob*valid_moves
 
+            # WATTEN DETERMINISTIC RAISING
             # remove raising from output nn
-            if type(game) == HandWattenGame:
+            if (type(game) == HandWattenGame or type(game) == BlindWattenGame) and type(cur_turn_agent) != HumanAgent:
                 # last move was a raise
                 if valid_moves[46] == 1 and valid_moves[47] == 1 and valid_moves[48] == 1:
                     # decide whether to fold or not fold
