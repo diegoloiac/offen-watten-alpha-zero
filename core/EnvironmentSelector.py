@@ -1,3 +1,4 @@
+from versions.blind_watten.BlindWattenGame import BlindWattenGame
 from versions.sub_watten.SubWattenGame import SubWattenGame
 from versions.asymmetric_sub_watten.AsymmetricSubWattenGame import AsymmetricSubWattenGame
 # from versions.total_watten.TotalWattenGame import TotalWattenGame
@@ -31,6 +32,8 @@ class EnvironmentSelector:
 
     GAME_HAND_WATTEN_CNN = "hand_watten_environment_cnn"
 
+    GAME_BLIND_WATTEN = "blind_watten_environment_default"
+
     class AgentProfile:
         def __init__(self, game, agent_profile):
             self.game = game
@@ -57,6 +60,10 @@ class EnvironmentSelector:
     HAND_WATTEN_TRAIN_CNN = AgentProfile(GAME_HAND_WATTEN_CNN, "hand_watten_train_cnn")
     HAND_WATTEN_EVALUATE_CNN = AgentProfile(GAME_HAND_WATTEN_CNN, "hand_watten_evaluate_cnn")
 
+    BLIND_WATTEN_HUMAN = AgentProfile(GAME_BLIND_WATTEN, "blind_watten_human")
+    BLIND_WATTEN_TRAIN = AgentProfile(GAME_BLIND_WATTEN, "blind_watten_train")
+    BLIND_WATTEN_EVALUATE = AgentProfile(GAME_BLIND_WATTEN, "blind_watten_evaluate")
+
     def __init__(self):
         super().__init__()
 
@@ -81,7 +88,8 @@ class EnvironmentSelector:
             #      self.build_human_agent(EnvironmentSelector.SUB_WATTEN_AGENT_HUMAN),
             #  ),
             EnvironmentSelector.GAME_HAND_WATTEN: HandWattenGame(),
-            EnvironmentSelector.GAME_HAND_WATTEN_CNN: HandWattenGame(cnn=True)
+            EnvironmentSelector.GAME_HAND_WATTEN_CNN: HandWattenGame(cnn=True),
+            EnvironmentSelector.GAME_BLIND_WATTEN: BlindWattenGame(),
         }
 
         self.agent_builder_mapping = {
@@ -103,6 +111,10 @@ class EnvironmentSelector:
             EnvironmentSelector.HAND_WATTEN_EVALUATE: self.build_evaluate_agent_ffnn,
             EnvironmentSelector.HAND_WATTEN_EVALUATE_CNN: self.build_evaluate_agent_cnn,
             EnvironmentSelector.HAND_WATTEN_HUMAN: self.build_human_agent,
+
+            EnvironmentSelector.BLIND_WATTEN_TRAIN: self.build_train_agent_ffnn,
+            EnvironmentSelector.BLIND_WATTEN_EVALUATE: self.build_evaluate_agent_ffnn,
+            EnvironmentSelector.BLIND_WATTEN_HUMAN: self.build_human_agent,
         }
 
         self.agent_profiles = [
@@ -124,6 +136,10 @@ class EnvironmentSelector:
             EnvironmentSelector.HAND_WATTEN_EVALUATE,
             EnvironmentSelector.HAND_WATTEN_EVALUATE_CNN,
             EnvironmentSelector.HAND_WATTEN_HUMAN,
+
+            EnvironmentSelector.BLIND_WATTEN_TRAIN,
+            EnvironmentSelector.BLIND_WATTEN_EVALUATE,
+            EnvironmentSelector.BLIND_WATTEN_HUMAN,
         ]
 
     def get_profile(self, agent_profile_str):
