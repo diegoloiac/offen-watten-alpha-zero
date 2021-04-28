@@ -150,8 +150,7 @@ class HandWattenGame(Game):
         return self.trueboard.current_game_player_A_score + self.trueboard.current_game_player_B_score
 
     # c_v ranges from -1 to 1, while the trick played range from 0 to 4
-    @staticmethod
-    def decide_about_raising(continuous_value, tricks_played, lower_range=0.1, upper_range=0.8):
+    def decide_about_raising(self, continuous_value, tricks_played, lower_range=0.1, upper_range=0.8):
         # normalize continuous value in range 0 - 1. The make to the power of 5
         norm_cv = ((continuous_value+1) / 2)**5
 
@@ -168,6 +167,5 @@ class HandWattenGame(Game):
         return coin == 1
 
     # returns true if player should accept raise, false otherwise
-    @staticmethod
-    def decide_about_accepting_raise(continuous_value, tricks_played):
+    def decide_about_accepting_raise(self, continuous_value, tricks_played):
         return not HandWattenGame.decide_about_raising(-continuous_value, tricks_played, 0.02, 0.8)
