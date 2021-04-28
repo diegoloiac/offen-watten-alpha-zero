@@ -102,7 +102,7 @@ class World:
                 # last move was a raise
                 if valid_moves[46] == 1 and valid_moves[47] == 1 and valid_moves[48] == 1:
                     # decide whether to fold or not fold
-                    if game.decide_about_accepting_raise(observation_value, game.geget_number_of_tricks_played):
+                    if game.decide_about_accepting_raise(observation_value, game.get_number_of_tricks_played):
                         # player decided not to fold, deciding now whether to accept or raise
                         if game.decide_about_raising(observation_value, game.get_number_of_tricks_played):
                             actions_prob = np.zeros(50)
