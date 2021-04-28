@@ -97,6 +97,9 @@ class BlindWattenGame(Game):
         norm_tricks = 0.2 + 0.8*tricks_played/4
 
         probability = norm_tricks*norm_cv
+        if self.get_cur_player() != self.trueboard.rank_declarer and \
+                self.get_cur_player() != self.trueboard.suit_declarer:
+            probability = 0.5*probability
 
         # normalize probability in range lower-range - upper-range
         norm_probability = lower_range + (upper_range-lower_range)*probability
