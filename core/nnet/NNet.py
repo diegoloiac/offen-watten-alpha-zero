@@ -33,7 +33,7 @@ class NNet(ABC):
         self.model.load_weights(filepath)
 
     def train(self, filenames, batch_size=2048, epochs=10, verbose=1):
-        print('Creating raw dataset')
+        print(f'Creating raw dataset from {filenames}')
         raw_dataset = tf.data.TFRecordDataset(filenames, num_parallel_reads=tf.data.AUTOTUNE)
 
         print('Parsing the dataset')

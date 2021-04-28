@@ -72,12 +72,12 @@ class DefaultFFNN(NNet):
             batch_size = length
 
         pi = np.asarray(pi)
-        pi = pi.reshape(batch_size, self.action_size)
+        pi = pi.reshape(length, self.action_size)
 
         game_result = np.asarray(game_result)
 
         inp = np.asarray(inp)
-        inp = inp.reshape((batch_size, self.observation_size_x, self.observation_size_y, self.observation_size_z))
+        inp = inp.reshape((length, self.observation_size_x, self.observation_size_y, self.observation_size_z))
 
         return inp, [pi, game_result], length, batch_size
 
