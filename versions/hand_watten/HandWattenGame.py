@@ -170,4 +170,4 @@ class HandWattenGame(Game):
     # returns true if player should accept raise, false otherwise
     @staticmethod
     def decide_about_accepting_raise(continuous_value, tricks_played):
-        return not HandWattenGame.decide_about_raising(-continuous_value, tricks_played, 0.02, 0.6)
+        return not HandWattenGame.decide_about_raising(-continuous_value, tricks_played, 0.02, 0.8)
