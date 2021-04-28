@@ -2,6 +2,7 @@ import argparse
 from collections import deque
 import tensorflow as tf
 import numpy as np
+import os
 
 from core.EnvironmentSelector import EnvironmentSelector
 from core.utils.utils import serialize
@@ -12,6 +13,10 @@ from pkl_tfrec_converter import serialize_example
 def generate_self_play(opt_agent_profile, agent_path, games_num,
                        experience_path, max_steps,
                        verbose, debug, exploration_decay_steps, self_play_examples_deque=deque([]), add_randomness=False):
+
+    # use CPU
+    os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+
     world = World(add_randomness=add_randomness)
 
     env_selector = EnvironmentSelector()

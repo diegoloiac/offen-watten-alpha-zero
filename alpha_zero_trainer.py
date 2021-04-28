@@ -132,10 +132,8 @@ if __name__ == "__main__":
     if not options.workspace:
         parser.error('Workspace path must be selected')
 
-    # force agent to use CPU in the main script
-    config = tf.compat.v1.ConfigProto(device_count={'CPU': 1, 'GPU': 0})
-    session = tf.compat.v1.Session(config=config)
-    tf.compat.v1.keras.backend.set_session(session)
+    # use CPU
+    os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
     # define and create a workspace
     temp_dir = options.workspace + '/temp'
