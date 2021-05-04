@@ -123,7 +123,9 @@ class World:
                     else:
                         actions_prob[46] = 0
                 else:
-                    actions_prob[46:] = 0
+                    mult = np.ones(len(valid_moves))
+                    mult[46:] = 0
+                    actions_prob = np.multiply(actions_prob, mult)
                     if self.add_randomness:
                         choose_random = np.choice([False, True], p=[0.9, 0.1])
                         if choose_random:
