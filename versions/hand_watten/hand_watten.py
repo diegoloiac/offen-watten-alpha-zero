@@ -208,10 +208,22 @@ class WorldHandWatten(object):
                 valid_moves.append(card)
                 # print("3: rank {} --- suit {}".format(card_rank, card_suit))
 
-        # if the opponent has only the rechte in his hand with the same played suit, then he is not forced to play it
+        # if the player has two cards and these are the rechte and the guate
+        # then it can play any card of the hand
+        if len(valid_moves) == 2:
+            card_rank_0, card_suit_0 = get_rs(valid_moves[0])
+            card_rank_1, card_suit_1 = get_rs(valid_moves[1])
+            if (self.is_guate(card_rank_0, card_suit_0) and self.is_rechte(card_rank_1, card_suit_1)) or \
+                    (self.is_rechte(card_rank_0, card_suit_0) and self.is_guate(card_rank_1, card_suit_1)):
+                augmented_valid_moves = self._augment_valid_moves(current_hand)
+                self.LOG.debug(f"Valid moves for player [{self.current_player}] are {augmented_valid_moves}")
+                return augmented_valid_moves
+
+        # if the opponent has only the rechte or the guate in his hand with the same played suit,
+        # then he is not forced to play it
         if len(valid_moves) == 1:
             card_rank, card_suit = get_rs(valid_moves[0])
-            if self.rank == card_rank and self.suit == card_suit:
+            if self.is_rechte(card_rank, card_suit) or self.is_guate(card_rank, card_suit):
                 augmented_valid_moves = self._augment_valid_moves(current_hand)
                 self.LOG.debug(f"Valid moves for player [{self.current_player}] are {augmented_valid_moves}")
                 return augmented_valid_moves
@@ -223,9 +235,9 @@ class WorldHandWatten(object):
         self.LOG.debug(f"Valid moves for player [{self.current_player}] are {augmented_valid_moves}")
         return augmented_valid_moves
 
-    def _augment_valid_moves(self, moves):
+    def _augment_valid_moves(self, mov):
         valid_moves = []
-        valid_moves.extend(moves)
+        valid_moves.extend(mov)
         # a player can always raise when it makes sense to
         # !!COMMENTED TO LEARN FIRST HOW TO PLAY CARDS!!
         if (self.is_last_hand_raise_valid is None) and \
@@ -246,7 +258,6 @@ class WorldHandWatten(object):
         num_played_cards = len(self.played_cards)
         if action not in self.get_valid_moves():
             raise InvalidActionError("Action %d cannot be played" % action)
-
         if action > 49:
             raise InvalidActionError("Action %d is not valid" % action)
         if self.current_game_player_A_score > 3 or self.current_game_player_B_score > 3:
@@ -440,6 +451,7 @@ class WorldHandWatten(object):
     # the first card is expected to be played before the second one
     #
     # ORDER OF IMPORTANCE:
+    # - Guate (card with the same suit of the chosen suit and 1 rank higher of the rechte)
     # - Rechte (card with the same suit and rank chosen when the game started)
     # - Blinden (cards with the same rank of the chosen rank)
     # - Trümpfe (cards with the same suit of the chosen suit)
@@ -448,6 +460,16 @@ class WorldHandWatten(object):
 
         card1_rank, card1_suit = get_rs(card1)
         card2_rank, card2_suit = get_rs(card2)
+
+        #######################################################
+        # GUATE
+        #######################################################
+
+        # guate is the strongest card
+        if self.is_guate(card1_rank, card1_suit):
+            return True
+        if self.is_guate(card2_rank, card2_suit):
+            return False
 
         #######################################################
         # RECHTE
@@ -498,6 +520,15 @@ class WorldHandWatten(object):
         # if the first and the second card are not trümpfe and have the same suit,
         # then the card with the highest rank wins
         return self.is_rank_higher(card1_rank, card2_rank)
+
+    def is_guate(self, card_rank, card_suit):
+        # if the rechte is the weli, there is no guate
+        if self.rank == 8:
+            return False
+        elif self.suit == card_suit and (self.rank + 1) % 8 == card_rank:
+            return True
+        else:
+            return False
 
     def is_rechte(self, card_rank, card_suit):
         if (self.rank == 8 and card_rank == 8) or (card_rank == self.rank and card_suit == self.suit):
