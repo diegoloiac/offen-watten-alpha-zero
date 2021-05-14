@@ -77,28 +77,33 @@ if __name__ == '__main__':
 
     row_list = []
 
-    print_progress_bar(0, len(model_files), prefix='Progress:', suffix='Complete')
-    for idx, model in enumerate(model_files):
-        model_path = str(options.folder) + "/" + model
-        agent.load(model_path)
-
-        result = 0
-        games_won = 0
-
-        for i in range(options.games_num):
-            _, game_result = world.execute_game(agents, game)
-            result += game_result[0]
-            if game_result[0] > 0:
-                games_won += 1
-
-        row = [model, options.games_num, result, games_won]
-        print(row)
-        row_list.append(row)
-
-        print_progress_bar(idx + 1, len(model_files), prefix='Progress:', suffix='Complete')
-
     csv_path = options.folder + '/' + 'eval_results.csv'
 
     with open(csv_path, 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerows(row_list)
+
+        print_progress_bar(0, len(model_files), prefix='Progress:', suffix='Complete')
+        for idx, model in enumerate(model_files):
+            model_path = str(options.folder) + "/" + model
+            agent.load(model_path)
+
+            result = 0
+            games_won = 0
+
+            for i in range(options.games_num):
+                _, game_result = world.execute_game(agents, game)
+                result += game_result[0]
+                if game_result[0] > 0:
+                    games_won += 1
+
+            row = [model, options.games_num, result, games_won]
+            print(row)
+            writer.writerow(row)
+            row_list.append(row)
+
+            print_progress_bar(idx + 1, len(model_files), prefix='Progress:', suffix='Complete')
+
+
+
+
+
