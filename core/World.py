@@ -130,6 +130,9 @@ class World:
                         actions_prob[46] = 1
                     else:
                         actions_prob[46] = 0
+                        if np.sum(actions_prob) == 0:
+                            actions_prob = valid_moves
+                            actions_prob[46] = 0
                         actions_prob = np.true_divide(actions_prob, np.sum(actions_prob))
                 else:
                     mult = np.ones(len(valid_moves))

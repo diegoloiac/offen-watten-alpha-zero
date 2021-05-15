@@ -1,8 +1,9 @@
 import argparse
 from collections import deque
-import tensorflow as tf
 import numpy as np
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+import tensorflow as tf
 
 from core.EnvironmentSelector import EnvironmentSelector
 from core.utils.utils import serialize

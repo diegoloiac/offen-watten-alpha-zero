@@ -39,7 +39,7 @@ class DefaultFFNN(NNet):
 
         model = Model(inputs=input_boards, outputs=[pi, v])
 
-        model.summary()
+        # model.summary()
 
         model.compile(loss=['categorical_crossentropy', 'mean_squared_error'], optimizer=Adam(learning_rate))
 

@@ -4,6 +4,7 @@ import time
 import logging
 from tqdm import tqdm
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import sys
 import glob
 import tensorflow as tf
