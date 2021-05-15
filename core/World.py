@@ -2,6 +2,7 @@ import numpy as np
 import itertools
 import logging
 from tqdm import tqdm
+import tensorflow as tf
 
 from core.agents.HumanAgent import HumanAgent
 from core.agents.AgentRandom import AgentRandom
@@ -17,7 +18,7 @@ class World:
 
     def __init__(self, add_randomness=False):
         self.RESULT_DRAW = -1
-        self.add_randomness=add_randomness
+        self.add_randomness = add_randomness
 
     def execute_game(self, agents, game, max_game_steps_n=None, allow_exploration=False,
                      verbose=False, show_every_turn=False, exploration_decay_steps=None, need_reset=True):
@@ -102,7 +103,7 @@ class World:
             # remove raising from output nn
             if (type(game) == HandWattenGame or type(game) == BlindWattenGame) and type(cur_turn_agent) != HumanAgent and type(cur_turn_agent) != AgentRandom:
                 # Convert tensor when dealing with IA
-                if type(observation_value) != int:
+                if tf.is_tensor(observation_value):
                     observation_value = observation_value.numpy()
                     actions_prob = actions_prob.numpy()
 
@@ -129,10 +130,12 @@ class World:
                         actions_prob[46] = 1
                     else:
                         actions_prob[46] = 0
+                        actions_prob = np.true_divide(actions_prob, np.sum(actions_prob))
                 else:
                     mult = np.ones(len(valid_moves))
                     mult[46:] = 0
                     actions_prob = np.multiply(actions_prob, mult)
+                    actions_prob = np.true_divide(actions_prob, np.sum(actions_prob))
                     if self.add_randomness:
                         choose_random = np.choice([False, True], p=[0.9, 0.1])
                         if choose_random:
