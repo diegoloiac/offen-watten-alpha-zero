@@ -1,6 +1,8 @@
 import argparse
 import sys
-from os import listdir
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+import tensorflow as tf
 
 from core.EnvironmentSelector import EnvironmentSelector
 
@@ -25,7 +27,7 @@ def train(agent_profile, agent_path, out_agent_path, memory_folder=None, game_me
     print("Initiate training...")
 
     paths = []
-    for file in listdir(memory_folder):
+    for file in os.listdir(memory_folder):
         paths.append(memory_folder + '/' + file)
 
     agent.train(paths, epochs=epochs)

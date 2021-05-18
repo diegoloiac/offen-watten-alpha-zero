@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 import tensorflow as tf
 import numpy as np
+import datetime
 
 
 class NNet(ABC):
@@ -21,8 +22,6 @@ class NNet(ABC):
             tf.debugging.set_log_device_placement(True)
 
         self.model = self.build_model()
-        self.graph_model = tf.function(self.model)
-
 
     def save(self, filepath):
         filepath = filepath if filepath.endswith(self.EXTENSION_KERAS) else filepath + self.EXTENSION_KERAS
@@ -40,24 +39,29 @@ class NNet(ABC):
         parsed_dataset = raw_dataset.map(self.parse_example, num_parallel_calls=tf.data.AUTOTUNE)
         print(parsed_dataset)
 
-        model = self.get_model()
+        parsed_dataset.cache()
+        parsed_dataset.batch(batch_size)
 
-        dataset_empty = False
+        log_dir = "tensorboard/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1, profile_batch='10,20')
 
-        while not dataset_empty:
-            batch = parsed_dataset.take(50*batch_size)
-            batch = batch.as_numpy_iterator()
+        self.model.fit(parsed_dataset, callbacks=[tensorboard_callback], epochs=epochs)
+        #dataset_empty = False
 
-            nnet_input, nnet_output = zip(*batch)
-            nnet_input, nnet_output, length, batch_size = self.parse_input_output(nnet_input, nnet_output, batch_size)
-
-            print("Fit model with epochs %d and batch size %d" % (epochs, batch_size))
-            model.fit(x=nnet_input, y=nnet_output, batch_size=batch_size, epochs=epochs, verbose=verbose)
-
-            parsed_dataset = parsed_dataset.skip(50*batch_size)
-
-            if length < 50*batch_size:
-                dataset_empty = True
+        #while not dataset_empty:
+        #    batch = parsed_dataset.take(50*batch_size)
+        #    batch = batch.as_numpy_iterator()
+        #
+        #    nnet_input, nnet_output = zip(*batch)
+        #    nnet_input, nnet_output, length, batch_size = self.parse_input_output(nnet_input, nnet_output, batch_size)
+        #
+        #    print("Fit model with epochs %d and batch size %d" % (epochs, batch_size))
+        #    model.fit(x=nnet_input, y=nnet_output, batch_size=batch_size, epochs=epochs, verbose=verbose)
+        #
+        #    parsed_dataset = parsed_dataset.skip(50*batch_size)
+        #
+        #    if length < 50*batch_size:
+        #        dataset_empty = True
 
     def get_model(self):
         return self.model
@@ -68,8 +72,9 @@ class NNet(ABC):
     def clone(self):
         return NNet(self.observation_size_x, self.observation_size_y, self.observation_size_z, self.action_size)
 
+    @tf.function
     def predict(self, observation):
-        pi, v = self.graph_model(observation, training=False)
+        pi, v = self.model(observation, training=False)
 
         if np.isscalar(v[0]):
             return pi[0], v[0]

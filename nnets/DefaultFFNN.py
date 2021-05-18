@@ -55,7 +55,7 @@ class DefaultFFNN(NNet):
         parsed_example = tf.io.parse_single_example(example, feature_description)
 
         observation = tf.io.decode_raw(parsed_example['observation'], tf.float64, name='observation')
-        outputs = {'pi': tf.io.decode_raw(parsed_example['pi'], tf.float64), 'game_result': parsed_example['game_result']}
+        outputs = {'pi': tf.io.decode_raw(parsed_example['pi'], tf.float64), 'v': parsed_example['game_result']}
 
         return observation, outputs
 
@@ -66,7 +66,7 @@ class DefaultFFNN(NNet):
         for o in out:
             length = length+1
             pi.append(o['pi'])
-            game_result.append(o['game_result'])
+            game_result.append(o['v'])
 
         if length < batch_size:
             batch_size = length
