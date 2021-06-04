@@ -16,7 +16,11 @@ def generate_self_play(opt_agent_profile, agent_path, games_num,
                        verbose, debug, exploration_decay_steps, self_play_examples_deque=deque([]), add_randomness=False):
 
     # use CPU
-    os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+    # os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+    physical_devices = tf.config.list_physical_devices('GPU')
+    print(physical_devices)
+    for gpu in physical_devices:
+        tf.config.experimental.set_memory_growth(gpu, True)
 
     world = World(add_randomness=add_randomness)
 

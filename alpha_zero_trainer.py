@@ -134,7 +134,7 @@ if __name__ == "__main__":
         parser.error('Workspace path must be selected')
 
     # use CPU
-    os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+    # os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
     # define and create a workspace
     temp_dir = options.workspace + '/temp'

@@ -13,6 +13,11 @@ def throw_error(message):
 
 
 def train(agent_profile, agent_path, out_agent_path, memory_folder=None, game_memory=None, epochs=1):
+    physical_devices = tf.config.list_physical_devices('GPU')
+    print(physical_devices)
+    for gpu in physical_devices:
+        tf.config.experimental.set_memory_growth(gpu, True)
+
     env_selector = EnvironmentSelector()
 
     agent = env_selector.get_agent(agent_profile)
