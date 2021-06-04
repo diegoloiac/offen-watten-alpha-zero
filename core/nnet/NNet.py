@@ -74,7 +74,7 @@ class NNet(ABC):
 
     @tf.function
     def predict(self, observation):
-        pi, v = self.model(observation, training=False)
+        pi, v = self.model(observation)
 
         if np.isscalar(v[0]):
             return pi[0], v[0]
