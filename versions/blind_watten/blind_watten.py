@@ -53,6 +53,15 @@ def str_cards(cards):
     return string_cards
 
 
+# rules:
+# first pick a rank (from 7, 8, 9...)
+# other player pick a suit (laab, herz...)
+# first plays a card
+# second plays a card
+# third plays a card
+# fourth plays a card
+# ....
+# repeat until one team wins 3 tricks
 class WorldBlindWatten:
 
     def __init__(self):
@@ -93,6 +102,9 @@ class WorldBlindWatten:
 
         # needed to understand whether a player can raise again
         self.last_accepted_raise = None
+
+        # needed to continue after raising phase is over
+        self.started_raising = None
 
         # raise in last hand implies some specific rules. see act method
         self.is_last_hand_raise_valid = None
@@ -240,7 +252,7 @@ class WorldBlindWatten:
         # teams can raise alternately
         # !!COMMENTED TO LEARN FIRST HOW TO PLAY CARDS!!
         if (self.is_last_hand_raise_valid is None) and \
-                (self.is_last_move_raise or self.last_accepted_raise == self.current_player % 2) and \
+                (self.is_last_move_raise or self.last_accepted_raise == self.current_player % 2 or self.last_accepted_raise is None) and \
                 (self.current_game_prize < 15):
             valid_moves.append(self.moves["raise_points"])
         return valid_moves
@@ -272,6 +284,7 @@ class WorldBlindWatten:
 
             self.is_last_move_raise = True
             self.is_last_move_accepted_raise = False
+            self.started_raising = self.current_player
             if num_played_cards >= 16:
                 self.is_last_hand_raise_valid = self._last_hand_raise_valid()
             self.current_game_prize += 1
@@ -284,7 +297,7 @@ class WorldBlindWatten:
             self.is_last_move_accepted_raise = True
             self.last_accepted_raise = self.current_player % 2
             self.is_last_move_raise = False
-            return self._act_continue_move()
+            return self._act_continue_move(self.started_raising)
 
         # if a player folds, then the prize is given to the opponent
         if action == moves["fold_hand"]:
@@ -354,7 +367,7 @@ class WorldBlindWatten:
 
             self.suit = action % 42
             self.LOG.debug(f"{self.current_player} picked suit [{self.suit}]")
-            return self._act_continue_move()
+            return self._act_continue_move(self.rank_declarer)
 
         if action in moves["pick_rank"]:
             if self.is_last_move_raise:
@@ -362,13 +375,17 @@ class WorldBlindWatten:
 
             self.rank = action % 33
             self.LOG.debug(f"{self.current_player} picked rank [{self.rank}]")
-            return self._act_continue_move()
+            return self._act_continue_move(self.suit_declarer)
 
         self.display()
         raise InconsistentStateError("Action %d is not allowed." % action)
 
-    def _act_continue_move(self):
-        self.current_player = (self.current_player + 1) % 4
+    def _act_continue_move(self, next_player=None):
+        # Needed only when continuing after raising
+        if next_player is not None:
+            self.current_player = next_player
+        else:
+            self.current_player = (self.current_player + 1) % 4
         return "continue", self.current_player
 
     def _hand_is_done_after_card_is_played_common(self):
@@ -598,7 +615,7 @@ class WorldBlindWatten:
         # winning card
         index += 4  # 112
         if len(self.played_cards) % 4 > 0:
-            observation[index + self.card_to_win()] = 1
+            observation[index + self.card_to_win] = 1
 
         # played cards
         index += 33  # 145
