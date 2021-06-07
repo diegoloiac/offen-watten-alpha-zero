@@ -45,13 +45,12 @@ if __name__ == "__main__":
 
     env_selector = EnvironmentSelector()
     agent_first = env_selector.get_agent(options.agent_profile_new)
-    print("Pit with agent ", agent_first.name)
 
     agent_second = env_selector.get_agent(options.agent_profile_old)
-    print("Pit with agent ", agent_second.name)
 
     agent_profile = env_selector.get_profile(options.agent_profile_new)
     game = env_selector.get_game(agent_profile.game)
+    players_num = game.get_players_num()
 
     # When playing total watten with humans the def of game has to be changed
     # to inject a sub_watten human agent for the right player
@@ -70,6 +69,11 @@ if __name__ == "__main__":
 
     agents = [agent_first, agent_second]
 
+    agents_ext = [agents[i % 2] for i in range(players_num)]
+
+    for i in range(players_num):
+        print(f'Pit with agent {agents_ext[i].name}')
+
     if options.agent_new_path:
         agent_first.load(options.agent_new_path)
 
@@ -78,7 +82,7 @@ if __name__ == "__main__":
 
     world = World()
 
-    sess_arena_examples, games_results = world.execute_games(agents,
+    sess_arena_examples, games_results = world.execute_games(agents_ext,
                                                              game,
                                                              options.games_num,
                                                              max_game_steps_n=options.max_steps,
