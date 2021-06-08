@@ -169,3 +169,13 @@ class HandWattenGame(Game):
     # returns true if player should accept raise, false otherwise
     def decide_about_accepting_raise(self, continuous_value, tricks_played):
         return not self.decide_about_raising(-continuous_value, tricks_played, lower_range=0.02, upper_range=0.8)
+
+    def decide_about_raising_2(self, continuous_value, tricks_played, tricks_coefficient=0.2):
+        probability = continuous_value**3 / 3 + tricks_coefficient*tricks_played/4 + 0.2
+
+        coin = np.random.choice(2, p=[1 - probability, probability])
+
+        return coin == 1
+
+    def decide_about_accepting_raise_2(self, continuous_value, tricks_played):
+        return self.decide_about_raising_2(continuous_value, tricks_played, tricks_coefficient=0.4)
