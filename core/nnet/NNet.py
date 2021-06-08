@@ -39,29 +39,29 @@ class NNet(ABC):
         parsed_dataset = raw_dataset.map(self.parse_example, num_parallel_calls=tf.data.AUTOTUNE)
         print(parsed_dataset)
 
-        parsed_dataset.cache()
-        parsed_dataset.batch(batch_size)
+        # parsed_dataset.cache()
+        # parsed_dataset.batch(batch_size)
+        #
+        # log_dir = "tensorboard/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        # tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1, profile_batch='10,20')
+        #
+        # self.model.fit(parsed_dataset, callbacks=[tensorboard_callback], epochs=epochs)
+        dataset_empty = False
 
-        log_dir = "tensorboard/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1, profile_batch='10,20')
+        while not dataset_empty:
+            batch = parsed_dataset.take(50*batch_size)
+            batch = batch.as_numpy_iterator()
 
-        self.model.fit(parsed_dataset, callbacks=[tensorboard_callback], epochs=epochs)
-        #dataset_empty = False
+            nnet_input, nnet_output = zip(*batch)
+            nnet_input, nnet_output, length, batch_size = self.parse_input_output(nnet_input, nnet_output, batch_size)
 
-        #while not dataset_empty:
-        #    batch = parsed_dataset.take(50*batch_size)
-        #    batch = batch.as_numpy_iterator()
-        #
-        #    nnet_input, nnet_output = zip(*batch)
-        #    nnet_input, nnet_output, length, batch_size = self.parse_input_output(nnet_input, nnet_output, batch_size)
-        #
-        #    print("Fit model with epochs %d and batch size %d" % (epochs, batch_size))
-        #    model.fit(x=nnet_input, y=nnet_output, batch_size=batch_size, epochs=epochs, verbose=verbose)
-        #
-        #    parsed_dataset = parsed_dataset.skip(50*batch_size)
-        #
-        #    if length < 50*batch_size:
-        #        dataset_empty = True
+            print("Fit model with epochs %d and batch size %d" % (epochs, batch_size))
+            self.model.fit(x=nnet_input, y=nnet_output, batch_size=batch_size, epochs=epochs, verbose=verbose)
+
+            parsed_dataset = parsed_dataset.skip(50*batch_size)
+
+            if length < 50*batch_size:
+                dataset_empty = True
 
     def get_model(self):
         return self.model
