@@ -172,6 +172,8 @@ class HandWattenGame(Game):
 
     def decide_about_raising_2(self, continuous_value, tricks_played, tricks_coefficient=0.2):
         probability = continuous_value**3 / 3 + tricks_coefficient*tricks_played/4 + 0.2
+        if probability < 0:
+            probability = 0
 
         coin = np.random.choice(2, p=[1 - probability, probability])
 
