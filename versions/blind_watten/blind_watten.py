@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 import logging
 
 # allowed moves:
@@ -155,7 +156,7 @@ class WorldBlindWatten:
         if len(valid_moves) == 0:
             self.display()
             raise ValidMovesError("Valid moves cannot be 0!")
-        valid_moves_zeros = [0] * 50  # number of possible moves
+        valid_moves_zeros = [0] * 49  # number of possible moves
         for valid_move in valid_moves:
             valid_moves_zeros[valid_move] = 1
         return valid_moves_zeros
@@ -284,7 +285,10 @@ class WorldBlindWatten:
 
             self.is_last_move_raise = True
             self.is_last_move_accepted_raise = False
-            self.started_raising = self.current_player
+
+            if self.started_raising is None:
+                self.started_raising = self.current_player
+
             if num_played_cards >= 16:
                 self.is_last_hand_raise_valid = self._last_hand_raise_valid()
             self.current_game_prize += 1
@@ -296,8 +300,10 @@ class WorldBlindWatten:
             self.LOG.debug(f"{self.current_player} accepted raise")
             self.is_last_move_accepted_raise = True
             self.last_accepted_raise = self.current_player % 2
+            next_player = self.started_raising
+            self.started_raising = None
             self.is_last_move_raise = False
-            return self._act_continue_move(self.started_raising)
+            return self._act_continue_move(next_player)
 
         # if a player folds, then the prize is given to the opponent
         if action == moves["fold_hand"]:
@@ -417,7 +423,7 @@ class WorldBlindWatten:
     def _last_hand_raise_valid(self):
         num_played_cards = len(self.played_cards)
 
-        if 16 <= num_played_cards <= 19:
+        if not 16 <= num_played_cards <= 19:
             raise InconsistentStateError(
                 "Num played cards when fold occurs in last hand can be 16, 17, 18, 19. Got %d." % num_played_cards)
 
@@ -431,7 +437,7 @@ class WorldBlindWatten:
             return True
         if num_played_cards % 4 > 0:
             _, first_card_suit = get_rs(self._get_first_played_card())
-            if not self.compare_cards(self.card_to_win, hidden_card) or hidd_s == first_card_suit:
+            if (not self.compare_cards(self.card_to_win, hidden_card)) or hidd_s == first_card_suit:
                 return True
 
         return False
@@ -690,28 +696,29 @@ class WorldBlindWatten:
     def deepcopy(self):
         new_world = WorldBlindWatten()
         new_world.LOG = self.LOG
-        new_world.current_player = self.current_player
         new_world.rank_declarer = self.rank_declarer
         new_world.suit_declarer = self.suit_declarer
+        new_world.current_player = self.current_player
         new_world.deck = self.deck.copy()
-        new_world.hands = self.hands.copy()
+        new_world.hands = copy.deepcopy(self.hands)
         new_world.played_cards = self.played_cards.copy()
         new_world.score_team_0 = self.score_team_0
         new_world.score_team_1 = self.score_team_1
-        new_world.current_game_prize = self.current_game_prize
         new_world.is_last_move_raise = self.is_last_move_raise
         new_world.is_last_move_accepted_raise = self.is_last_move_accepted_raise
+        new_world.last_accepted_raise = self.last_accepted_raise
+        new_world.started_raising = self.started_raising
+        new_world.is_last_hand_raise_valid = self.is_last_hand_raise_valid
         new_world.first_card_deck = self.first_card_deck
         new_world.last_card_deck = self.last_card_deck
         new_world.rank = self.rank
         new_world.suit = self.suit
         new_world.card_to_win = self.card_to_win
         new_world.player_winning = self.player_winning
-        new_world.is_last_hand_raise_valid = self.is_last_hand_raise_valid
+        new_world.current_game_prize = self.current_game_prize
         new_world.winning_team = self.winning_team
-
-        new_world.starting_state = self.starting_state
         new_world.moves_series = self.moves_series.copy()
+        new_world.starting_state = self.starting_state
         return new_world
 
     def init_world_to_state(self, current_player, rank_declarer, suit_declarer,

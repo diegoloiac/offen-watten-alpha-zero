@@ -110,4 +110,4 @@ class BlindWattenGame(Game):
 
     # returns true if player should accept raise, false otherwise
     def decide_about_accepting_raise(self, continuous_value, tricks_played):
-        return not BlindWattenGame.decide_about_raising(-continuous_value, tricks_played, 0.02, 0.6)
+        return not self.decide_about_raising(-continuous_value, tricks_played, 0.02, 0.8)
