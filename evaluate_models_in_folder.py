@@ -59,11 +59,9 @@ if __name__ == '__main__':
 
     env_selector = EnvironmentSelector()
     agent = env_selector.get_agent(options.agent)
-    print("Pit with agent ", agent.name)
     agent.set_exploration_enabled(False)
 
     random_agent = env_selector.get_agent(options.random_agent)
-    print("Pit with agent ", random_agent.name)
     random_agent.set_exploration_enabled(False)
 
     agent_profile = env_selector.get_profile(options.agent)
@@ -71,7 +69,14 @@ if __name__ == '__main__':
 
     world = World()
 
+    players_num = game.get_players_num()
+
     agents = [agent, random_agent]
+
+    agents_ext = [agents[i % 2] for i in range(players_num)]
+
+    for i in range(players_num):
+        print(f'Pit with agent {agents_ext[i].name}')
 
     model_files = [f for f in listdir(options.folder) if isfile(join(options.folder, f)) and f.endswith('h5')]
 
@@ -85,13 +90,15 @@ if __name__ == '__main__':
         print_progress_bar(0, len(model_files), prefix='Progress:', suffix='Complete')
         for idx, model in enumerate(model_files):
             model_path = str(options.folder) + "/" + model
-            agent.load(model_path)
+            for i, a in enumerate(agents_ext):
+                if i % 2 == 0:
+                    a.load(model_path)
 
             result = 0
             games_won = 0
 
             for i in range(options.games_num):
-                _, game_result = world.execute_game(agents, game)
+                _, game_result = world.execute_game(agents_ext, game)
                 result += game_result[0]
                 if game_result[0] > 0:
                     games_won += 1
