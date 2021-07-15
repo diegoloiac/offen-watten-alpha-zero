@@ -102,6 +102,9 @@ class HandWattenGame(Game):
         else:
             return str(observation)
 
+    def get_complete_observation(self):
+        return self.trueboard.get_complete_observation().tostring()
+
     def get_display_str(self):
         self.trueboard.display()
         return ""

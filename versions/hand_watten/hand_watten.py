@@ -673,6 +673,51 @@ class WorldHandWatten(object):
     #     new_observe = np.concatenate((observe, np.array([[1 if self.current_player == 1 else 0]])))
     #     print(new_observe)
 
+    # Get complete observation of the state. Raising situation is not considered
+    # Card current player: 33
+    # Card opponent player: 33 (66)
+    # Rank: 9 (75)
+    # Suit: 4 (79)
+    # Score current player: 2 (81)
+    # Score opponent player: 2 (83)
+    def get_complete_observation(self):
+        observation = np.zeros(83)
+
+        # Current player cards
+        for card in self._get_current_player_hand():
+            observation[card] = 1
+
+        # Opponent cards
+        index = 33
+        for card in self._get_opponent_hand():
+            observation[index + card] = 1
+
+        # Rank
+        index += 33     # 66
+        if self.rank is not None:
+            observation[index + self.rank] = 1
+
+        # Suit
+        index += 9      # 75
+        if self.suit is not None:
+            observation[index + self.suit] = 1
+
+        # Score current player
+        index += 4      # 79
+        score_player = self.current_game_player_A_score if self.current_player == 1 else self.current_game_player_B_score
+        if score_player != 0:
+            observation[index + score_player - 1] = 1
+
+        # Score opponent
+        index += 2      # 81
+        score_opponent = self.current_game_player_B_score if self.current_player == 1 else self.current_game_player_A_score
+        if score_opponent != 0:
+            observation[index + score_opponent - 1] = 1
+
+        # Total size: 81 + 2 = 83
+
+        return observation
+
     def _get_last_played_card(self):
         num_played_cards = len(self.played_cards)
         if num_played_cards == 0:
