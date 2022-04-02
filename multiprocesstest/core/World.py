@@ -250,7 +250,7 @@ class World:
             print(agent.exp_rate)
             agents[1].exp_rate = 7
 
-        with p.Pool(processes=8) as pool:
+        with p.Pool(processes=50) as pool:
 
             games_experience, _ = pool.starmap(self.execute_games(agents, game, num_games,
                                                     max_game_steps_n=max_game_steps_n, allow_exploration=allow_exploration,
