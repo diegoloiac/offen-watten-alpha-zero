@@ -9,6 +9,7 @@ from core.agents.AgentRandom import AgentRandom
 from versions.asymmetric_sub_watten.AsymmetricSubWattenGame import AsymmetricSubWattenGame
 from versions.blind_watten.BlindWattenGame import BlindWattenGame
 from versions.hand_watten.HandWattenGame import HandWattenGame
+import multiprocessing as p
 
 
 class World:
