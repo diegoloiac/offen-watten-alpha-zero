@@ -1,0 +1,128 @@
+CUDA API Statistics:
+
+ Time (%)  Total Time (ns)  Num Calls   Avg (ns)     Med (ns)    Min (ns)   Max (ns)   StdDev (ns)               Name
+ --------  ---------------  ---------  -----------  -----------  ---------  ---------  -----------  -------------------------------
+     47.9      31755176409    2992322      10612.2       8848.0       2535     791218       5541.1  cuLaunchKernel
+     23.4      15485986419    1032976      14991.6      11564.0       2698     657108       9442.9  cudaLaunchKernel
+     11.1       7352541240     303512      24224.9      23083.0       9519   41481198     162028.8  cuMemcpyDtoHAsync_v2
+      5.7       3808317389     206782      18417.1      16733.0       5724   42032780     204163.2  cuMemcpyHtoDAsync_v2
+      2.0       1345205702    1020604       1318.0       1028.0        243     161112       1166.7  cuEventRecord
+      1.9       1246289337     558516       2231.4       1850.0        404     199959       1676.0  cuEventQuery
+      1.8       1203814812          4  300953703.0  303049899.5  119877942  477837071  201017926.4  cudaFree
+      1.8       1160223610     303512       3822.7       3699.0        547     190730       1896.5  cuStreamSynchronize
+      1.3        832312742     510294       1631.0       1533.0        386     155839        952.9  cuStreamWaitEvent
+      1.0        665444882     664386       1001.6       1035.0        201     206837        750.1  cudaStreamGetCaptureInfo_v10010
+      0.9        606412527     226854       2673.1       2475.0        604     114148       1616.8  cudaEventQuery
+      0.7        458623010     226854       2021.7       2015.0        444      87690       1055.3  cudaEventRecord
+      0.5        306091562        854     358421.0      81201.0       1729    6026569     680753.5  cuModuleUnload
+      0.0         18629200         41     454370.7     173244.0      47334    1736277     555383.7  cuModuleLoadData
+      0.0         18322349         13    1409411.5     245856.0     163635   14894959    4054933.7  cuMemAlloc_v2
+      0.0          2208918          2    1104459.0    1104459.0    1102461    1106457       2825.6  cuMemHostAlloc
+      0.0          1071527          6     178587.8     148046.0       3671     389222     171773.7  cudaMalloc
+      0.0           384152          2     192076.0     192076.0       7467     376685     261076.6  cudaStreamAddCallback
+      0.0           362620         12      30218.3      18650.5      13469      72282      23458.0  cuMemGetInfo_v2
+      0.0           155070         15      10338.0       9954.0       8725      13116       1416.2  cuMemsetD32Async
+      0.0           127856         48       2663.7       1273.0       1067      10510       2702.1  cuStreamCreate
+      0.0            48766          1      48766.0      48766.0      48766      48766          0.0  cudaMemcpyAsync
+      0.0            42833          3      14277.7      10879.0      10330      21624       6368.0  cuMemsetD32_v2
+      0.0            36830          8       4603.8       4586.0       3058       6259        910.5  cuEventSynchronize
+      0.0            33784         60        563.1        332.0        180       2697        617.5  cuEventCreate
+      0.0            14798         36        411.1        305.0        284       1766        341.6  cudaEventCreateWithFlags
+      0.0            11858          7       1694.0       1751.0       1116       2338        468.4  cuInit
+      0.0             7509          8        938.6        919.5        588       1376        349.3  cuEventDestroy_v2
+
+[5/7] Executing 'gpukernsum' stats report
+
+CUDA Kernel Statistics:
+
+ Time (%)  Total Time (ns)  Instances  Avg (ns)  Med (ns)  Min (ns)  Max (ns)  StdDev (ns)                                                  Name
+ --------  ---------------  ---------  --------  --------  --------  --------  -----------  ----------------------------------------------------------------------------------------------------
+     26.1       3170320462    1189903    2664.4    2688.0      2432     14080        138.3  Mul_GPU_DT_FLOAT_DT_FLOAT_kernel
+     14.8       1793562418     194424    9225.0   10464.0      6784     19872       1847.5  void cutlass::Kernel<cutlass_80_tensorop_s1688gemm_64x64_16x6_nn_align4>(T1::Params)
+     14.0       1699419217     636154    2671.4    2688.0      2432     12928        126.9  AddV2_GPU_DT_FLOAT_DT_FLOAT_kernel
+      5.9        713903202     270763    2636.6    2656.0      2431     13344        119.2  void Eigen::internal::EigenMetaKernel<Eigen::TensorEvaluator<const Eigen::TensorAssignOp<Eigen::Ten…
+      5.7        697070397     270763    2574.5    2560.0      2464     14080        125.0  Greater_GPU_DT_FLOAT_DT_BOOL_kernel
+      5.6        674642658     243045    2775.8    2784.0      2528     13888        115.1  void tensorflow::BiasNHWCKernel<float>(int, const T1 *, const T1 *, T1 *, int)
+      5.0        604279387     231033    2615.6    2592.0      2431     11936        140.8  Div_GPU_DT_FLOAT_DT_FLOAT_kernel
+      4.7        576380012     210724    2735.2    2720.0      2464     13120         97.9  Sub_GPU_DT_FLOAT_DT_FLOAT_kernel
+      4.7        571704448     210652    2714.0    2688.0      2591     12928        101.4  void splitKreduce_kernel<float, float, float, float>(cublasSplitKParams<T3>, const T1 *, const T2 *…
+      4.3        525070183     210639    2492.7    2496.0      2336     13536         81.8  Rsqrt_GPU_DT_FLOAT_DT_FLOAT_kernel
+      4.2        505163937     210639    2398.2    2400.0      2303     12640         80.0  Relu_GPU_DT_FLOAT_DT_FLOAT_kernel
+      1.2        146093363      16202    9017.0    8992.0      8800     14432        105.6  ampere_sgemm_32x32_sliced1x4_nn
+      1.1        130198191      16203    8035.4    8032.0      7679     15584        147.4  void cutlass::Kernel<cutlass_80_tensorop_s1688gemm_64x64_16x6_nn_align1>(T1::Params)
+      0.4         50604857      16202    3123.4    3104.0      2944     11616        134.6  _ZN10tensorflow7functor15RowReduceKernelIN3cub22TransformInputIteratorIfNS_94_GLOBAL__N__64_tmpxft_…
+      0.4         49736459      16202    3069.8    3072.0      2944      3616         64.1  void dot_kernel<float, (int)128, (int)0, cublasDotParams<cublasGemvTensorStridedBatched<const float…
+      0.4         49162100      16202    3034.3    3040.0      2943     11265         88.0  void reduce_1Block_kernel<float, (int)128, (int)7, cublasGemvTensorStridedBatched<float>, cublasGem…
+      0.4         47786847      16202    2949.4    2912.0      2784     11041        106.6  _ZN10tensorflow94_GLOBAL__N__64_tmpxft_00003e1c_00000000_12_softmax_op_gpu_cu_compute_80_cpp1_ii_27…
+      0.4         43240729      16202    2668.9    2656.0      2560      3072         54.3  void tensorflow::functor::RowReduceKernel<const float *, float *, cub::Max>(T1, T2, int, int, T3, s…
+      0.4         42979900      16203    2652.6    2656.0      2559      8480         71.8  Tanh_GPU_DT_FLOAT_DT_FLOAT_kernel
+      0.3         41086935      16202    2535.9    2528.0      2399     11136        102.4  Cast_GPU_DT_DOUBLE_DT_FLOAT_kernel
+      0.0           914441        323    2831.1    2592.0      2527      7616        848.5  void Eigen::internal::EigenMetaKernel<Eigen::TensorEvaluator<const Eigen::TensorAssignOp<Eigen::Ten…
+      0.0           509955         56    9106.3    4448.0      3520     40320      11229.2  void tensorflow::functor::ApplyAdamKernel<float>(int, T1 *, T1 *, T1 *, const T1 *, const T1 *, con…
+      0.0           389763         58    6720.1    5824.0      3232      9825       2089.2  void tensorflow::functor::FillPhiloxRandomKernelLaunch<tensorflow::random::UniformDistribution<tens…
+      0.0           256706         12   21392.2   24816.0     11232     30209       9329.8  void cutlass::Kernel<cutlass_80_tensorop_s1688gemm_64x128_32x3_tn_align4>(T1::Params)
+      0.0           252514         12   21042.8   23008.0     10848     30528       9700.2  void cutlass::Kernel<cutlass_80_tensorop_s1688gemm_64x128_32x3_nn_align4>(T1::Params)
+      0.0           162848          6   27141.3   27072.0     26560     27808        454.1  void cutlass::Kernel<cutlass_80_tensorop_s1688gemm_128x64_16x6_nt_align4>(T1::Params)
+      0.0           106624         26    4100.9    4000.0      3936      5760        377.5  void tensorflow::functor::ColumnReduceKernel<float *, tensorflow::TransformOutputIterator<float, fl…
+      0.0           101057         26    3886.8    3872.0      3808      4193         71.0  void tensorflow::functor::ColumnReduceKernel<float *, float *, tensorflow::functor::Sum<float>>(T1,…
+      0.0            97792         26    3761.2    3807.5      3552      4160        148.8  void Eigen::internal::EigenMetaKernel<Eigen::TensorEvaluator<const Eigen::TensorAssignOp<Eigen::Ten…
+      0.0            72896         26    2803.7    2784.0      2720      3104         83.5  void Eigen::internal::EigenMetaKernel<Eigen::TensorEvaluator<const Eigen::TensorAssignOp<Eigen::Ten…
+      0.0            66495         14    4749.6    4720.0      2560      6368        977.7  SquaredDifference_GPU_DT_FLOAT_DT_FLOAT_kernel
+      0.0            57024         13    4386.5    4704.0      3584      5376        576.8  void Eigen::internal::EigenMetaKernel<Eigen::TensorEvaluator<const Eigen::TensorAssignOp<Eigen::Ten…
+      0.0            54659         14    3904.2    3872.0      2944      4257        314.4  void tensorflow::functor::ColumnReduceKernel<const float *, float *, cub::Sum>(T1, T2, int, int, T3…
+      0.0            53088         13    4083.7    4224.0      3872      4288        185.0  void Eigen::internal::EigenMetaKernel<Eigen::TensorEvaluator<const Eigen::TensorAssignOp<Eigen::Ten…
+      0.0            50559         13    3889.2    4096.0      3264      4416        424.8  GreaterEqual_GPU_DT_FLOAT_DT_BOOL_kernel
+      0.0            50464          5   10092.8   10112.0      9952     10272        129.2  void cutlass::Kernel<cutlass_80_tensorop_s1688gemm_64x64_16x6_nt_align4>(T1::Params)
+      0.0            44928         13    3456.0    3808.0      2816      4288        594.5  Cast_GPU_DT_BOOL_DT_FLOAT_kernel
+      0.0            42883         15    2858.9    2816.0      2656      3456        195.3  void Eigen::internal::EigenMetaKernel<Eigen::TensorEvaluator<const Eigen::TensorAssignOp<Eigen::Ten…
+      0.0            37922         13    2917.1    2944.0      2847      3009         60.0  void Eigen::internal::EigenMetaKernel<Eigen::TensorEvaluator<const Eigen::TensorAssignOp<Eigen::Ten…
+      0.0            32479         13    2498.4    2496.0      2464      2560         35.6  Neg_GPU_DT_FLOAT_DT_FLOAT_kernel
+      0.0            24288          1   24288.0   24288.0     24288     24288          0.0  void cutlass::Kernel<cutlass_80_tensorop_s1688gemm_128x128_32x3_nt_align4>(T1::Params)
+      0.0            20351          4    5087.8    4000.0      3583      8768       2475.2  void tensorflow::BiasGradNHWC_SharedAtomics<float>(int, const T1 *, T1 *, int)
+      0.0            17025          6    2837.5    2832.5      2816      2880         26.0  void Eigen::internal::EigenMetaKernel<Eigen::TensorEvaluator<const Eigen::TensorAssignOp<Eigen::Ten…
+      0.0            13216          1   13216.0   13216.0     13216     13216          0.0  void cutlass::Kernel<cutlass_80_tensorop_s1688gemm_64x64_32x6_nt_align1>(T1::Params)
+      0.0            12800          5    2560.0    2528.0      2496      2720         93.3  DivNoNan_GPU_DT_FLOAT_DT_FLOAT_kernel
+      0.0            12448          1   12448.0   12448.0     12448     12448          0.0  void cutlass::Kernel<cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align1>(T1::Params)
+      0.0            10336          1   10336.0   10336.0     10336     10336          0.0  void Eigen::internal::EigenMetaKernel<Eigen::TensorEvaluator<const Eigen::TensorAssignOp<Eigen::Ten…
+      0.0             7712          1    7712.0    7712.0      7712      7712          0.0  void cutlass::Kernel<cutlass_80_tensorop_s1688gemm_64x64_16x6_nt_align1>(T1::Params)
+      0.0             7040          1    7040.0    7040.0      7040      7040          0.0  void Eigen::internal::EigenMetaKernel<Eigen::TensorEvaluator<const Eigen::TensorAssignOp<Eigen::Ten…
+      0.0             7008          1    7008.0    7008.0      7008      7008          0.0  ampere_sgemm_32x32_sliced1x4_tn
+      0.0             5568          2    2784.0    2784.0      2784      2784          0.0  Pow_GPU_DT_FLOAT_DT_FLOAT_kernel
+      0.0             5344          2    2672.0    2672.0      2656      2688         22.6  void Eigen::internal::EigenMetaKernel<Eigen::TensorEvaluator<const Eigen::TensorAssignOp<Eigen::Ten…
+      0.0             5248          2    2624.0    2624.0      2592      2656         45.3  void tensorflow::functor::BlockReduceKernel<float *, float *, (int)256, tensorflow::functor::Sum<fl…
+      0.0             5216          1    5216.0    5216.0      5216      5216          0.0  void Eigen::internal::EigenMetaKernel<Eigen::TensorEvaluator<const Eigen::TensorAssignOp<Eigen::Ten…
+      0.0             5056          1    5056.0    5056.0      5056      5056          0.0  void Eigen::internal::EigenMetaKernel<Eigen::TensorEvaluator<const Eigen::TensorAssignOp<Eigen::Ten…
+      0.0             4640          1    4640.0    4640.0      4640      4640          0.0  void Eigen::internal::EigenMetaKernel<Eigen::TensorEvaluator<const Eigen::TensorEvalToOp<const Eige…
+      0.0             4576          1    4576.0    4576.0      4576      4576          0.0  ampere_sgemm_128x32_tn
+      0.0             4192          1    4192.0    4192.0      4192      4192          0.0  void Eigen::internal::EigenMetaKernel<Eigen::TensorEvaluator<const Eigen::TensorAssignOp<Eigen::Ten…
+      0.0             4192          1    4192.0    4192.0      4192      4192          0.0  void gemvNSP_kernel<float, float, float, float, (int)1, (int)16, (int)4, (int)1024, cublasGemvParam…
+      0.0             4160          1    4160.0    4160.0      4160      4160          0.0  void gemv2T_kernel_val<int, int, float, float, float, float, (int)128, (int)16, (int)4, (int)4, (bo…
+      0.0             3584          1    3584.0    3584.0      3584      3584          0.0  void tensorflow::functor::ColumnReduceMax16ColumnsKernel<const float *, float *, cub::Sum>(T1, T2, …
+      0.0             3232          1    3232.0    3232.0      3232      3232          0.0  void tensorflow::functor::CleanupSegments<float *, float *, cub::Sum>(T1, T2, int, int, int, T3, st…
+      0.0             2944          1    2944.0    2944.0      2944      2944          0.0  AddV2_GPU_DT_INT64_DT_INT64_kernel
+      0.0             2944          1    2944.0    2944.0      2944      2944          0.0  void Eigen::internal::EigenMetaKernel<Eigen::TensorEvaluator<const Eigen::TensorEvalToOp<const Eige…
+      0.0             2881          1    2881.0    2881.0      2881      2881          0.0  void Eigen::internal::EigenMetaKernel<Eigen::TensorEvaluator<const Eigen::TensorAssignOp<Eigen::Ten…
+      0.0             2528          1    2528.0    2528.0      2528      2528          0.0  void Eigen::internal::EigenMetaKernel<Eigen::TensorEvaluator<const Eigen::TensorAssignOp<Eigen::Ten…
+      0.0             2496          1    2496.0    2496.0      2496      2496          0.0  Cast_GPU_DT_INT64_DT_FLOAT_kernel
+
+[6/7] Executing 'gpumemtimesum' stats report
+
+CUDA Memory Operation Statistics (by time):
+
+ Time (%)  Total Time (ns)  Count   Avg (ns)  Med (ns)  Min (ns)  Max (ns)  StdDev (ns)      Operation
+ --------  ---------------  ------  --------  --------  --------  --------  -----------  ------------------
+     62.3        413818595  303512    1363.4    1312.0      1184   1227723       5105.0  [CUDA memcpy DtoH]
+     37.7        250812378  206782    1212.9    1152.0      1056    474181       3999.1  [CUDA memcpy HtoD]
+      0.0            23840      18    1324.4    1295.5      1120      1600        141.9  [CUDA memset]
+      0.0             2528       1    2528.0    2528.0      2528      2528          0.0  [CUDA memcpy DtoD]
+
+[7/7] Executing 'gpumemsizesum' stats report
+
+CUDA Memory Operation Statistics (by size):
+
+ Total (MB)  Count   Avg (MB)  Med (MB)  Min (MB)  Max (MB)  StdDev (MB)      Operation
+ ----------  ------  --------  --------  --------  --------  -----------  ------------------
+    138.223  303512     0.000     0.000     0.000     4.194        0.039  [CUDA memcpy DtoH]
+    130.841  206782     0.001     0.000     0.000     4.194        0.041  [CUDA memcpy HtoD]
+      0.044      18     0.002     0.002     0.000     0.004        0.001  [CUDA memset]
+      0.000       1     0.000     0.000     0.000     0.000        0.000  [CUDA memcpy DtoD]
