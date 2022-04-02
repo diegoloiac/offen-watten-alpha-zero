@@ -9,8 +9,6 @@ from core.agents.AgentRandom import AgentRandom
 from versions.asymmetric_sub_watten.AsymmetricSubWattenGame import AsymmetricSubWattenGame
 from versions.blind_watten.BlindWattenGame import BlindWattenGame
 from versions.hand_watten.HandWattenGame import HandWattenGame
-from multiprocessing import Pool
-
 
 
 class World:
@@ -236,8 +234,6 @@ class World:
                 print(f"--- {agent.get_name()}: {games_results[idx]} ---  {won[idx]}")
 
         return games_experience, games_results
-    
-
 
     def generate_self_play(self, agent, game, num_games,
                            max_game_steps_n=None, allow_exploration=True,
@@ -253,7 +249,8 @@ class World:
             print(agent.exp_rate)
             agents[1].exp_rate = 7
 
-        with Pool(4) as p:
-
-            games_experience = p.map(self.execute_games,[agents, game, num_games, max_game_steps_n=max_game_steps_n, allow_exploration=allow_exploration, verbose=verbose, show_every_turn=show_every_turn, exploration_decay_steps=exploration_decay_steps])
-            return games_experience
+        games_experience, _ = self.execute_games(agents, game, num_games,
+                                                 max_game_steps_n=max_game_steps_n, allow_exploration=allow_exploration,
+                                                 verbose=verbose, show_every_turn=show_every_turn,
+                                                 exploration_decay_steps=exploration_decay_steps)
+        return games_experience
