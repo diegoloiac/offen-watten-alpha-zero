@@ -34,7 +34,7 @@ def generate_self_play(opt_agent_profile, agent_path, games_num,
     agent_profile = env_selector.get_profile(opt_agent_profile)
     game = env_selector.get_game(agent_profile.game)
 
-    with p.Pool(processes=8) as pool:
+    with p.Pool(processes=200) as pool:
         self_play_examples = pool.starmap(world.generate_self_play(agent, game, games_num,
                                                   max_game_steps_n=max_steps,
                                                   verbose=verbose,
