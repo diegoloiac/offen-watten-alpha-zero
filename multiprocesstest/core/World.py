@@ -198,6 +198,7 @@ class World:
 
         return augmented_exp, game_results
 
+
     def execute_games(self, agents, game, num_games, max_game_steps_n=None, allow_exploration=False,
                       verbose=False, show_every_turn=False, exploration_decay_steps=None):
         games_experience = []
@@ -214,11 +215,12 @@ class World:
         loop_range = tqdm(loop_range)
 
         for id_loop in loop_range:
-            game_experience, game_results = self.execute_game(agents, game,
+            with p.Pool(processes=50) as pool:
+                game_experience, game_results = pool.starmap(self.execute_game(agents, game,
                                                               max_game_steps_n=max_game_steps_n,
                                                               allow_exploration=allow_exploration, verbose=verbose,
                                                               show_every_turn=show_every_turn,
-                                                              exploration_decay_steps=exploration_decay_steps)
+                                                              exploration_decay_steps=exploration_decay_steps))
 
             for idx, result in enumerate(game_results):
                 if result > 0:
@@ -250,10 +252,9 @@ class World:
             print(agent.exp_rate)
             agents[1].exp_rate = 7
 
-        with p.Pool(processes=50) as pool:
 
-            games_experience, _ = pool.starmap(self.execute_games(agents, game, num_games,
+        games_experience, _ = self.execute_games(agents, game, num_games,
                                                     max_game_steps_n=max_game_steps_n, allow_exploration=allow_exploration,
                                                     verbose=verbose, show_every_turn=show_every_turn,
-                                                    exploration_decay_steps=exploration_decay_steps))
-            return games_experience
+                                                    exploration_decay_steps=exploration_decay_steps)
+        return games_experience
