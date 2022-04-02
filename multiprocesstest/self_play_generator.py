@@ -9,7 +9,6 @@ from core.EnvironmentSelector import EnvironmentSelector
 from core.utils.utils import serialize
 from core.World import World
 from pkl_tfrec_converter import serialize_example
-import multiprocessing as p
 
 
 def generate_self_play(opt_agent_profile, agent_path, games_num,
@@ -34,12 +33,11 @@ def generate_self_play(opt_agent_profile, agent_path, games_num,
     agent_profile = env_selector.get_profile(opt_agent_profile)
     game = env_selector.get_game(agent_profile.game)
 
-    with p.Pool(processes=50) as pool:
-        self_play_examples = pool.starmap(world.generate_self_play(agent, game, games_num,
+    self_play_examples = world.generate_self_play(agent, game, games_num,
                                                   max_game_steps_n=max_steps,
                                                   verbose=verbose,
                                                   show_every_turn=debug,
-                                                  exploration_decay_steps=exploration_decay_steps))
+                                                  exploration_decay_steps=exploration_decay_steps)
 
     # Write self_play_examples as tfrecord
     self_play_examples_deque += self_play_examples
