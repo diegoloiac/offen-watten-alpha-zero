@@ -8,7 +8,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import sys
 import glob
 import tensorflow as tf
-
+import multiprocessing as p
 
 from core.EnvironmentSelector import EnvironmentSelector
 from core.utils.utils import serialize, deserialize, execute_command_sync
@@ -189,10 +189,12 @@ if __name__ == "__main__":
 
         self_play_memory = memory_folder + f'/memory_{idx}.tfrecord'
 
-        generate_self_play(options.agent_profile, path_to_self_play_agent,
+        with p.Pool(processes=20) as pool: 
+
+            pool.starmap(generate_self_play(options.agent_profile, path_to_self_play_agent,
                            temp_games_memory_dir, self_play_memory,
                            options.games_num, options.verbose,
-                           options.debug, options.max_steps, options.exploration_decay_steps, options.add_randomness)
+                           options.debug, options.max_steps, options.exploration_decay_steps, options.add_randomness))
 
         contestant_agent_path = temp_dir + '/temp_contestant.h5'
 
