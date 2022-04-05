@@ -189,7 +189,7 @@ if __name__ == "__main__":
 
         self_play_memory = memory_folder + f'/memory_{idx}.tfrecord'
 
-        with p.Pool(processes=20) as pool: 
+        with p.Pool(processes=500) as pool: 
 
             pool.starmap(generate_self_play(options.agent_profile, path_to_self_play_agent,
                            temp_games_memory_dir, self_play_memory,
