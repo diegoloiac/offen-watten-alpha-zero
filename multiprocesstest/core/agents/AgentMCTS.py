@@ -62,7 +62,7 @@ class AgentMCTS(Agent):
         canonical_state = game.get_observation(game_player)
         canonical_state_str = game.get_observation_str(canonical_state)
 
-        self.num_threads = 10
+        self.num_threads = 100
         
         value = self.simulate_async(game, game_player, canonical_state_str)
 
