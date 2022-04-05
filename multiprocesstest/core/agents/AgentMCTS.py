@@ -6,7 +6,6 @@ from threading import Lock
 from collections import defaultdict
 
 from core.interfaces.Agent import Agent
-import multiprocessing as p
 
 EPS = 1e-8
 
@@ -19,11 +18,7 @@ class AgentMCTS(Agent):
     EXPLORATION_RATE_HIGH = 2.5
 
     def __init__(self, agent,
-                 name="Agent MCTS", exp_rate=EXPLORATION_RATE_INIT,
-                 cpuct=1, numMCTSSims=10,
-                 max_predict_time=None,
-                 num_threads=1,
-                 verbose=False):
+                 name="Agent MCTS"):
         super().__init__(name=name)
 
         self.agent = agent
@@ -63,8 +58,10 @@ class AgentMCTS(Agent):
         canonical_state = game.get_observation(game_player)
         canonical_state_str = game.get_observation_str(canonical_state)
 
-        with p.Pool(processes=20) as pool:
-            value = pool.starmap(self.simulate_sync, zip(game, game_player, canonical_state_str))
+        if self.num_threads == 1:
+            value = self.simulate_sync(game, game_player, canonical_state_str)
+        else:
+            value = self.simulate_async(game, game_player, canonical_state_str)
 
         counts = [self.Nsa[(canonical_state_str, a)] if (canonical_state_str, a) in self.Nsa else 0 for a in
                   range(game.get_action_size())]
