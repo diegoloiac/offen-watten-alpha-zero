@@ -105,7 +105,6 @@ class World:
                 # Convert tensor when dealing with IA
                 if tf.is_tensor(observation_value):
                     observation_value = observation_value.numpy()
-                    actions_prob = actions_prob.numpy()
 
                 # last move was a raise
                 if valid_moves[47] == 1 and valid_moves[48] == 1:
