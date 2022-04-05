@@ -154,7 +154,7 @@ class AgentMCTS(Agent):
 
                 start_sim_time = time.time()
 
-                _, value = future.result()
+                _, value = self.search_async(game_clone, game_player)
 
                 end_sim_time = time.time()
 
