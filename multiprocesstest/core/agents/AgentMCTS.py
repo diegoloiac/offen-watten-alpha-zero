@@ -18,7 +18,11 @@ class AgentMCTS(Agent):
     EXPLORATION_RATE_HIGH = 2.5
 
     def __init__(self, agent,
-                 name="Agent MCTS"):
+                 name="Agent MCTS", exp_rate=EXPLORATION_RATE_INIT,
+                 cpuct=1, numMCTSSims=10,
+                 max_predict_time=None,
+                 num_threads=1,
+                 verbose=False):
         super().__init__(name=name)
 
         self.agent = agent
