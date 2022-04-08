@@ -214,7 +214,7 @@ class World:
         loop_range = tqdm(loop_range)
 
         for id_loop in loop_range:
-            with p.Pool(processes=8) as pool: 
+            with p.Pool(processes=4) as pool: 
                 game_experience, game_results =  pool.starmap(self.execute_game,zip(repeat(agents), repeat(game),
                                                               repeat(max_game_steps_n),
                                                               repeat(allow_exploration),repeat(verbose),
