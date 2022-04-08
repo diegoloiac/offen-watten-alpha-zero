@@ -9,6 +9,8 @@ from core.agents.AgentRandom import AgentRandom
 from versions.asymmetric_sub_watten.AsymmetricSubWattenGame import AsymmetricSubWattenGame
 from versions.blind_watten.BlindWattenGame import BlindWattenGame
 from versions.hand_watten.HandWattenGame import HandWattenGame
+import multiprocessing as p
+import itertools
 
 
 class World:
@@ -212,11 +214,11 @@ class World:
         loop_range = tqdm(loop_range)
 
         for id_loop in loop_range:
-            game_experience, game_results = self.execute_game(agents, game,
-                                                              max_game_steps_n=max_game_steps_n,
-                                                              allow_exploration=allow_exploration, verbose=verbose,
-                                                              show_every_turn=show_every_turn,
-                                                              exploration_decay_steps=exploration_decay_steps)
+            game_experience, game_results = p.map(self.execute_game, itertools.izip((agents, game,
+                                                              max_game_steps_n,
+                                                              allow_exploration, verbose,
+                                                              show_every_turn,
+                                                              exploration_decay_steps)))
 
             for idx, result in enumerate(game_results):
                 if result > 0:
