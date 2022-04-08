@@ -9,7 +9,6 @@ from core.agents.AgentRandom import AgentRandom
 from versions.asymmetric_sub_watten.AsymmetricSubWattenGame import AsymmetricSubWattenGame
 from versions.blind_watten.BlindWattenGame import BlindWattenGame
 from versions.hand_watten.HandWattenGame import HandWattenGame
-from concurrent.futures import ThreadPoolExecutor
 
 
 class World:
@@ -213,8 +212,7 @@ class World:
         loop_range = tqdm(loop_range)
 
         for id_loop in loop_range:
-            with ThreadPoolExecutor(max_workers=500) as executor:
-                game_experience, game_results = self.execute_game(agents, game,
+            game_experience, game_results = self.execute_game(agents, game,
                                                               max_game_steps_n=max_game_steps_n,
                                                               allow_exploration=allow_exploration, verbose=verbose,
                                                               show_every_turn=show_every_turn,
