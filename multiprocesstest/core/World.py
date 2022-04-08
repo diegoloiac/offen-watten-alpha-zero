@@ -9,7 +9,7 @@ from core.agents.AgentRandom import AgentRandom
 from versions.asymmetric_sub_watten.AsymmetricSubWattenGame import AsymmetricSubWattenGame
 from versions.blind_watten.BlindWattenGame import BlindWattenGame
 from versions.hand_watten.HandWattenGame import HandWattenGame
-import multiprocessing as p
+from multiprocessing import Pool, freeze_support
 import itertools
 
 
@@ -214,7 +214,7 @@ class World:
         loop_range = tqdm(loop_range)
 
         for id_loop in loop_range:
-            game_experience, game_results = p.map(self.execute_game, itertools.izip((agents, game,
+            game_experience, game_results = Pool.map(self.execute_game, itertools.izip((agents, game,
                                                               max_game_steps_n,
                                                               allow_exploration, verbose,
                                                               show_every_turn,
