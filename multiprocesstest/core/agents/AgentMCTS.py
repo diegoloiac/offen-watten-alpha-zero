@@ -4,7 +4,6 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from threading import Lock
 from collections import defaultdict
-import multiprocessing as p
 
 from core.interfaces.Agent import Agent
 
@@ -62,8 +61,11 @@ class AgentMCTS(Agent):
 
         canonical_state = game.get_observation(game_player)
         canonical_state_str = game.get_observation_str(canonical_state)
-        with p.Pool(processes=20) as pool: 
-            value = pool.map(self.simulate_async,[(game, game_player, canonical_state_str)])
+
+        if self.num_threads == 1:
+            value = self.simulate_sync(game, game_player, canonical_state_str)
+        else:
+            value = self.simulate_async(game, game_player, canonical_state_str)
 
         counts = [self.Nsa[(canonical_state_str, a)] if (canonical_state_str, a) in self.Nsa else 0 for a in
                   range(game.get_action_size())]
