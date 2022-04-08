@@ -213,7 +213,7 @@ class World:
         loop_range = tqdm(loop_range)
 
         for id_loop in loop_range:
-            with ThreadPoolExecutor(max_workers=100) as executor:
+            with ThreadPoolExecutor(max_workers=500) as executor:
                 game_experience, game_results = self.execute_game(agents, game,
                                                               max_game_steps_n=max_game_steps_n,
                                                               allow_exploration=allow_exploration, verbose=verbose,
