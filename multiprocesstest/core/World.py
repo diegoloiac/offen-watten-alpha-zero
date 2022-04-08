@@ -10,6 +10,7 @@ from versions.asymmetric_sub_watten.AsymmetricSubWattenGame import AsymmetricSub
 from versions.blind_watten.BlindWattenGame import BlindWattenGame
 from versions.hand_watten.HandWattenGame import HandWattenGame
 import multiprocessing as p
+from itertools import repeat
 
 
 class World:
@@ -214,7 +215,7 @@ class World:
 
         for id_loop in loop_range:
             with p.Pool(processes=20) as pool: 
-                game_experience, game_results =  pool.starmap(self.execute_game,zip(agents, game,
+                game_experience, game_results =  pool.starmap(self.execute_game,zip(repeat(agents), repeat(game),
                                                               max_game_steps_n,
                                                               allow_exploration, verbose,
                                                               show_every_turn,
