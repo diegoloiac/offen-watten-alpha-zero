@@ -209,7 +209,7 @@ class World:
 
         loop_range = range(num_games)
 
-        print(agents + type(agents) + "\n" + game + type(game) + "\n" + max_game_steps_n + type(max_game_steps_n) + "\n" + allow_exploration + type(allow_exploration) + "\n" + show_every_turn + type(show_every_turn) + "\n" + exploration_decay_steps + type(exploration_decay_steps))
+        print(agents , type(agents) , "\n" , game , type(game) , "\n" , max_game_steps_n , type(max_game_steps_n) , "\n" , allow_exploration , type(allow_exploration) , "\n" , show_every_turn , type(show_every_turn) , "\n" , exploration_decay_steps , type(exploration_decay_steps))
 
         # if verbose:
         """loop_range = tqdm(loop_range)
