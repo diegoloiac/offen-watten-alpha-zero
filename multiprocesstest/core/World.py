@@ -209,8 +209,10 @@ class World:
 
         loop_range = range(num_games)
 
+        print(agents + type(agents) + "\n" + game + type(game) + "\n" + max_game_steps_n + type(max_game_steps_n) + "\n" + allow_exploration + type(allow_exploration) + "\n" + show_every_turn + type(show_every_turn) + "\n" + exploration_decay_steps + type(exploration_decay_steps))
+
         # if verbose:
-        loop_range = tqdm(loop_range)
+        """loop_range = tqdm(loop_range)
 
         for id_loop in loop_range:
             with p.Pool(processes=20) as pool: 
@@ -234,7 +236,7 @@ class World:
             for idx, agent in enumerate(agents):
                 print(f"--- {agent.get_name()}: {games_results[idx]} ---  {won[idx]}")
 
-        return games_experience, games_results
+        return games_experience, games_results"""
 
     def generate_self_play(self, agent, game, num_games,
                            max_game_steps_n=None, allow_exploration=True,
