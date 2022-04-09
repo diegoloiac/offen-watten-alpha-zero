@@ -215,7 +215,7 @@ class World:
 
         for id_loop in loop_range:
             with p.Pool(processes=4) as pool: 
-                game_experience, game_results =  pool.starmap(self.execute_game,[
+                game_experience, game_results =  pool.starmap(self.execute_game,[agents, game,
                                                               max_game_steps_n,
                                                               allow_exploration,verbose,
                                                               show_every_turn,
