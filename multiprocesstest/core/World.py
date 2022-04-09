@@ -217,7 +217,7 @@ class World:
             with p.Pool(processes=4) as pool: 
                 game_experience, game_results =  pool.starmap(self.execute_game,zip(repeat(agents), repeat(game),
                                                               repeat(max_game_steps_n),
-                                                              allow_exploration,repeat(verbose),
+                                                              allow_exploration,verbose,
                                                               show_every_turn,
                                                               exploration_decay_steps))
 
