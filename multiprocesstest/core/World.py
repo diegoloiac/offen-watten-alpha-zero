@@ -218,8 +218,8 @@ class World:
                 game_experience, game_results =  pool.starmap(self.execute_game,zip(repeat(agents), repeat(game),
                                                               repeat(max_game_steps_n),
                                                               repeat(allow_exploration),repeat(verbose),
-                                                              repeat(show_every_turn),
-                                                              repeat(exploration_decay_steps)))
+                                                              show_every_turn,
+                                                              exploration_decay_steps))
 
             for idx, result in enumerate(game_results):
                 if result > 0:
