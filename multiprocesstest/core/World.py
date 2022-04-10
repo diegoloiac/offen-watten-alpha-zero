@@ -1,6 +1,7 @@
 import numpy as np
 import itertools
 import logging
+from core.EnvironmentSelector import EnvironmentSelector
 from tqdm import tqdm
 import tensorflow as tf
 
@@ -22,7 +23,7 @@ class World:
         self.RESULT_DRAW = -1
         self.add_randomness = add_randomness
 
-    def execute_game(self, agents, game, max_game_steps_n=None, allow_exploration=False,
+    def execute_game(self, game, max_game_steps_n=None, allow_exploration=False,
                      verbose=False, show_every_turn=False, exploration_decay_steps=None, need_reset=True):
 
         episode_exp = []
@@ -30,6 +31,8 @@ class World:
 
         if need_reset:
             game.reset()
+
+        agents = EnvironmentSelector.build_train_agent_ffnn(self, "hand_watten_train")
 
         # create cnn game if needed
         cnn_game = None
@@ -214,12 +217,11 @@ class World:
         loop_range = tqdm(loop_range)
 
         for id_loop in loop_range:
-            with p.Pool(processes=4) as pool: 
-                game_experience, game_results =  pool.starmap(self.execute_game,[agents, game,
+            game_experience, game_results =  self.execute_game(agents, game,
                                                               max_game_steps_n,
                                                               allow_exploration,verbose,
                                                               show_every_turn,
-                                                              exploration_decay_steps])
+                                                              exploration_decay_steps)
 
             for idx, result in enumerate(game_results):
                 if result > 0:
