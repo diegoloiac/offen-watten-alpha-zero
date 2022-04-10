@@ -32,7 +32,7 @@ class World:
         if need_reset:
             game.reset()
 
-        agents = EnvironmentSelector.build_train_agent_ffnn(self, "hand_watten_train")
+        agents = EnvironmentSelector.build_train_agent_ffnn(EnvironmentSelector, "hand_watten_train")
 
         # create cnn game if needed
         cnn_game = None
