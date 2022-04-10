@@ -228,7 +228,7 @@ class World:
         loop_range = tqdm(loop_range)
 
         for id_loop in loop_range:
-            with p.Pool(processes=8) as pool: 
+            with p.Pool(processes=2) as pool: 
                 game_experience, game_results =  pool.imap(self.execute_game,[(
                                                               max_game_steps_n,
                                                               allow_exploration,verbose,
