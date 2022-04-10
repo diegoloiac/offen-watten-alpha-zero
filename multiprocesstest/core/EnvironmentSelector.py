@@ -192,7 +192,7 @@ class EnvironmentSelector:
         return agent
 
     def build_train_agent_ffnn(self):
-        game = self.game_mapping[EnvironmentSelector.GAME_HAND_WATTEN: HandWattenGame()]
+        game = self.game_mapping[HandWattenGame()]
         print(f'Building ffnn train agent for {game.__class__}')
 
         x, y = game.get_observation_size()
