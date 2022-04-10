@@ -23,11 +23,13 @@ class World:
         self.RESULT_DRAW = -1
         self.add_randomness = add_randomness
 
-    def execute_game(self, game, max_game_steps_n=None, allow_exploration=False,
+    def execute_game(self, max_game_steps_n=None, allow_exploration=False,
                      verbose=False, show_every_turn=False, exploration_decay_steps=None, need_reset=True):
 
         episode_exp = []
         augmented_exp = []
+
+        game = HandWattenGame()
 
         if need_reset:
             game.reset()
@@ -226,7 +228,7 @@ class World:
         loop_range = tqdm(loop_range)
 
         for id_loop in loop_range:
-            game_experience, game_results =  self.execute_game(game,
+            game_experience, game_results =  self.execute_game(
                                                               max_game_steps_n,
                                                               allow_exploration,verbose,
                                                               show_every_turn,
