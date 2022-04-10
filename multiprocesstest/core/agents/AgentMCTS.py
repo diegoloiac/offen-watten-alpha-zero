@@ -62,10 +62,8 @@ class AgentMCTS(Agent):
         canonical_state = game.get_observation(game_player)
         canonical_state_str = game.get_observation_str(canonical_state)
 
-        if self.num_threads == 1:
-            value = self.simulate_sync(game, game_player, canonical_state_str)
-        else:
-            value = self.simulate_async(game, game_player, canonical_state_str)
+        
+        value = self.simulate_async(game, game_player, canonical_state_str)
 
         counts = [self.Nsa[(canonical_state_str, a)] if (canonical_state_str, a) in self.Nsa else 0 for a in
                   range(game.get_action_size())]
