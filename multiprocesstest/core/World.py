@@ -39,7 +39,7 @@ class World:
 
         # create cnn game if needed
         cnn_game = None
-        if agents[1].name == 'evaluate_cnn':
+        """if agents[1].name == 'evaluate_cnn':
             cnn_game = HandWattenGame(cnn=True)
             cnn_game.trueboard.init_world_to_state(game.trueboard.current_player, game.trueboard.distributing_cards_player,
                                                    game.trueboard.player_A_hand, game.trueboard.player_B_hand,
@@ -49,7 +49,7 @@ class World:
                                                    game.trueboard.is_last_hand_raise_valid, game.trueboard.first_card_deck,
                                                    game.trueboard.last_card_deck, game.trueboard.rank,
                                                    game.trueboard.suit, game.trueboard.started_raising)
-
+"""
         game_results = []
         for idx, agent in enumerate(agents):
             if allow_exploration:
