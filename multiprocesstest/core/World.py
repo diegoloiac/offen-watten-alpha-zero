@@ -35,7 +35,7 @@ class World:
 
         Env = EnvironmentSelector()
 
-        agents = EnvironmentSelector.build_train_agent_ffnn(Env, "hand_watten_train")
+        agents = EnvironmentSelector.build_train_agent_ffnn(Env)
 
         # create cnn game if needed
         cnn_game = None
