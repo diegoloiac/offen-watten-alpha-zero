@@ -217,7 +217,7 @@ class World:
         loop_range = tqdm(loop_range)
 
         for id_loop in loop_range:
-            game_experience, game_results =  self.execute_game(agents, game,
+            game_experience, game_results =  self.execute_game(game,
                                                               max_game_steps_n,
                                                               allow_exploration,verbose,
                                                               show_every_turn,
