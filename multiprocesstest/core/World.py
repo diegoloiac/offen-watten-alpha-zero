@@ -228,7 +228,7 @@ class World:
         loop_range = tqdm(loop_range)
 
         for id_loop in loop_range:
-            game_experience, game_results, agents =  self.execute_game(
+            game_experience, game_results =  self.execute_game(
                                                               max_game_steps_n,
                                                               allow_exploration,verbose,
                                                               show_every_turn,
@@ -241,7 +241,7 @@ class World:
             if len(game_experience) > 0:
                 games_experience.extend(game_experience)
 
-            for idx in range(len(agents)):
+            for idx in range(2):
                 games_results[idx] += game_results[idx]
 
         if verbose:
