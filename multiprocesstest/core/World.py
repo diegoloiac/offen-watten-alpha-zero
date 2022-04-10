@@ -210,7 +210,7 @@ class World:
         for idx, [cur_observation, cur_player, cur_pi] in enumerate(episode_exp):
             augmented_exp.append((cur_observation, cur_pi, game_results[cur_player]))
 
-        return augmented_exp, game_results
+        return augmented_exp, game_results, agents
 
     def execute_games(self, agents, game, num_games, max_game_steps_n=None, allow_exploration=False,
                       verbose=False, show_every_turn=False, exploration_decay_steps=None):
@@ -228,7 +228,7 @@ class World:
         loop_range = tqdm(loop_range)
 
         for id_loop in loop_range:
-            game_experience, game_results =  self.execute_game(
+            game_experience, game_results, agents =  self.execute_game(
                                                               max_game_steps_n,
                                                               allow_exploration,verbose,
                                                               show_every_turn,
