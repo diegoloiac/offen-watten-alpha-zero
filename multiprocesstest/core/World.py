@@ -35,7 +35,13 @@ class World:
 
         Env = EnvironmentSelector()
 
-        agents = EnvironmentSelector.build_train_agent_ffnn(Env)
+        agent = EnvironmentSelector.build_train_agent_ffnn(Env)
+
+
+        agents = []
+        for idx in range(game.get_players_num()):
+            agents.append(agent.clone())
+            agents[idx].name += str(idx)
 
         # create cnn game if needed
         cnn_game = None
