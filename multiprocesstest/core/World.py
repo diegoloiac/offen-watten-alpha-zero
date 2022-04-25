@@ -1,3 +1,4 @@
+from asyncio import futures
 import numpy as np
 import itertools
 import logging
@@ -12,6 +13,7 @@ from versions.blind_watten.BlindWattenGame import BlindWattenGame
 from versions.hand_watten.HandWattenGame import HandWattenGame
 import multiprocessing as p
 from itertools import repeat
+from concurrent.futures import ThreadPoolExecutor
 
 
 class World:
@@ -227,8 +229,12 @@ class World:
         # if verbose:
         loop_range = tqdm(loop_range)
 
+        self.predict_executor = ThreadPoolExecutor(10)
+
+        futures = []
+
         for id_loop in loop_range:
-            with p.Pool(processes=4) as pool: 
+            with ThreadPoolExecutor(max_workers=self.num_threads) as executor:
                 game_experience, game_results =  pool.starmap(self.execute_game,[(
                                                               max_game_steps_n,
                                                               allow_exploration,verbose,
