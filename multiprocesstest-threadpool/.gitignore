@@ -1,0 +1,9 @@
+.idea/
+
+**.h5
+**.pyc
+**.pkl
+**.tfrecord
+**.pb
+**.iml
+WATTENUTILS.md
