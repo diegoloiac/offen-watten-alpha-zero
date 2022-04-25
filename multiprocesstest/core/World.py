@@ -214,7 +214,7 @@ class World:
         loop_range = tqdm(loop_range)
 
         for id_loop in loop_range:
-            with ThreadPoolExecutor(max_workers=self.num_threads) as executor:
+            with ThreadPoolExecutor(max_workers=10) as executor:
                 game_experience, game_results = self.execute_game(agents, game,
                                                               max_game_steps_n=max_game_steps_n,
                                                               allow_exploration=allow_exploration, verbose=verbose,
