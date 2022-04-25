@@ -28,7 +28,7 @@ def generate_self_play(opt_agent_profile, agent_path, games_num,
 
     agent = env_selector.get_agent(opt_agent_profile)
 
-    agent.load(agent_path)
+    agent.load(agent_path) #percorso per rete neurale
 
     agent_profile = env_selector.get_profile(opt_agent_profile)
     game = env_selector.get_game(agent_profile.game)
