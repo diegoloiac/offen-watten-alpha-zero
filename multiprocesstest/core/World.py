@@ -1,7 +1,6 @@
 import numpy as np
 import itertools
 import logging
-from core.EnvironmentSelector import EnvironmentSelector
 from tqdm import tqdm
 import tensorflow as tf
 
@@ -10,9 +9,6 @@ from core.agents.AgentRandom import AgentRandom
 from versions.asymmetric_sub_watten.AsymmetricSubWattenGame import AsymmetricSubWattenGame
 from versions.blind_watten.BlindWattenGame import BlindWattenGame
 from versions.hand_watten.HandWattenGame import HandWattenGame
-import multiprocessing as p
-from itertools import repeat
-from concurrent.futures import ThreadPoolExecutor
 
 
 class World:
@@ -24,31 +20,18 @@ class World:
         self.RESULT_DRAW = -1
         self.add_randomness = add_randomness
 
-    def execute_game(self, max_game_steps_n=None, allow_exploration=False,
+    def execute_game(self, agents, game, max_game_steps_n=None, allow_exploration=False,
                      verbose=False, show_every_turn=False, exploration_decay_steps=None, need_reset=True):
 
         episode_exp = []
         augmented_exp = []
 
-        game = HandWattenGame()
-
         if need_reset:
             game.reset()
 
-
-        Env = EnvironmentSelector()
-
-        agent = EnvironmentSelector.build_train_agent_ffnn(Env)
-
-
-        agents = []
-        for idx in range(game.get_players_num()):
-            agents.append(agent.clone())
-            agents[idx].name += str(idx)
-
         # create cnn game if needed
         cnn_game = None
-        """if agents[1].name == 'evaluate_cnn':
+        if agents[1].name == 'evaluate_cnn':
             cnn_game = HandWattenGame(cnn=True)
             cnn_game.trueboard.init_world_to_state(game.trueboard.current_player, game.trueboard.distributing_cards_player,
                                                    game.trueboard.player_A_hand, game.trueboard.player_B_hand,
@@ -58,7 +41,7 @@ class World:
                                                    game.trueboard.is_last_hand_raise_valid, game.trueboard.first_card_deck,
                                                    game.trueboard.last_card_deck, game.trueboard.rank,
                                                    game.trueboard.suit, game.trueboard.started_raising)
-"""
+
         game_results = []
         for idx, agent in enumerate(agents):
             if allow_exploration:
@@ -122,6 +105,7 @@ class World:
                 # Convert tensor when dealing with IA
                 if tf.is_tensor(observation_value):
                     observation_value = observation_value.numpy()
+                    actions_prob = actions_prob.numpy()
 
                 # last move was a raise
                 if valid_moves[47] == 1 and valid_moves[48] == 1:
@@ -228,15 +212,12 @@ class World:
         # if verbose:
         loop_range = tqdm(loop_range)
 
-        self.predict_executor = ThreadPoolExecutor(10)
-
         for id_loop in loop_range:
-            with p.Pool(processes=4) as pool: 
-                game_experience, game_results =  pool.starmap(self.execute_game,[(
-                                                              max_game_steps_n,
-                                                              allow_exploration,verbose,
-                                                              show_every_turn,
-                                                              exploration_decay_steps)])
+            game_experience, game_results = self.execute_game(agents, game,
+                                                              max_game_steps_n=max_game_steps_n,
+                                                              allow_exploration=allow_exploration, verbose=verbose,
+                                                              show_every_turn=show_every_turn,
+                                                              exploration_decay_steps=exploration_decay_steps)
 
             for idx, result in enumerate(game_results):
                 if result > 0:
@@ -245,7 +226,7 @@ class World:
             if len(game_experience) > 0:
                 games_experience.extend(game_experience)
 
-            for idx in range(2):
+            for idx in range(len(agents)):
                 games_results[idx] += game_results[idx]
 
         if verbose:
