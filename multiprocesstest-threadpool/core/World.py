@@ -2,6 +2,7 @@ import numpy as np
 import itertools
 import logging
 from tqdm import tqdm
+from core.EnvironmentSelector import EnvironmentSelector
 import tensorflow as tf
 
 from core.agents.HumanAgent import HumanAgent
