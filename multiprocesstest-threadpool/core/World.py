@@ -21,14 +21,27 @@ class World:
         self.RESULT_DRAW = -1
         self.add_randomness = add_randomness
 
-    def execute_game(self, agents, game, max_game_steps_n=None, allow_exploration=False,
+    def execute_game(self, max_game_steps_n=None, allow_exploration=False,
                      verbose=False, show_every_turn=False, exploration_decay_steps=None, need_reset=True):
 
         episode_exp = []
         augmented_exp = []
 
+        game = HandWattenGame()
+
         if need_reset:
             game.reset()
+
+
+        Env = EnvironmentSelector()
+
+        agent = EnvironmentSelector.build_train_agent_ffnn(Env)
+
+
+        agents = []
+        for idx in range(game.get_players_num()):
+            agents.append(agent.clone())
+            agents[idx].name += str(idx)
 
         # create cnn game if needed
         cnn_game = None
@@ -216,7 +229,7 @@ class World:
         for id_loop in loop_range:
             futures = []
             with ThreadPoolExecutor(max_workers=10) as executor:
-                game_experience, game_results = executor.submit(self.execute_game(agents, game,
+                game_experience, game_results = executor.submit(self.execute_game(
                                                               max_game_steps_n=max_game_steps_n,
                                                               allow_exploration=allow_exploration, verbose=verbose,
                                                               show_every_turn=show_every_turn,
