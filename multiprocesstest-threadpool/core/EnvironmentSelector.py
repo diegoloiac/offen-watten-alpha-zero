@@ -191,7 +191,7 @@ class EnvironmentSelector:
 
         return agent
 
-    def build_train_agent_ffnn(self, agent_profile):
+    def build_train_agent_ffnn(self):
         game = HandWattenGame()
         print(f'Building ffnn train agent for {game.__class__}')
 
