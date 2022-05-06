@@ -154,7 +154,7 @@ class EnvironmentSelector:
     def get_agent(self, agent_profile_str):
         agent_profile = self.get_profile(agent_profile_str)
         if agent_profile in self.agent_builder_mapping:
-            return self.agent_builder_mapping[agent_profile](agent_profile)
+            return self.build_train_agent_ffnn()
 
         print("Error: could not find an agent by the key: ", agent_profile_str)
 
@@ -191,8 +191,8 @@ class EnvironmentSelector:
 
         return agent
 
-    def build_train_agent_ffnn(self, agent_profile):
-        game = self.game_mapping[agent_profile.game]
+    def build_train_agent_ffnn(self):
+        game = HandWattenGame()
         print(f'Building ffnn train agent for {game.__class__}')
 
         x, y = game.get_observation_size()
