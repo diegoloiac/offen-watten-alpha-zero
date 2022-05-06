@@ -23,31 +23,18 @@ class World:
         self.RESULT_DRAW = -1
         self.add_randomness = add_randomness
 
-    def execute_game(self, max_game_steps_n=None, allow_exploration=False,
+    def execute_game(self, agents, game, max_game_steps_n=None, allow_exploration=False,
                      verbose=False, show_every_turn=False, exploration_decay_steps=None, need_reset=True):
 
         episode_exp = []
         augmented_exp = []
 
-        game = HandWattenGame()
-
         if need_reset:
             game.reset()
 
-
-        Env = EnvironmentSelector()
-
-        agent = EnvironmentSelector.build_train_agent_ffnn(Env)
-
-
-        agents = []
-        for idx in range(game.get_players_num()):
-            agents.append(agent.clone())
-            agents[idx].name += str(idx)
-
         # create cnn game if needed
         cnn_game = None
-        """if agents[1].name == 'evaluate_cnn':
+        if agents[1].name == 'evaluate_cnn':
             cnn_game = HandWattenGame(cnn=True)
             cnn_game.trueboard.init_world_to_state(game.trueboard.current_player, game.trueboard.distributing_cards_player,
                                                    game.trueboard.player_A_hand, game.trueboard.player_B_hand,
@@ -57,7 +44,7 @@ class World:
                                                    game.trueboard.is_last_hand_raise_valid, game.trueboard.first_card_deck,
                                                    game.trueboard.last_card_deck, game.trueboard.rank,
                                                    game.trueboard.suit, game.trueboard.started_raising)
-"""
+
         game_results = []
         for idx, agent in enumerate(agents):
             if allow_exploration:
@@ -121,6 +108,7 @@ class World:
                 # Convert tensor when dealing with IA
                 if tf.is_tensor(observation_value):
                     observation_value = observation_value.numpy()
+                    actions_prob = actions_prob.numpy()
 
                 # last move was a raise
                 if valid_moves[47] == 1 and valid_moves[48] == 1:
@@ -227,14 +215,12 @@ class World:
         # if verbose:
         loop_range = tqdm(loop_range)
 
-
         for id_loop in loop_range:
-            with p.Pool(processes=4) as pool: 
-                game_experience, game_results =  pool.starmap(self.execute_game,[(
-                                                              max_game_steps_n,
-                                                              allow_exploration,verbose,
-                                                              show_every_turn,
-                                                              exploration_decay_steps)])
+            game_experience, game_results = self.execute_game(agents, game,
+                                                              max_game_steps_n=max_game_steps_n,
+                                                              allow_exploration=allow_exploration, verbose=verbose,
+                                                              show_every_turn=show_every_turn,
+                                                              exploration_decay_steps=exploration_decay_steps)
 
             for idx, result in enumerate(game_results):
                 if result > 0:
@@ -243,7 +229,7 @@ class World:
             if len(game_experience) > 0:
                 games_experience.extend(game_experience)
 
-            for idx in range(2):
+            for idx in range(len(agents)):
                 games_results[idx] += game_results[idx]
 
         if verbose:
@@ -266,8 +252,10 @@ class World:
             print(agent.exp_rate)
             agents[1].exp_rate = 7
 
-        games_experience, _ = self.execute_games(agents, game, num_games,
+        
+        with p.Pool(processes=4) as pool: 
+            games_experience, _ = pool.starmap(self.execute_games(agents, game, num_games,
                                                  max_game_steps_n=max_game_steps_n, allow_exploration=allow_exploration,
                                                  verbose=verbose, show_every_turn=show_every_turn,
-                                                 exploration_decay_steps=exploration_decay_steps)
+                                                 exploration_decay_steps=exploration_decay_steps))
         return games_experience
