@@ -12,7 +12,6 @@ from versions.blind_watten.BlindWattenGame import BlindWattenGame
 from versions.hand_watten.HandWattenGame import HandWattenGame
 import multiprocessing as p
 from itertools import repeat
-from concurrent.futures import ThreadPoolExecutor
 
 
 class World:
@@ -228,7 +227,6 @@ class World:
         # if verbose:
         loop_range = tqdm(loop_range)
 
-        self.predict_executor = ThreadPoolExecutor(10)
 
         for id_loop in loop_range:
             with p.Pool(processes=4) as pool: 
