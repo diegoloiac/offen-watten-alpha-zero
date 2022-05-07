@@ -230,11 +230,14 @@ class World:
         for id_loop in loop_range:
             futures = []
             with ThreadPoolExecutor(max_workers=10) as executor:
-                game_experience, game_results = executor.submit(self.execute_game(
+                futures.append(executor.submit(self.execute_game(
                                                               max_game_steps_n,
                                                               allow_exploration,verbose,
                                                               show_every_turn,
-                                                              exploration_decay_steps))
+                                                              exploration_decay_steps)))
+
+
+                game_experience, game_results = futures.result()
 
                 for idx, result in enumerate(game_results):
                     if result > 0:
