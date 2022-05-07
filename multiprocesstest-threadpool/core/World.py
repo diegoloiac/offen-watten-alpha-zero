@@ -230,25 +230,21 @@ class World:
         for id_loop in loop_range:
             futures = []
             with ThreadPoolExecutor(max_workers=10) as executor:
-                futures.append(executor.submit(self.execute_game(
+                game_experience, game_results = executor.submit(self.execute_game(
                                                               max_game_steps_n,
                                                               allow_exploration,verbose,
                                                               show_every_turn,
-                                                              exploration_decay_steps)))
+                                                              exploration_decay_steps))
 
+                for idx, result in enumerate(game_results):
+                    if result > 0:
+                        won[idx] += 1
 
-                for idx, future in enumerate(futures):
-                    game_experience, game_results = future.result()
+                if len(game_experience) > 0:
+                    games_experience.extend(game_experience)
 
-                    for idx, result in enumerate(game_results):
-                        if result > 0:
-                            won[idx] += 1
-
-                    if len(game_experience) > 0:
-                        games_experience.extend(game_experience)
-
-                    for idx in range(len(agents)):
-                        games_results[idx] += game_results[idx]
+                for idx in range(len(agents)):
+                    games_results[idx] += game_results[idx]
 
         if verbose:
             for idx, agent in enumerate(agents):
