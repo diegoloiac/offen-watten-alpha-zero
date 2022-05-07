@@ -237,17 +237,18 @@ class World:
                                                               exploration_decay_steps)))
 
 
-                game_experience, game_results = futures[0].result()
+                for idx, future in enumerate(futures):
+                    game_experience, game_results = future[idx].result()
 
-                for idx, result in enumerate(game_results):
-                    if result > 0:
-                        won[idx] += 1
+                    for idx, result in enumerate(game_results):
+                        if result > 0:
+                            won[idx] += 1
 
-                if len(game_experience) > 0:
-                    games_experience.extend(game_experience)
+                    if len(game_experience) > 0:
+                        games_experience.extend(game_experience)
 
-                for idx in range(len(agents)):
-                    games_results[idx] += game_results[idx]
+                    for idx in range(len(agents)):
+                        games_results[idx] += game_results[idx]
 
         if verbose:
             for idx, agent in enumerate(agents):
