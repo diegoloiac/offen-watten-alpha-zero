@@ -237,7 +237,7 @@ class World:
                                                               exploration_decay_steps)))
 
 
-                game_experience, game_results = futures.result()
+                game_experience, game_results = futures
 
                 for idx, result in enumerate(game_results):
                     if result > 0:
