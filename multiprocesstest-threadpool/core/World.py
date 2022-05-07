@@ -235,7 +235,6 @@ class World:
                                                               allow_exploration,verbose,
                                                               show_every_turn,
                                                               exploration_decay_steps)))
-                                                              
 
 
                 for idx, future in enumerate(futures):
