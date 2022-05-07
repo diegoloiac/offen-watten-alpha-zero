@@ -239,7 +239,7 @@ class World:
 
 
                 for idx, future in enumerate(futures):
-                    print(future.result())
+                    print(type(future.result()))
 
                     for idx, result in enumerate(game_results):
                         if result > 0:
