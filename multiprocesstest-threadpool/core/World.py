@@ -236,10 +236,12 @@ class World:
                                                               show_every_turn,
                                                               exploration_decay_steps)))
 
-
                 for future in futures:
-                    game_experience = future[0]
-                    game_results = future[1]
+                    if future is None:
+                        print("error!")
+                    else:
+                        game_experience = future[0]
+                        game_results = future[1]
 
 
                     for idx, result in enumerate(game_results):
