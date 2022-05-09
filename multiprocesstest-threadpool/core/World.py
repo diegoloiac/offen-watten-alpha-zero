@@ -1,3 +1,4 @@
+from xml.etree.ElementTree import tostring
 import numpy as np
 import itertools
 import logging
@@ -237,11 +238,7 @@ class World:
                                                               exploration_decay_steps)))
 
                 for future in futures:
-                    if future is None:
-                        print("error!")
-                    else:
-                        game_experience = future[0]
-                        game_results = future[1]
+                    print(tostring(future))
 
 
                     for idx, result in enumerate(game_results):
