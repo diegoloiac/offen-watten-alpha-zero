@@ -238,7 +238,7 @@ class World:
 
 
                 for future in futures:
-                    game_experience, game_results = future.result()
+                    game_experience, game_results = future
 
                     for idx, result in enumerate(game_results):
                         if result > 0:
