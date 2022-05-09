@@ -238,7 +238,7 @@ class World:
                                                               exploration_decay_steps)))
 
                 for future in futures:
-                    print(tostring(future))
+                    print(tostring(future.result()))
 
 
                     for idx, result in enumerate(game_results):
